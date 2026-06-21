@@ -12,6 +12,7 @@ class KserAuditLog(models.Model):
         'res.users',
         string='المستخدم',
         required=True,
+        index=True,
         default=lambda self: self.env.uid,
     )
     action_type = fields.Selection(
@@ -37,6 +38,7 @@ class KserAuditLog(models.Model):
         string='وقت العملية',
         required=True,
         default=fields.Datetime.now,
+        index=True,
     )
     details = fields.Text(
         string='التفاصيل الإضافية',
@@ -45,6 +47,12 @@ class KserAuditLog(models.Model):
         string='عنوان IP',
         size=45,
     )
+
+    def init(self):
+        self.env.cr.execute("""
+            CREATE INDEX IF NOT EXISTS kser_audit_log_target_composite_idx
+            ON kser_audit_log (target_model, target_id)
+        """)
 
     def write(self, vals):
         raise UserError('سجل التدقيق للقراءة فقط ولا يمكن تعديله!')

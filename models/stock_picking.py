@@ -11,13 +11,10 @@ class StockPicking(models.Model):
             ('group', 'لمجموعة'),
         ],
         string='نوع التوزيع',
-    )
-    beneficiary_id = fields.Many2one(
-        'kser.beneficiary',
-        string='المستفيد',
-        ondelete='set null',
+        index=True,
     )
     ai_suggestion = fields.Boolean(
         string='اقتراح آلي؟',
         default=False,
+        index=True,
     )

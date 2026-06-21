@@ -16,6 +16,7 @@ class KserBeneficiary(models.Model):
         'res.partner',
         string='جهة الاتصال',
         required=True,
+        index=True,
         ondelete='restrict',
         tracking=True,
     )
@@ -54,15 +55,18 @@ class KserBeneficiary(models.Model):
         string='منطقة السكن',
         size=100,
         required=True,
+        index=True,
     )
     registration_date = fields.Date(
         string='تاريخ التسجيل',
         required=True,
         default=fields.Date.context_today,
+        index=True,
     )
     is_verified = fields.Boolean(
         string='تم الاعتماد؟',
         default=False,
+        index=True,
         tracking=True,
     )
     ocr_confidence = fields.Float(
@@ -82,6 +86,7 @@ class KserBeneficiary(models.Model):
     head_of_family_id = fields.Many2one(
         'kser.beneficiary',
         string='رب الأسرة',
+        index=True,
         ondelete='set null',
     )
     registered_by = fields.Many2one(

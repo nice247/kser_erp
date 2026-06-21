@@ -14,6 +14,7 @@ class KserCashDonation(models.Model):
     campaign_id = fields.Many2one(
         'project.project',
         string='الحملة المرتبطة',
+        index=True,
         ondelete='set null',
         tracking=True,
     )
@@ -52,6 +53,7 @@ class KserCashDonation(models.Model):
     donation_date = fields.Date(
         string='تاريخ التبرع',
         required=True,
+        index=True,
         tracking=True,
     )
     receipt_image = fields.Binary(
@@ -66,6 +68,7 @@ class KserCashDonation(models.Model):
         ],
         string='حالة معالجة OCR',
         default='pending',
+        index=True,
         tracking=True,
     )
     ocr_confidence = fields.Float(
