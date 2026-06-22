@@ -2,6 +2,7 @@
     'name': 'KSER ERP',
     'version': '18.0.1.0.0',
     'category': 'Humanitarian',
+    'sequence': -1,
     'summary': 'نظام تخطيط موارد خيري لدعم غرف طوارئ ولاية الخرطوم',
     'description': """
         KSER ERP - نظام إدارة غرف الطوارئ
