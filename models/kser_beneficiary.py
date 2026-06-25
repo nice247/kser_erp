@@ -1,3 +1,5 @@
+from dateutil.relativedelta import relativedelta
+
 from odoo import models, fields, api
 from odoo.exceptions import ValidationError
 
@@ -38,8 +40,8 @@ class KserBeneficiary(models.Model):
         [
             ('single', 'أعزب'),
             ('married', 'متزوج'),
-            ('divorced', 'مطلق'),
-            ('widowed', 'أرمل'),
+            ('widowed', 'أرمل/ة'),
+            ('divorced', 'مطلق/ة'),
         ],
         string='الحالة الاجتماعية',
     )
@@ -50,6 +52,9 @@ class KserBeneficiary(models.Model):
     )
     health_conditions = fields.Text(
         string='الأمراض المزمنة',
+    )
+    birthdate = fields.Date(
+        string='تاريخ الميلاد',
     )
     district = fields.Char(
         string='منطقة السكن',
@@ -72,16 +77,20 @@ class KserBeneficiary(models.Model):
     ocr_confidence = fields.Float(
         string='ثقة OCR',
     )
-    priority_level = fields.Selection(
-        [
-            ('urgent', 'عاجل'),
-            ('medium', 'متوسط'),
-            ('normal', 'طبيعي'),
-        ],
-        string='مستوى الأولوية',
-    )
     priority_score = fields.Integer(
         string='درجة الأولوية',
+        compute='_compute_priority',
+        store=True,
+    )
+    priority_level = fields.Selection(
+        [
+            ('normal', 'طبيعي'),
+            ('medium', 'متوسط'),
+            ('urgent', 'عاجل'),
+        ],
+        string='مستوى الأولوية',
+        compute='_compute_priority',
+        store=True,
     )
     head_of_family_id = fields.Many2one(
         'kser.beneficiary',
@@ -95,6 +104,35 @@ class KserBeneficiary(models.Model):
         default=lambda self: self.env.uid,
     )
 
+    @api.depends('health_conditions', 'marital_status', 'family_size', 'birthdate')
+    def _compute_priority(self):
+        today = fields.Date.today()
+        for rec in self:
+            score = 0
+
+            if rec.health_conditions:
+                score += 30
+
+            if rec.marital_status in ('widowed', 'divorced'):
+                score += 20
+
+            if rec.family_size > 3:
+                score += (rec.family_size - 3) * 5
+
+            if rec.birthdate:
+                age = relativedelta(today, rec.birthdate).years
+                if age >= 60:
+                    score += 15
+
+            rec.priority_score = min(score, 100)
+
+            if rec.priority_score >= 80:
+                rec.priority_level = 'urgent'
+            elif rec.priority_score >= 50:
+                rec.priority_level = 'medium'
+            else:
+                rec.priority_level = 'normal'
+
     @api.constrains('family_size')
     def _check_family_size(self):
         for rec in self:
@@ -106,9 +144,3 @@ class KserBeneficiary(models.Model):
         for rec in self:
             if rec.ocr_confidence and not (0 <= rec.ocr_confidence <= 1):
                 raise ValidationError('نسبة ثقة OCR يجب أن تكون بين 0 و 1!')
-
-    @api.constrains('priority_score')
-    def _check_priority_score(self):
-        for rec in self:
-            if rec.priority_score and not (0 <= rec.priority_score <= 100):
-                raise ValidationError('درجة الأولوية يجب أن تكون بين 0 و 100!')

@@ -13,3 +13,7 @@ access_kser_audit_log_data,kser.audit.log.data,model_kser_audit_log,group_data_m
 access_kser_audit_log_stock,kser.audit.log.stock,model_kser_audit_log,group_stock_manager,1,0,0,0
 access_kser_audit_log_field,kser.audit.log.field,model_kser_audit_log,group_field_supervisor,1,0,0,0
 access_kser_audit_log_system,kser.audit.log.system,model_kser_audit_log,group_system_admin,1,0,1,0
+access_kser_ai_wizard_stock,kser.ai.wizard.stock,model_kser_ai_wizard,group_stock_manager,1,1,1,1
+access_kser_ai_wizard_system,kser.ai.wizard.system,model_kser_ai_wizard,group_system_admin,1,1,1,1
+access_kser_donor_import_data,kser.donor.import.data,model_kser_donor_import_wizard,group_data_manager,1,1,1,1
+access_kser_donor_import_system,kser.donor.import.system,model_kser_donor_import_wizard,group_system_admin,1,1,1,1
