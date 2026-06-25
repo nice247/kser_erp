@@ -26,16 +26,12 @@ class KserAiWizard(models.TransientModel):
             ('product_id.categ_id.name', '=', 'أدوية'),
         ])
 
-        medicines = []
+        inventory = []
         for quant in quants:
-            expiry = False
-            if quant.lot_id and quant.lot_id.expiration_date:
-                expiry = quant.lot_id.expiration_date.strftime('%Y-%m-%d')
-
-            medicines.append({
-                'drug_name': quant.product_id.name,
-                'available_qty': quant.quantity,
-                'expiration_date': expiry,
+            inventory.append({
+                'id': quant.product_id.id,
+                'itemName': quant.product_id.name,
+                'quantity': int(quant.quantity),
             })
 
         beneficiary_records = self.env['kser.beneficiary'].search([
@@ -45,12 +41,13 @@ class KserAiWizard(models.TransientModel):
         beneficiaries = []
         for ben in beneficiary_records:
             beneficiaries.append({
-                'beneficiary_id': ben.id,
-                'health_conditions': ben.health_conditions,
+                'id': ben.id,
+                'name': ben.partner_id.name,
+                'chronicDisease': ben.health_conditions,
             })
 
         payload = {
-            'medicines': medicines,
+            'inventory': inventory,
             'beneficiaries': beneficiaries,
         }
 
@@ -60,7 +57,7 @@ class KserAiWizard(models.TransientModel):
 
         try:
             response = requests.post(
-                'http://localhost:8080/api/v1/ai/match',
+                'http://localhost:8080/api/v1/ai/match-inventory',
                 json=payload,
                 headers={
                     'Content-Type': 'application/json',
@@ -69,8 +66,8 @@ class KserAiWizard(models.TransientModel):
                 timeout=30,
             )
             response.raise_for_status()
-            # TODO: Parse response.json() and create stock.picking / stock.move
-            # records based on the AI recommendations returned by Spring Boot.
+            # TODO: Parse response.json()['recommendations'] and create
+            # stock.picking / stock.move records for approved matches.
         except requests.exceptions.RequestException as e:
             _logger.error('AI matching API request failed: %s', str(e))
 
