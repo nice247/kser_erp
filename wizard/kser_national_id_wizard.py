@@ -35,12 +35,12 @@ class KserNationalIdWizard(models.TransientModel):
         string='اسم الملف',
     )
 
-    extracted_name = fields.Char(string='الاسم المستخرج', readonly=True)
-    extracted_national_id = fields.Char(string='الرقم الوطني المستخرج', readonly=True)
-    extracted_profession = fields.Char(string='المهنة المستخرجة', readonly=True)
-    extracted_marital_status = fields.Char(string='الحالة الاجتماعية المستخرجة', readonly=True)
-    extracted_dob = fields.Char(string='تاريخ الميلاد المستخرج', readonly=True)
-    extracted_gender = fields.Char(string='الجنس المستخرج', readonly=True)
+    extracted_name = fields.Char(string='الاسم المستخرج')
+    extracted_national_id = fields.Char(string='الرقم الوطني المستخرج')
+    extracted_profession = fields.Char(string='المهنة المستخرجة')
+    extracted_marital_status = fields.Char(string='الحالة الاجتماعية المستخرجة')
+    extracted_dob = fields.Char(string='تاريخ الميلاد المستخرج')
+    extracted_gender = fields.Char(string='الجنس المستخرج')
     extracted_confidence = fields.Float(string='نسبة الثقة', readonly=True)
 
     state = fields.Selection(

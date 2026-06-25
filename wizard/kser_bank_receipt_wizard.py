@@ -27,12 +27,12 @@ class KserBankReceiptWizard(models.TransientModel):
         string='الحملة المرتبطة',
     )
 
-    extracted_transaction_id = fields.Char(string='رقم العملية المستخرج', readonly=True)
-    extracted_amount = fields.Float(string='المبلغ المستخرج', readonly=True)
-    extracted_bank_name = fields.Char(string='اسم البنك المستخرج', readonly=True)
-    extracted_sender_account = fields.Char(string='حساب المرسل المستخرج', readonly=True)
-    extracted_receiver_account = fields.Char(string='حساب المستلم المستخرج', readonly=True)
-    extracted_date = fields.Char(string='تاريخ العملية المستخرج', readonly=True)
+    extracted_transaction_id = fields.Char(string='رقم العملية المستخرج')
+    extracted_amount = fields.Float(string='المبلغ المستخرج')
+    extracted_bank_name = fields.Char(string='اسم البنك المستخرج')
+    extracted_sender_account = fields.Char(string='حساب المرسل المستخرج')
+    extracted_receiver_account = fields.Char(string='حساب المستلم المستخرج')
+    extracted_date = fields.Char(string='تاريخ العملية المستخرج')
     extracted_confidence = fields.Float(string='نسبة الثقة', readonly=True)
 
     state = fields.Selection(
