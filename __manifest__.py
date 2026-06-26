@@ -19,11 +19,17 @@
         'project',
         'stock',
         'account',
+        'web',
     ],
     'data': [
         'security/kser_security.xml',
         'security/ir.model.access.csv',
     ],
+    'assets': {
+        'web.assets_backend': [
+            'kser_erp/static/src/js/kser_indexeddb.js',
+        ],
+    },
 
     'installable': True,
     'application': True,
