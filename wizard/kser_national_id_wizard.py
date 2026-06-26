@@ -6,6 +6,7 @@ import requests
 
 from odoo import models, fields
 from odoo.exceptions import UserError
+from odoo.tools.translate import _
 
 
 _logger = logging.getLogger(__name__)
@@ -25,30 +26,30 @@ MARITAL_STATUS_MAP = {
 
 class KserNationalIdWizard(models.TransientModel):
     _name = 'kser.national.id.wizard'
-    _description = 'معالج استخراج بيانات الهوية'
+    _description = 'National ID Extraction Wizard'
 
     id_image = fields.Binary(
-        string='صورة الرقم الوطني',
+        string='National ID Image',
         required=True,
     )
     id_image_filename = fields.Char(
-        string='اسم الملف',
+        string='File Name',
     )
 
-    extracted_name = fields.Char(string='الاسم المستخرج')
-    extracted_national_id = fields.Char(string='الرقم الوطني المستخرج')
-    extracted_profession = fields.Char(string='المهنة المستخرجة')
-    extracted_marital_status = fields.Char(string='الحالة الاجتماعية المستخرجة')
-    extracted_dob = fields.Char(string='تاريخ الميلاد المستخرج')
-    extracted_gender = fields.Char(string='الجنس المستخرج')
-    extracted_confidence = fields.Float(string='نسبة الثقة', readonly=True)
+    extracted_name = fields.Char(string='Extracted Name')
+    extracted_national_id = fields.Char(string='Extracted National ID')
+    extracted_profession = fields.Char(string='Extracted Profession')
+    extracted_marital_status = fields.Char(string='Extracted Marital Status')
+    extracted_dob = fields.Char(string='Extracted Date of Birth')
+    extracted_gender = fields.Char(string='Extracted Gender')
+    extracted_confidence = fields.Float(string='OCR Confidence', readonly=True)
 
     state = fields.Selection(
         [
-            ('upload', 'رفع الصورة'),
-            ('review', 'مراجعة البيانات'),
+            ('upload', 'Upload Image'),
+            ('review', 'Review Data'),
         ],
-        string='المرحلة',
+        string='Stage',
         default='upload',
     )
 
@@ -56,7 +57,7 @@ class KserNationalIdWizard(models.TransientModel):
         self.ensure_one()
 
         if not self.id_image:
-            raise UserError('يرجى رفع صورة الرقم الوطني!')
+            raise UserError(_('Please upload the National ID image!'))
 
         api_key = self.env['ir.config_parameter'].sudo().get_param(
             'kser_erp.spring_boot_api_key', default='',
@@ -74,13 +75,14 @@ class KserNationalIdWizard(models.TransientModel):
             response.raise_for_status()
         except requests.exceptions.RequestException as e:
             _logger.error('National ID OCR request failed: %s', str(e))
-            raise UserError('فشل الاتصال بخدمة OCR: %s' % str(e))
+            raise UserError(_('Failed to connect to OCR service: %s') % str(e))
 
         result = response.json()
 
         if not result.get('success'):
             errors = result.get('data', {}).get('errors', [])
-            raise UserError('فشل استخراج البيانات: %s' % ', '.join(errors or [result.get('message', '')]))
+            error_msg = ', '.join(errors or [result.get('message', '')])
+            raise UserError(_('Data extraction failed: %s') % error_msg)
 
         data = result.get('data', {})
 
@@ -107,7 +109,7 @@ class KserNationalIdWizard(models.TransientModel):
         self.ensure_one()
 
         if not self.extracted_national_id:
-            raise UserError('لا يوجد رقم وطني مستخرج!')
+            raise UserError(_('No extracted National ID!'))
 
         existing = self.env['kser.beneficiary'].search([
             ('national_id_number', '=', self.extracted_national_id),
@@ -139,7 +141,7 @@ class KserNationalIdWizard(models.TransientModel):
             return {'type': 'ir.actions.act_window_close'}
 
         partner = self.env['res.partner'].create({
-            'name': self.extracted_name or 'مستفيد جديد',
+            'name': self.extracted_name or _('New Beneficiary'),
         })
 
         self.env['kser.beneficiary'].create({

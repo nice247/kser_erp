@@ -2,105 +2,106 @@ from dateutil.relativedelta import relativedelta
 
 from odoo import models, fields, api
 from odoo.exceptions import ValidationError
+from odoo.tools.translate import _
 
 
 class KserBeneficiary(models.Model):
     _name = 'kser.beneficiary'
-    _description = 'المستفيدين'
+    _description = 'Beneficiary'
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _rec_name = 'partner_id'
     _sql_constraints = [
-        ('partner_id_unique', 'UNIQUE(partner_id)', 'جهة الاتصال مرتبطة بمستفيد آخر بالفعل!'),
-        ('national_id_unique', 'UNIQUE(national_id_number)', 'الرقم الوطني مسجل مسبقاً!'),
+        ('partner_id_unique', 'UNIQUE(partner_id)', 'This contact is already linked to another beneficiary!'),
+        ('national_id_unique', 'UNIQUE(national_id_number)', 'This National ID is already registered!'),
     ]
 
     partner_id = fields.Many2one(
         'res.partner',
-        string='جهة الاتصال',
+        string='Contact',
         required=True,
         index=True,
         ondelete='restrict',
         tracking=True,
     )
     national_id_number = fields.Char(
-        string='الرقم الوطني',
+        string='National ID Number',
         size=20,
         required=True,
         tracking=True,
     )
     national_id_image = fields.Binary(
-        string='صورة الهوية',
+        string='ID Image',
         attachment=True,
     )
     profession = fields.Char(
-        string='المهنة',
+        string='Profession',
         size=100,
     )
     marital_status = fields.Selection(
         [
-            ('single', 'أعزب'),
-            ('married', 'متزوج'),
-            ('widowed', 'أرمل/ة'),
-            ('divorced', 'مطلق/ة'),
+            ('single', 'Single'),
+            ('married', 'Married'),
+            ('widowed', 'Widowed'),
+            ('divorced', 'Divorced'),
         ],
-        string='الحالة الاجتماعية',
+        string='Marital Status',
     )
     family_size = fields.Integer(
-        string='عدد أفراد الأسرة',
+        string='Family Size',
         required=True,
         default=1,
     )
     health_conditions = fields.Text(
-        string='الأمراض المزمنة',
+        string='Chronic Diseases',
     )
     birthdate = fields.Date(
-        string='تاريخ الميلاد',
+        string='Birth Date',
     )
     district = fields.Char(
-        string='منطقة السكن',
+        string='District',
         size=100,
         required=True,
         index=True,
     )
     registration_date = fields.Date(
-        string='تاريخ التسجيل',
+        string='Registration Date',
         required=True,
         default=fields.Date.context_today,
         index=True,
     )
     is_verified = fields.Boolean(
-        string='تم الاعتماد؟',
+        string='Is Verified?',
         default=False,
         index=True,
         tracking=True,
     )
     ocr_confidence = fields.Float(
-        string='ثقة OCR',
+        string='OCR Confidence',
     )
     priority_score = fields.Integer(
-        string='درجة الأولوية',
+        string='Priority Score',
         compute='_compute_priority',
         store=True,
     )
     priority_level = fields.Selection(
         [
-            ('normal', 'طبيعي'),
-            ('medium', 'متوسط'),
-            ('urgent', 'عاجل'),
+            ('normal', 'Normal'),
+            ('medium', 'Medium'),
+            ('urgent', 'Urgent'),
         ],
-        string='مستوى الأولوية',
+        string='Priority Level',
         compute='_compute_priority',
         store=True,
     )
     head_of_family_id = fields.Many2one(
         'kser.beneficiary',
-        string='رب الأسرة',
+        string='Head of Family',
         index=True,
         ondelete='set null',
     )
     registered_by = fields.Many2one(
         'res.users',
-        string='المسجل بواسطة',
+        string='Registered By',
         default=lambda self: self.env.uid,
     )
 
@@ -137,10 +138,10 @@ class KserBeneficiary(models.Model):
     def _check_family_size(self):
         for rec in self:
             if rec.family_size < 1:
-                raise ValidationError('عدد أفراد الأسرة يجب أن يكون أكبر من صفر!')
+                raise ValidationError(_('Family size must be greater than zero!'))
 
     @api.constrains('ocr_confidence')
     def _check_ocr_confidence(self):
         for rec in self:
             if rec.ocr_confidence and not (0 <= rec.ocr_confidence <= 1):
-                raise ValidationError('نسبة ثقة OCR يجب أن تكون بين 0 و 1!')
+                raise ValidationError(_('OCR confidence must be between 0 and 1!'))

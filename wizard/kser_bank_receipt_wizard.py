@@ -6,6 +6,7 @@ import requests
 
 from odoo import models, fields
 from odoo.exceptions import UserError
+from odoo.tools.translate import _
 
 
 _logger = logging.getLogger(__name__)
@@ -13,34 +14,34 @@ _logger = logging.getLogger(__name__)
 
 class KserBankReceiptWizard(models.TransientModel):
     _name = 'kser.bank.receipt.wizard'
-    _description = 'معالج استخراج بيانات الإشعار البنكي'
+    _description = 'Bank Receipt Extraction Wizard'
 
     receipt_image = fields.Binary(
-        string='صورة الإشعار البنكي',
+        string='Bank Receipt Image',
         required=True,
     )
     receipt_image_filename = fields.Char(
-        string='اسم الملف',
+        string='File Name',
     )
     campaign_id = fields.Many2one(
         'project.project',
-        string='الحملة المرتبطة',
+        string='Linked Campaign',
     )
 
-    extracted_transaction_id = fields.Char(string='رقم العملية المستخرج')
-    extracted_amount = fields.Float(string='المبلغ المستخرج')
-    extracted_bank_name = fields.Char(string='اسم البنك المستخرج')
-    extracted_sender_account = fields.Char(string='حساب المرسل المستخرج')
-    extracted_receiver_account = fields.Char(string='حساب المستلم المستخرج')
-    extracted_date = fields.Char(string='تاريخ العملية المستخرج')
-    extracted_confidence = fields.Float(string='نسبة الثقة', readonly=True)
+    extracted_transaction_id = fields.Char(string='Extracted Transaction ID')
+    extracted_amount = fields.Float(string='Extracted Amount')
+    extracted_bank_name = fields.Char(string='Extracted Bank Name')
+    extracted_sender_account = fields.Char(string='Extracted Sender Account')
+    extracted_receiver_account = fields.Char(string='Extracted Receiver Account')
+    extracted_date = fields.Char(string='Extracted Date')
+    extracted_confidence = fields.Float(string='OCR Confidence', readonly=True)
 
     state = fields.Selection(
         [
-            ('upload', 'رفع الصورة'),
-            ('review', 'مراجعة البيانات'),
+            ('upload', 'Upload Image'),
+            ('review', 'Review Data'),
         ],
-        string='المرحلة',
+        string='Stage',
         default='upload',
     )
 
@@ -48,7 +49,7 @@ class KserBankReceiptWizard(models.TransientModel):
         self.ensure_one()
 
         if not self.receipt_image:
-            raise UserError('يرجى رفع صورة الإشعار البنكي!')
+            raise UserError(_('Please upload the bank receipt image!'))
 
         api_key = self.env['ir.config_parameter'].sudo().get_param(
             'kser_erp.spring_boot_api_key', default='',
@@ -66,13 +67,14 @@ class KserBankReceiptWizard(models.TransientModel):
             response.raise_for_status()
         except requests.exceptions.RequestException as e:
             _logger.error('Bank receipt OCR request failed: %s', str(e))
-            raise UserError('فشل الاتصال بخدمة OCR: %s' % str(e))
+            raise UserError(_('Failed to connect to OCR service: %s') % str(e))
 
         result = response.json()
 
         if not result.get('success'):
             errors = result.get('data', {}).get('errors', [])
-            raise UserError('فشل استخراج البيانات: %s' % ', '.join(errors or [result.get('message', '')]))
+            error_msg = ', '.join(errors or [result.get('message', '')])
+            raise UserError(_('Data extraction failed: %s') % error_msg)
 
         data = result.get('data', {})
 
@@ -99,7 +101,7 @@ class KserBankReceiptWizard(models.TransientModel):
         self.ensure_one()
 
         if not self.extracted_transaction_id:
-            raise UserError('لا يوجد رقم عملية مستخرج!')
+            raise UserError(_('No extracted transaction ID!'))
 
         existing = self.env['kser.cash.donation'].search([
             ('transaction_number', '=', self.extracted_transaction_id),
@@ -107,7 +109,7 @@ class KserBankReceiptWizard(models.TransientModel):
 
         if existing:
             raise UserError(
-                'رقم العملية "%s" مسجل مسبقاً!' % self.extracted_transaction_id
+                _('Transaction ID "%s" is already registered!') % self.extracted_transaction_id
             )
 
         donation_date = fields.Date.today()

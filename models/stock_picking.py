@@ -6,15 +6,15 @@ class StockPicking(models.Model):
 
     distribution_type = fields.Selection(
         [
-            ('individual', 'لمستفيد محدد'),
-            ('campaign', 'لحملة'),
-            ('group', 'لمجموعة'),
+            ('individual', 'Specific Beneficiary'),
+            ('campaign', 'Campaign'),
+            ('group', 'Group'),
         ],
-        string='نوع التوزيع',
+        string='Distribution Type',
         index=True,
     )
     ai_suggestion = fields.Boolean(
-        string='اقتراح آلي؟',
+        string='AI Suggestion?',
         default=False,
         index=True,
     )

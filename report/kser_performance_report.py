@@ -3,7 +3,7 @@ from odoo import models, fields, api
 
 class KserPerformanceReport(models.AbstractModel):
     _name = 'report.kser_erp.report_performance_template'
-    _description = 'تقرير أداء الغرفة وحجم المساعدات'
+    _description = 'Room Performance & Aid Volume Report'
 
     @api.model
     def _get_report_values(self, docids, data=None):
@@ -29,10 +29,10 @@ class KserPerformanceReport(models.AbstractModel):
             picking = move.picking_id
             categ_name = move.product_id.categ_id.name or ''
 
-            if 'أدوية' in categ_name or 'دواء' in categ_name:
-                item_category = 'أدوية'
-            elif 'غذائية' in categ_name or 'طعام' in categ_name or 'غذاء' in categ_name:
-                item_category = 'مواد غذائية'
+            if 'أدوية' in categ_name or 'دواء' in categ_name or 'Medicine' in categ_name:
+                item_category = 'Medicines'
+            elif 'غذائية' in categ_name or 'طعام' in categ_name or 'غذاء' in categ_name or 'Food' in categ_name:
+                item_category = 'Foodstuffs'
             else:
                 item_category = categ_name
 

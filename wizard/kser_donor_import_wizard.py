@@ -3,6 +3,7 @@ import logging
 
 from odoo import models, fields
 from odoo.exceptions import UserError
+from odoo.tools.translate import _
 
 
 _logger = logging.getLogger(__name__)
@@ -10,18 +11,18 @@ _logger = logging.getLogger(__name__)
 
 class KserDonorImportWizard(models.TransientModel):
     _name = 'kser.donor.import.wizard'
-    _description = 'معالج استيراد كشوفات المانحين'
+    _description = 'Donor Statements Import Wizard'
 
     file = fields.Binary(
-        string='ملف Excel',
+        string='Excel File',
         required=True,
     )
     file_name = fields.Char(
-        string='اسم الملف',
+        string='File Name',
     )
     project_id = fields.Many2one(
         'project.project',
-        string='الحملة',
+        string='Campaign',
         required=True,
     )
 
@@ -41,7 +42,7 @@ class KserDonorImportWizard(models.TransientModel):
         ], limit=1)
 
         if not journal:
-            raise UserError('لا يوجد دفتر يومية بنكي مُعرّف في النظام!')
+            raise UserError(_('No bank journal defined in the system!'))
 
         created_payments = self.env['account.payment']
 
@@ -53,7 +54,7 @@ class KserDonorImportWizard(models.TransientModel):
 
             if not foreign_currency:
                 raise UserError(
-                    'العملة "%s" غير موجودة في النظام!' % row['currency_code']
+                    _('Currency "%s" not found in the system!') % row['currency_code']
                 )
 
             if foreign_currency == base_currency:
@@ -105,13 +106,13 @@ class KserDonorImportWizard(models.TransientModel):
 
     def _parse_excel_file(self):
         if not self.file:
-            raise UserError('يرجى رفع ملف Excel أولاً!')
+            raise UserError(_('Please upload an Excel file first!'))
 
         try:
             import openpyxl
             from io import BytesIO
         except ImportError:
-            raise UserError('مكتبة openpyxl غير مثبتة!')
+            raise UserError(_('openpyxl library is not installed!'))
 
         file_content = base64.b64decode(self.file)
         workbook = openpyxl.load_workbook(BytesIO(file_content), read_only=True)

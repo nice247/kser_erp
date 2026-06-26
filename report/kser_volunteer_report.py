@@ -3,7 +3,7 @@ from odoo import models, fields, api
 
 class KserVolunteerReport(models.AbstractModel):
     _name = 'report.kser_erp.report_volunteer_template'
-    _description = 'تقرير إنجاز المتطوعين الميدانيين'
+    _description = 'Field Volunteers Performance Report'
 
     @api.model
     def _get_report_values(self, docids, data=None):
@@ -62,7 +62,7 @@ class KserVolunteerReport(models.AbstractModel):
         incentive_map = {}
         for line in incentive_lines:
             account_name = line.account_id.name or ''
-            if 'حوافز' not in account_name and 'متطوع' not in account_name:
+            if 'حوافز' not in account_name and 'متطوع' not in account_name and 'Incentive' not in account_name and 'Volunteer' not in account_name:
                 continue
             if line.partner_id:
                 pid = line.partner_id.id

@@ -1,91 +1,92 @@
 from odoo import models, fields, api
 from odoo.exceptions import ValidationError
+from odoo.tools.translate import _
 
 
 class KserCashDonation(models.Model):
     _name = 'kser.cash.donation'
-    _description = 'التبرعات النقدية'
+    _description = 'Cash Donation'
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _rec_name = 'transaction_number'
     _sql_constraints = [
-        ('transaction_number_unique', 'UNIQUE(transaction_number)', 'رقم العملية البنكية مسجل مسبقاً!'),
+        ('transaction_number_unique', 'UNIQUE(transaction_number)', 'This Bank Transaction ID is already registered!'),
     ]
 
     campaign_id = fields.Many2one(
         'project.project',
-        string='الحملة المرتبطة',
+        string='Linked Campaign',
         index=True,
         ondelete='set null',
         tracking=True,
     )
     amount = fields.Monetary(
-        string='المبلغ',
+        string='Amount',
         required=True,
         currency_field='currency_id',
         tracking=True,
     )
     currency_id = fields.Many2one(
         'res.currency',
-        string='العملة',
+        string='Currency',
         default=lambda self: self.env.company.currency_id.id,
     )
     transaction_number = fields.Char(
-        string='رقم العملية البنكية',
+        string='Bank Transaction ID',
         size=50,
         required=True,
         tracking=True,
     )
     bank_name = fields.Char(
-        string='اسم البنك',
+        string='Bank Name',
         size=20,
         required=True,
     )
     sender_account_number = fields.Char(
-        string='رقم حساب المرسل',
+        string='Sender Account Number',
         size=30,
         required=True,
     )
     receiver_account_number = fields.Char(
-        string='رقم حساب المستلم',
+        string='Receiver Account Number',
         size=30,
         required=True,
     )
     donation_date = fields.Date(
-        string='تاريخ التبرع',
+        string='Donation Date',
         required=True,
         index=True,
         tracking=True,
     )
     receipt_image = fields.Binary(
-        string='صورة الإشعار البنكي',
+        string='Bank Receipt Image',
         attachment=True,
     )
     ocr_status = fields.Selection(
         [
-            ('pending', 'قيد المعالجة'),
-            ('matched', 'تمت المطابقة'),
-            ('failed', 'فشلت المعالجة'),
+            ('pending', 'Pending'),
+            ('matched', 'Matched'),
+            ('failed', 'Failed'),
         ],
-        string='حالة معالجة OCR',
+        string='OCR Status',
         default='pending',
         index=True,
         tracking=True,
     )
     ocr_confidence = fields.Float(
-        string='ثقة استخراج OCR',
+        string='OCR Confidence',
     )
     matched_by_ocr = fields.Boolean(
-        string='نجاح الاستخراج الآلي؟',
+        string='Matched via OCR?',
         default=False,
     )
     move_id = fields.Many2one(
         'account.move',
-        string='رابط الفاتورة',
+        string='Linked Invoice',
         ondelete='set null',
     )
     created_by = fields.Many2one(
         'res.users',
-        string='رافع الإشعار',
+        string='Uploaded By',
         default=lambda self: self.env.uid,
     )
 
@@ -93,10 +94,10 @@ class KserCashDonation(models.Model):
     def _check_amount(self):
         for rec in self:
             if rec.amount <= 0:
-                raise ValidationError('المبلغ يجب أن يكون أكبر من صفر!')
+                raise ValidationError(_('Amount must be greater than zero!'))
 
     @api.constrains('ocr_confidence')
     def _check_ocr_confidence(self):
         for rec in self:
             if rec.ocr_confidence and not (0 <= rec.ocr_confidence <= 1):
-                raise ValidationError('نسبة ثقة OCR يجب أن تكون بين 0 و 1!')
+                raise ValidationError(_('OCR confidence must be between 0 and 1!'))

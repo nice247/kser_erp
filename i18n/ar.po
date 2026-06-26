@@ -1,17 +1,358 @@
-# Translation of Odoo Server.
-# This file contains the translation of the following modules:
-# * kser_erp
-#
+# Translation of KSER ERP.
+# This file contains the Arabic translation for KSER ERP.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 18.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-26 00:00+0000\n"
-"PO-Revision-Date: 2026-06-26 00:00+0000\n"
-"Last-Translator: \n"
+"POT-Creation-Date: 2026-06-26 12:00+0000\n"
+"PO-Revision-Date: 2026-06-26 12:00+0000\n"
 "Language-Team: Arabic\n"
-"Language: ar\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=6; plural=(n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5);\n"
+"Language: ar\n"
+
+msgid "KSER ERP"
+msgstr "نظام إدارة غرف الطوارئ - KSER ERP"
+
+msgid "Charity ERP system to support Khartoum State Emergency Rooms"
+msgstr "نظام تخطيط موارد خيري لدعم غرف طوارئ ولاية الخرطوم"
+
+msgid "Beneficiary"
+msgstr "المستفيد"
+
+msgid "Contact"
+msgstr "جهة الاتصال"
+
+msgid "National ID Number"
+msgstr "الرقم الوطني"
+
+msgid "ID Image"
+msgstr "صورة الهوية"
+
+msgid "Profession"
+msgstr "المهنة"
+
+msgid "Marital Status"
+msgstr "الحالة الاجتماعية"
+
+msgid "Single"
+msgstr "أعزب"
+
+msgid "Married"
+msgstr "متزوج"
+
+msgid "Widowed"
+msgstr "أرمل/ة"
+
+msgid "Divorced"
+msgstr "مطلق/ة"
+
+msgid "Family Size"
+msgstr "عدد أفراد الأسرة"
+
+msgid "Chronic Diseases"
+msgstr "الأمراض المزمنة"
+
+msgid "Birth Date"
+msgstr "تاريخ الميلاد"
+
+msgid "District"
+msgstr "منطقة السكن"
+
+msgid "Registration Date"
+msgstr "تاريخ التسجيل"
+
+msgid "Is Verified?"
+msgstr "تم الاعتماد؟"
+
+msgid "OCR Confidence"
+msgstr "ثقة OCR"
+
+msgid "Priority Score"
+msgstr "درجة الأولوية"
+
+msgid "Priority Level"
+msgstr "مستوى الأولوية"
+
+msgid "Normal"
+msgstr "طبيعي"
+
+msgid "Medium"
+msgstr "متوسط"
+
+msgid "Urgent"
+msgstr "عاجل"
+
+msgid "Head of Family"
+msgstr "رب الأسرة"
+
+msgid "Registered By"
+msgstr "المسجل بواسطة"
+
+msgid "Family size must be greater than zero!"
+msgstr "عدد أفراد الأسرة يجب أن يكون أكبر من صفر!"
+
+msgid "OCR confidence must be between 0 and 1!"
+msgstr "نسبة ثقة OCR يجب أن تكون بين 0 و 1!"
+
+msgid "Cash Donation"
+msgstr "التبرعات النقدية"
+
+msgid "Linked Campaign"
+msgstr "الحملة المرتبطة"
+
+msgid "Amount"
+msgstr "المبلغ"
+
+msgid "Currency"
+msgstr "العملة"
+
+msgid "Bank Transaction ID"
+msgstr "رقم العملية البنكية"
+
+msgid "Bank Name"
+msgstr "اسم البنك"
+
+msgid "Sender Account Number"
+msgstr "رقم حساب المرسل"
+
+msgid "Receiver Account Number"
+msgstr "رقم حساب المستلم"
+
+msgid "Donation Date"
+msgstr "تاريخ التبرع"
+
+msgid "Bank Receipt Image"
+msgstr "صورة الإشعار البنكي"
+
+msgid "OCR Status"
+msgstr "حالة معالجة OCR"
+
+msgid "Pending"
+msgstr "قيد المعالجة"
+
+msgid "Matched"
+msgstr "تمت المطابقة"
+
+msgid "Failed"
+msgstr "فشلت المعالجة"
+
+msgid "Matched via OCR?"
+msgstr "نجاح الاستخراج الآلي؟"
+
+msgid "Linked Invoice"
+msgstr "رابط الفاتورة"
+
+msgid "Uploaded By"
+msgstr "رافع الإشعار"
+
+msgid "Amount must be greater than zero!"
+msgstr "المبلغ يجب أن يكون أكبر من صفر!"
+
+msgid "Audit Log"
+msgstr "سجل التدقيق"
+
+msgid "User"
+msgstr "المستخدم"
+
+msgid "Action Type"
+msgstr "نوع العملية"
+
+msgid "Create"
+msgstr "إنشاء"
+
+msgid "Update"
+msgstr "تعديل"
+
+msgid "Delete"
+msgstr "حذف"
+
+msgid "Approve"
+msgstr "اعتماد"
+
+msgid "Target Model"
+msgstr "الجدول المستهدف"
+
+msgid "Affected Record ID"
+msgstr "معرف السجل المتأثر"
+
+msgid "Timestamp"
+msgstr "وقت العملية"
+
+msgid "Additional Details"
+msgstr "التفاصيل الإضافية"
+
+msgid "IP Address"
+msgstr "عنوان IP"
+
+msgid "Audit log is read-only and cannot be modified!"
+msgstr "سجل التدقيق للقراءة فقط ولا يمكن تعديله!"
+
+msgid "Audit log is read-only and cannot be deleted!"
+msgstr "سجل التدقيق للقراءة فقط ولا يمكن حذفه!"
+
+msgid "Contact Category"
+msgstr "تصنيف جهة الاتصال"
+
+msgid "Field Supervisor"
+msgstr "المشرف الميداني"
+
+msgid "Completion Rate"
+msgstr "نسبة الإنجاز"
+
+msgid "Evaluation Notes"
+msgstr "ملاحظات التقييم"
+
+msgid "Completion rate must be between 0 and 100!"
+msgstr "نسبة الإنجاز يجب أن تكون بين 0 و 100!"
+
+msgid "Distribution Type"
+msgstr "نوع التوزيع"
+
+msgid "Specific Beneficiary"
+msgstr "لمستفيد محدد"
+
+msgid "Campaign"
+msgstr "لحملة"
+
+msgid "Group"
+msgstr "لمجموعة"
+
+msgid "AI Suggestion?"
+msgstr "اقتراح آلي؟"
+
+msgid "Smart Suggestions Wizard"
+msgstr "معالج الاقتراحات الذكية"
+
+msgid "Bank Receipt Extraction Wizard"
+msgstr "معالج استخراج بيانات الإشعار البنكي"
+
+msgid "File Name"
+msgstr "اسم الملف"
+
+msgid "Extracted Transaction ID"
+msgstr "رقم العملية المستخرج"
+
+msgid "Extracted Amount"
+msgstr "المبلغ المستخرج"
+
+msgid "Extracted Bank Name"
+msgstr "اسم البنك المستخرج"
+
+msgid "Extracted Sender Account"
+msgstr "حساب المرسل المستخرج"
+
+msgid "Extracted Receiver Account"
+msgstr "حساب المستلم المستخرج"
+
+msgid "Extracted Date"
+msgstr "تاريخ العملية المستخرج"
+
+msgid "Stage"
+msgstr "المرحلة"
+
+msgid "Upload Image"
+msgstr "رفع الصورة"
+
+msgid "Review Data"
+msgstr "مراجعة البيانات"
+
+msgid "Please upload the bank receipt image!"
+msgstr "يرجى رفع صورة الإشعار البنكي!"
+
+msgid "Failed to connect to OCR service: %s"
+msgstr "فشل الاتصال بخدمة OCR: %s"
+
+msgid "Data extraction failed: %s"
+msgstr "فشل استخراج البيانات: %s"
+
+msgid "No extracted transaction ID!"
+msgstr "لا يوجد رقم عملية مستخرج!"
+
+msgid "Transaction ID \"%s\" is already registered!"
+msgstr "رقم العملية \"%s\" مسجل مسبقاً!"
+
+msgid "Donor Statements Import Wizard"
+msgstr "معالج استيراد كشوفات المانحين"
+
+msgid "Excel File"
+msgstr "ملف Excel"
+
+msgid "No bank journal defined in the system!"
+msgstr "لا يوجد دفتر يومية بنكي مُعرّف في النظام!"
+
+msgid "Currency \"%s\" not found in the system!"
+msgstr "العملة \"%s\" غير موجودة في النظام!"
+
+msgid "Please upload an Excel file first!"
+msgstr "يرجى رفع ملف Excel أولاً!"
+
+msgid "openpyxl library is not installed!"
+msgstr "مكتبة openpyxl غير مثبتة!"
+
+msgid "National ID Extraction Wizard"
+msgstr "معالج استخراج بيانات الهوية"
+
+msgid "National ID Image"
+msgstr "صورة الرقم الوطني"
+
+msgid "Extracted Name"
+msgstr "الاسم المستخرج"
+
+msgid "Extracted National ID"
+msgstr "الرقم الوطني المستخرج"
+
+msgid "Extracted Profession"
+msgstr "المهنة المستخرجة"
+
+msgid "Extracted Marital Status"
+msgstr "الحالة الاجتماعية المستخرجة"
+
+msgid "Extracted Date of Birth"
+msgstr "تاريخ الميلاد المستخرج"
+
+msgid "Extracted Gender"
+msgstr "الجنس المستخرج"
+
+msgid "Please upload the National ID image!"
+msgstr "يرجى رفع صورة الرقم الوطني!"
+
+msgid "No extracted National ID!"
+msgstr "لا يوجد رقم وطني مستخرج!"
+
+msgid "New Beneficiary"
+msgstr "مستفيد جديد"
+
+msgid "Operating Budget Report"
+msgstr "تقرير الميزانية التشغيلية"
+
+msgid "Individual Donations"
+msgstr "تبرعات أفراد"
+
+msgid "Corporate Donations"
+msgstr "تبرعات شركات"
+
+msgid "Campaign Donations"
+msgstr "تبرعات حملات"
+
+msgid "Clinic Nominal Revenues"
+msgstr "إيرادات عيادة رمزية"
+
+msgid "Warehouse Rent"
+msgstr "إيجار مستودعات"
+
+msgid "Volunteer Incentives"
+msgstr "حوافز متطوعين"
+
+msgid "Relief Materials Purchases"
+msgstr "شراء مواد إغاثية"
+
+msgid "Other Operational Expenses"
+msgstr "مصاريف تشغيلية أخرى"
+
+msgid "Room Performance & Aid Volume Report"
+msgstr "تقرير أداء الغرفة وحجم المساعدات"
+
+msgid "Field Volunteers Performance Report"
+msgstr "تقرير إنجاز المتطوعين الميدانيين"

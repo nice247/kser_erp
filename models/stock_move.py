@@ -6,7 +6,7 @@ class StockMove(models.Model):
 
     beneficiary_id = fields.Many2one(
         'kser.beneficiary',
-        string='المستفيد',
+        string='Beneficiary',
         index=True,
         ondelete='set null',
     )

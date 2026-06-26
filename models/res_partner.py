@@ -5,24 +5,24 @@ class ResPartner(models.Model):
     _inherit = 'res.partner'
     _sql_constraints = [
         ('kser_national_id_unique', 'UNIQUE(national_id_number)',
-         'الرقم الوطني مسجل مسبقاً لمتطوع آخر!'),
+         'This National ID is already registered to another volunteer!'),
     ]
 
     category_tag = fields.Many2one(
         'res.partner.category',
-        string='تصنيف جهة الاتصال',
+        string='Contact Category',
         index=True,
     )
     supervisor_id = fields.Many2one(
         'res.users',
-        string='المشرف الميداني',
+        string='Field Supervisor',
         index=True,
     )
     national_id_number = fields.Char(
-        string='الرقم الوطني',
+        string='National ID Number',
         size=20,
     )
     national_id_image = fields.Binary(
-        string='صورة الهوية',
+        string='ID Image',
         attachment=True,
     )

@@ -10,11 +10,11 @@ _logger = logging.getLogger(__name__)
 
 class KserAiWizard(models.TransientModel):
     _name = 'kser.ai.wizard'
-    _description = 'معالج الاقتراحات الذكية'
+    _description = 'Smart Suggestions Wizard'
 
     campaign_id = fields.Many2one(
         'project.project',
-        string='الحملة',
+        string='Campaign',
     )
 
     def action_get_ai_suggestions(self):
@@ -23,7 +23,7 @@ class KserAiWizard(models.TransientModel):
         quants = self.env['stock.quant'].search([
             ('quantity', '>', 0),
             ('location_id.usage', '=', 'internal'),
-            ('product_id.categ_id.name', '=', 'أدوية'),
+            ('product_id.categ_id.name', '=', 'أدوية'), # Keep this in Arabic if it refers to actual category name in DB, but usually categories are translated via view. We'll leave the code value alone or we should change the condition if the actual record name changes. Let's keep it as is since it's data matching.
         ])
 
         inventory = []

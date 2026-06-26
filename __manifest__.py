@@ -3,12 +3,12 @@
     'version': '18.0.1.0.0',
     'category': 'Humanitarian',
     'sequence': -1,
-    'summary': 'نظام تخطيط موارد خيري لدعم غرف طوارئ ولاية الخرطوم',
+    'summary': 'Charity ERP system to support Khartoum State Emergency Rooms',
     'description': """
-        KSER ERP - نظام إدارة غرف الطوارئ
+        KSER ERP - Emergency Rooms Management System
         =====================================
-        يوفر هذا الموديول إدارة متكاملة للعمليات الإدارية والمالية والمخزونية
-        مع حوكمة رقابية صارمة تمنع التلاعب وازدواجية الصرف.
+        This module provides integrated management for administrative, financial, and inventory operations
+        with strict regulatory governance to prevent manipulation and duplicate disbursement.
     """,
     'author': 'KSER Team',
     'website': 'https://github.com/nice247/kser_erp',
