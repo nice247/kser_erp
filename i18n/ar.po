@@ -12,347 +12,470 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Language: ar\n"
 
+#. module: kser_erp
 msgid "KSER ERP"
 msgstr "نظام إدارة غرف الطوارئ - KSER ERP"
 
+#. module: kser_erp
 msgid "Charity ERP system to support Khartoum State Emergency Rooms"
 msgstr "نظام تخطيط موارد خيري لدعم غرف طوارئ ولاية الخرطوم"
 
+#. module: kser_erp
 msgid "Beneficiary"
 msgstr "المستفيد"
 
+#. module: kser_erp
 msgid "Contact"
 msgstr "جهة الاتصال"
 
+#. module: kser_erp
 msgid "National ID Number"
 msgstr "الرقم الوطني"
 
+#. module: kser_erp
 msgid "ID Image"
 msgstr "صورة الهوية"
 
+#. module: kser_erp
 msgid "Profession"
 msgstr "المهنة"
 
+#. module: kser_erp
 msgid "Marital Status"
 msgstr "الحالة الاجتماعية"
 
+#. module: kser_erp
 msgid "Single"
 msgstr "أعزب"
 
+#. module: kser_erp
 msgid "Married"
 msgstr "متزوج"
 
+#. module: kser_erp
 msgid "Widowed"
 msgstr "أرمل/ة"
 
+#. module: kser_erp
 msgid "Divorced"
 msgstr "مطلق/ة"
 
+#. module: kser_erp
 msgid "Family Size"
 msgstr "عدد أفراد الأسرة"
 
+#. module: kser_erp
 msgid "Chronic Diseases"
 msgstr "الأمراض المزمنة"
 
+#. module: kser_erp
 msgid "Birth Date"
 msgstr "تاريخ الميلاد"
 
+#. module: kser_erp
 msgid "District"
 msgstr "منطقة السكن"
 
+#. module: kser_erp
 msgid "Registration Date"
 msgstr "تاريخ التسجيل"
 
+#. module: kser_erp
 msgid "Is Verified?"
 msgstr "تم الاعتماد؟"
 
+#. module: kser_erp
 msgid "OCR Confidence"
 msgstr "ثقة OCR"
 
+#. module: kser_erp
 msgid "Priority Score"
 msgstr "درجة الأولوية"
 
+#. module: kser_erp
 msgid "Priority Level"
 msgstr "مستوى الأولوية"
 
+#. module: kser_erp
 msgid "Normal"
 msgstr "طبيعي"
 
+#. module: kser_erp
 msgid "Medium"
 msgstr "متوسط"
 
+#. module: kser_erp
 msgid "Urgent"
 msgstr "عاجل"
 
+#. module: kser_erp
 msgid "Head of Family"
 msgstr "رب الأسرة"
 
+#. module: kser_erp
 msgid "Registered By"
 msgstr "المسجل بواسطة"
 
+#. module: kser_erp
 msgid "Family size must be greater than zero!"
 msgstr "عدد أفراد الأسرة يجب أن يكون أكبر من صفر!"
 
+#. module: kser_erp
 msgid "OCR confidence must be between 0 and 1!"
 msgstr "نسبة ثقة OCR يجب أن تكون بين 0 و 1!"
 
+#. module: kser_erp
 msgid "Cash Donation"
 msgstr "التبرعات النقدية"
 
+#. module: kser_erp
 msgid "Linked Campaign"
 msgstr "الحملة المرتبطة"
 
+#. module: kser_erp
 msgid "Amount"
 msgstr "المبلغ"
 
+#. module: kser_erp
 msgid "Currency"
 msgstr "العملة"
 
+#. module: kser_erp
 msgid "Bank Transaction ID"
 msgstr "رقم العملية البنكية"
 
+#. module: kser_erp
 msgid "Bank Name"
 msgstr "اسم البنك"
 
+#. module: kser_erp
 msgid "Sender Account Number"
 msgstr "رقم حساب المرسل"
 
+#. module: kser_erp
 msgid "Receiver Account Number"
 msgstr "رقم حساب المستلم"
 
+#. module: kser_erp
 msgid "Donation Date"
 msgstr "تاريخ التبرع"
 
+#. module: kser_erp
 msgid "Bank Receipt Image"
 msgstr "صورة الإشعار البنكي"
 
+#. module: kser_erp
 msgid "OCR Status"
 msgstr "حالة معالجة OCR"
 
+#. module: kser_erp
 msgid "Pending"
 msgstr "قيد المعالجة"
 
+#. module: kser_erp
 msgid "Matched"
 msgstr "تمت المطابقة"
 
+#. module: kser_erp
 msgid "Failed"
 msgstr "فشلت المعالجة"
 
+#. module: kser_erp
 msgid "Matched via OCR?"
 msgstr "نجاح الاستخراج الآلي؟"
 
+#. module: kser_erp
 msgid "Linked Invoice"
 msgstr "رابط الفاتورة"
 
+#. module: kser_erp
 msgid "Uploaded By"
 msgstr "رافع الإشعار"
 
+#. module: kser_erp
 msgid "Amount must be greater than zero!"
 msgstr "المبلغ يجب أن يكون أكبر من صفر!"
 
+#. module: kser_erp
 msgid "Audit Log"
 msgstr "سجل التدقيق"
 
+#. module: kser_erp
 msgid "User"
 msgstr "المستخدم"
 
+#. module: kser_erp
 msgid "Action Type"
 msgstr "نوع العملية"
 
+#. module: kser_erp
 msgid "Create"
 msgstr "إنشاء"
 
+#. module: kser_erp
 msgid "Update"
 msgstr "تعديل"
 
+#. module: kser_erp
 msgid "Delete"
 msgstr "حذف"
 
+#. module: kser_erp
 msgid "Approve"
 msgstr "اعتماد"
 
+#. module: kser_erp
 msgid "Target Model"
 msgstr "الجدول المستهدف"
 
+#. module: kser_erp
 msgid "Affected Record ID"
 msgstr "معرف السجل المتأثر"
 
+#. module: kser_erp
 msgid "Timestamp"
 msgstr "وقت العملية"
 
+#. module: kser_erp
 msgid "Additional Details"
 msgstr "التفاصيل الإضافية"
 
+#. module: kser_erp
 msgid "IP Address"
 msgstr "عنوان IP"
 
+#. module: kser_erp
 msgid "Audit log is read-only and cannot be modified!"
 msgstr "سجل التدقيق للقراءة فقط ولا يمكن تعديله!"
 
+#. module: kser_erp
 msgid "Audit log is read-only and cannot be deleted!"
 msgstr "سجل التدقيق للقراءة فقط ولا يمكن حذفه!"
 
+#. module: kser_erp
 msgid "Contact Category"
 msgstr "تصنيف جهة الاتصال"
 
+#. module: kser_erp
 msgid "Field Supervisor"
 msgstr "المشرف الميداني"
 
+#. module: kser_erp
 msgid "Completion Rate"
 msgstr "نسبة الإنجاز"
 
+#. module: kser_erp
 msgid "Evaluation Notes"
 msgstr "ملاحظات التقييم"
 
+#. module: kser_erp
 msgid "Completion rate must be between 0 and 100!"
 msgstr "نسبة الإنجاز يجب أن تكون بين 0 و 100!"
 
+#. module: kser_erp
 msgid "Distribution Type"
 msgstr "نوع التوزيع"
 
+#. module: kser_erp
 msgid "Specific Beneficiary"
 msgstr "لمستفيد محدد"
 
+#. module: kser_erp
 msgid "Campaign"
 msgstr "لحملة"
 
+#. module: kser_erp
 msgid "Group"
 msgstr "لمجموعة"
 
+#. module: kser_erp
 msgid "AI Suggestion?"
 msgstr "اقتراح آلي؟"
 
+#. module: kser_erp
 msgid "Smart Suggestions Wizard"
 msgstr "معالج الاقتراحات الذكية"
 
+#. module: kser_erp
 msgid "Bank Receipt Extraction Wizard"
 msgstr "معالج استخراج بيانات الإشعار البنكي"
 
+#. module: kser_erp
 msgid "File Name"
 msgstr "اسم الملف"
 
+#. module: kser_erp
 msgid "Extracted Transaction ID"
 msgstr "رقم العملية المستخرج"
 
+#. module: kser_erp
 msgid "Extracted Amount"
 msgstr "المبلغ المستخرج"
 
+#. module: kser_erp
 msgid "Extracted Bank Name"
 msgstr "اسم البنك المستخرج"
 
+#. module: kser_erp
 msgid "Extracted Sender Account"
 msgstr "حساب المرسل المستخرج"
 
+#. module: kser_erp
 msgid "Extracted Receiver Account"
 msgstr "حساب المستلم المستخرج"
 
+#. module: kser_erp
 msgid "Extracted Date"
 msgstr "تاريخ العملية المستخرج"
 
+#. module: kser_erp
 msgid "Stage"
 msgstr "المرحلة"
 
+#. module: kser_erp
 msgid "Upload Image"
 msgstr "رفع الصورة"
 
+#. module: kser_erp
 msgid "Review Data"
 msgstr "مراجعة البيانات"
 
+#. module: kser_erp
 msgid "Please upload the bank receipt image!"
 msgstr "يرجى رفع صورة الإشعار البنكي!"
 
+#. module: kser_erp
 msgid "Failed to connect to OCR service: %s"
 msgstr "فشل الاتصال بخدمة OCR: %s"
 
+#. module: kser_erp
 msgid "Data extraction failed: %s"
 msgstr "فشل استخراج البيانات: %s"
 
+#. module: kser_erp
 msgid "No extracted transaction ID!"
 msgstr "لا يوجد رقم عملية مستخرج!"
 
+#. module: kser_erp
 msgid "Transaction ID \"%s\" is already registered!"
 msgstr "رقم العملية \"%s\" مسجل مسبقاً!"
 
+#. module: kser_erp
 msgid "Donor Statements Import Wizard"
 msgstr "معالج استيراد كشوفات المانحين"
 
+#. module: kser_erp
 msgid "Excel File"
 msgstr "ملف Excel"
 
+#. module: kser_erp
 msgid "No bank journal defined in the system!"
 msgstr "لا يوجد دفتر يومية بنكي مُعرّف في النظام!"
 
+#. module: kser_erp
 msgid "Currency \"%s\" not found in the system!"
 msgstr "العملة \"%s\" غير موجودة في النظام!"
 
+#. module: kser_erp
 msgid "Please upload an Excel file first!"
 msgstr "يرجى رفع ملف Excel أولاً!"
 
+#. module: kser_erp
 msgid "openpyxl library is not installed!"
 msgstr "مكتبة openpyxl غير مثبتة!"
 
+#. module: kser_erp
 msgid "National ID Extraction Wizard"
 msgstr "معالج استخراج بيانات الهوية"
 
+#. module: kser_erp
 msgid "National ID Image"
 msgstr "صورة الرقم الوطني"
 
+#. module: kser_erp
 msgid "Extracted Name"
 msgstr "الاسم المستخرج"
 
+#. module: kser_erp
 msgid "Extracted National ID"
 msgstr "الرقم الوطني المستخرج"
 
+#. module: kser_erp
 msgid "Extracted Profession"
 msgstr "المهنة المستخرجة"
 
+#. module: kser_erp
 msgid "Extracted Marital Status"
 msgstr "الحالة الاجتماعية المستخرجة"
 
+#. module: kser_erp
 msgid "Extracted Date of Birth"
 msgstr "تاريخ الميلاد المستخرج"
 
+#. module: kser_erp
 msgid "Extracted Gender"
 msgstr "الجنس المستخرج"
 
+#. module: kser_erp
 msgid "Please upload the National ID image!"
 msgstr "يرجى رفع صورة الرقم الوطني!"
 
+#. module: kser_erp
 msgid "No extracted National ID!"
 msgstr "لا يوجد رقم وطني مستخرج!"
 
+#. module: kser_erp
 msgid "New Beneficiary"
 msgstr "مستفيد جديد"
 
+#. module: kser_erp
 msgid "Operating Budget Report"
 msgstr "تقرير الميزانية التشغيلية"
 
+#. module: kser_erp
 msgid "Individual Donations"
 msgstr "تبرعات أفراد"
 
+#. module: kser_erp
 msgid "Corporate Donations"
 msgstr "تبرعات شركات"
 
+#. module: kser_erp
 msgid "Campaign Donations"
 msgstr "تبرعات حملات"
 
+#. module: kser_erp
 msgid "Clinic Nominal Revenues"
 msgstr "إيرادات عيادة رمزية"
 
+#. module: kser_erp
 msgid "Warehouse Rent"
 msgstr "إيجار مستودعات"
 
+#. module: kser_erp
 msgid "Volunteer Incentives"
 msgstr "حوافز متطوعين"
 
+#. module: kser_erp
 msgid "Relief Materials Purchases"
 msgstr "شراء مواد إغاثية"
 
+#. module: kser_erp
 msgid "Other Operational Expenses"
 msgstr "مصاريف تشغيلية أخرى"
 
+#. module: kser_erp
 msgid "Room Performance & Aid Volume Report"
 msgstr "تقرير أداء الغرفة وحجم المساعدات"
 
+#. module: kser_erp
 msgid "Field Volunteers Performance Report"
 msgstr "تقرير إنجاز المتطوعين الميدانيين"
+
+#. module: kser_erp
+msgid "API credentials (kser.springboot_api_key or kser.springboot_base_url) are not configured!"
+msgstr "بيانات الاعتماد للـ API (kser.springboot_api_key أو kser.springboot_base_url) غير مهيأة في النظام!"
+
+#. module: kser_erp
+msgid "Connection failed: %s"
+msgstr "فشل الاتصال: %s"

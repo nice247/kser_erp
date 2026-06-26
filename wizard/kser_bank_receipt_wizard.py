@@ -51,23 +51,27 @@ class KserBankReceiptWizard(models.TransientModel):
         if not self.receipt_image:
             raise UserError(_('Please upload the bank receipt image!'))
 
-        api_key = self.env['ir.config_parameter'].sudo().get_param(
-            'kser_erp.spring_boot_api_key', default='',
-        )
+        api_key = self.env['ir.config_parameter'].sudo().get_param('kser.springboot_api_key')
+        base_url = self.env['ir.config_parameter'].sudo().get_param('kser.springboot_base_url')
+
+        if not api_key or not base_url:
+            raise UserError(_('API credentials (kser.springboot_api_key or kser.springboot_base_url) are not configured!'))
+
+        base_url = base_url.rstrip('/')
 
         image_bytes = base64.b64decode(self.receipt_image)
 
         try:
             response = requests.post(
-                'http://localhost:8080/api/v1/ocr/process',
+                f'{base_url}/api/v1/ocr/receipt',
                 files={'image': ('receipt.jpg', image_bytes, 'image/jpeg')},
-                headers={'X-API-KEY': api_key},
+                headers={'Authorization': f'Bearer {api_key}'},
                 timeout=30,
             )
             response.raise_for_status()
         except requests.exceptions.RequestException as e:
             _logger.error('Bank receipt OCR request failed: %s', str(e))
-            raise UserError(_('Failed to connect to OCR service: %s') % str(e))
+            raise UserError(_('Connection failed: %s') % str(e))
 
         result = response.json()
 

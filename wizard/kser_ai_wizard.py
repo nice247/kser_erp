@@ -3,6 +3,8 @@ import logging
 import requests
 
 from odoo import models, fields
+from odoo.exceptions import UserError
+from odoo.tools.translate import _
 
 
 _logger = logging.getLogger(__name__)
@@ -51,17 +53,21 @@ class KserAiWizard(models.TransientModel):
             'beneficiaries': beneficiaries,
         }
 
-        api_key = self.env['ir.config_parameter'].sudo().get_param(
-            'kser_erp.spring_boot_api_key', default='',
-        )
+        api_key = self.env['ir.config_parameter'].sudo().get_param('kser.springboot_api_key')
+        base_url = self.env['ir.config_parameter'].sudo().get_param('kser.springboot_base_url')
+
+        if not api_key or not base_url:
+            raise UserError(_('API credentials (kser.springboot_api_key or kser.springboot_base_url) are not configured!'))
+
+        base_url = base_url.rstrip('/')
 
         try:
             response = requests.post(
-                'http://localhost:8080/api/v1/ai/match-inventory',
+                f'{base_url}/api/v1/ai/match',
                 json=payload,
                 headers={
                     'Content-Type': 'application/json',
-                    'X-API-KEY': api_key,
+                    'Authorization': f'Bearer {api_key}',
                 },
                 timeout=30,
             )
@@ -70,5 +76,6 @@ class KserAiWizard(models.TransientModel):
             # stock.picking / stock.move records for approved matches.
         except requests.exceptions.RequestException as e:
             _logger.error('AI matching API request failed: %s', str(e))
+            raise UserError(_('Connection failed: %s') % str(e))
 
         return {'type': 'ir.actions.act_window_close'}
