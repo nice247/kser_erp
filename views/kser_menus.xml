@@ -146,12 +146,20 @@
         <!-- ============================================================ -->
         <menuitem id="menu_kser_root"
                   name="غرفة الطوارئ"
+                  action="action_kser_emergency_dashboard"
                   web_icon="kser_erp,static/description/icon.png"
                   sequence="1"/>
 
         <!-- ============================================================ -->
         <!--               Level 1: Sub-Menu Categories                   -->
         <!-- ============================================================ -->
+
+        <!-- 0. لوحة القيادة -->
+        <menuitem id="menu_kser_dashboard"
+                  name="لوحة القيادة"
+                  parent="menu_kser_root"
+                  action="action_kser_emergency_dashboard"
+                  sequence="1"/>
 
         <!-- 1. جهات الاتصال -->
         <menuitem id="menu_kser_contacts"

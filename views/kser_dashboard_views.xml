@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- 1. Inventory Graph Action -->
+        <record id="action_inventory_dashboard_graph" model="ir.actions.act_window">
+            <field name="name">حالة مخزون الأدوية والإغاثة</field>
+            <field name="res_model">stock.quant</field>
+            <field name="view_mode">graph</field>
+            <field name="view_id" ref="stock.stock_quant_view_graph"/>
+            <field name="context">{'search_default_internal_loc': 1, 'search_default_in_stock': 1}</field>
+        </record>
+
+        <!-- 2. Cash Donations List Action -->
+        <record id="action_donations_dashboard_list" model="ir.actions.act_window">
+            <field name="name">أحدث التبرعات المستلمة</field>
+            <field name="res_model">kser.cash.donation</field>
+            <field name="view_mode">list</field>
+            <field name="view_id" ref="kser_erp.view_kser_cash_donation_tree"/>
+            <field name="limit">5</field>
+        </record>
+
+        <!-- 3. Relief Campaigns Kanban Action -->
+        <record id="action_campaigns_dashboard_kanban" model="ir.actions.act_window">
+            <field name="name">الحملات الإغاثية (النشطة والقادمة)</field>
+            <field name="res_model">project.project</field>
+            <field name="view_mode">kanban</field>
+            <field name="view_id" ref="project.view_project_kanban"/>
+        </record>
+
+        <!-- 4. Beneficiaries Pie Chart Action -->
+        <record id="action_beneficiaries_dashboard_pie" model="ir.actions.act_window">
+            <field name="name">توزيع المستفيدين حسب الأولوية</field>
+            <field name="res_model">kser.beneficiary</field>
+            <field name="view_mode">graph</field>
+            <field name="view_id" ref="kser_erp.view_kser_beneficiary_graph"/>
+        </record>
+
+        <!-- 5. Dashboard View -->
+        <record id="kser_emergency_dashboard_view" model="ir.ui.view">
+            <field name="name">kser.emergency.dashboard.view</field>
+            <field name="model">board.board</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="لوحة تحكم غرفة الطوارئ">
+                    <board style="1-1">
+                        <column>
+                            <action name="%(action_inventory_dashboard_graph)d" 
+                                    string="حالة مخزون الأدوية والإغاثة"/>
+                            <action name="%(action_donations_dashboard_list)d" 
+                                    string="أحدث التبرعات المستلمة"/>
+                        </column>
+                        <column>
+                            <action name="%(action_campaigns_dashboard_kanban)d" 
+                                    string="الحملات الإغاثية (النشطة والقادمة)"/>
+                            <action name="%(action_beneficiaries_dashboard_pie)d" 
+                                    string="توزيع المستفيدين حسب الأولوية"/>
+                        </column>
+                    </board>
+                </form>
+            </field>
+        </record>
+
+        <!-- 6. Dashboard Action -->
+        <record id="action_kser_emergency_dashboard" model="ir.actions.act_window">
+            <field name="name">لوحة القيادة</field>
+            <field name="res_model">board.board</field>
+            <field name="view_mode">form</field>
+            <field name="usage">menu</field>
+            <field name="view_id" ref="kser_emergency_dashboard_view"/>
+        </record>
+
+    </data>
+</odoo>

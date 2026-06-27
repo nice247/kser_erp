@@ -114,5 +114,18 @@
             </field>
         </record>
 
+        <!-- ============================================================ -->
+        <!--                  Beneficiary: Graph View                     -->
+        <!-- ============================================================ -->
+        <record id="view_kser_beneficiary_graph" model="ir.ui.view">
+            <field name="name">kser.beneficiary.graph</field>
+            <field name="model">kser.beneficiary</field>
+            <field name="arch" type="xml">
+                <graph string="المستفيدين" type="pie" sample="1">
+                    <field name="priority_level"/>
+                </graph>
+            </field>
+        </record>
+
     </data>
 </odoo>

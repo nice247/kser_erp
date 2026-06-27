@@ -166,7 +166,7 @@ class KserCashDonation(models.Model):
     def create(self, vals_list):
         records = super().create(vals_list)
         for rec in records:
-            self.env['kser.audit.log'].create({
+            self.env['kser.audit.log'].sudo().create({
                 'action_type': 'create',
                 'target_model': self._name,
                 'target_id': rec.id,
@@ -178,14 +178,14 @@ class KserCashDonation(models.Model):
         res = super().write(vals)
         for rec in self:
             if 'state' in vals and vals['state'] == 'posted':
-                self.env['kser.audit.log'].create({
+                self.env['kser.audit.log'].sudo().create({
                     'action_type': 'approve',
                     'target_model': self._name,
                     'target_id': rec.id,
                     'details': f"Donation {rec.transaction_number} confirmed financially. Linked to Payment: {rec.payment_id.id if rec.payment_id else 'N/A'}",
                 })
             elif vals:
-                self.env['kser.audit.log'].create({
+                self.env['kser.audit.log'].sudo().create({
                     'action_type': 'update',
                     'target_model': self._name,
                     'target_id': rec.id,
