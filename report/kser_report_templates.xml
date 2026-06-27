@@ -201,7 +201,7 @@
         <template id="report_volunteer_template">
             <t t-call="web.basic_layout">
                 <t t-call="kser_erp.kser_report_shared_styles"/>
-                <div class="kser-page">
+                <div class="page kser-page">
 
                     <!-- ===== HEADER ===== -->
                     <table class="kser-header-table">
@@ -307,7 +307,7 @@
         <template id="report_performance_template">
             <t t-call="web.basic_layout">
                 <t t-call="kser_erp.kser_report_shared_styles"/>
-                <div class="kser-page">
+                <div class="page kser-page">
 
                     <!-- ===== HEADER ===== -->
                     <table class="kser-header-table">
@@ -482,7 +482,7 @@
         <template id="report_budget_template">
             <t t-call="web.basic_layout">
                 <t t-call="kser_erp.kser_report_shared_styles"/>
-                <div class="kser-page">
+                <div class="page kser-page">
 
                     <!-- ===== HEADER ===== -->
                     <table class="kser-header-table">
