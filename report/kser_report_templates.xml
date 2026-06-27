@@ -1,0 +1,674 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- ================================================================== -->
+        <!--  SHARED STYLE BLOCK (included by each report via t-call)           -->
+        <!-- ================================================================== -->
+        <template id="kser_report_shared_styles">
+            <style>
+                @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&amp;display=swap');
+
+                body, table, th, td, p, span, div, h1, h2, h3, h4 {
+                    font-family: 'Cairo', 'Tajawal', 'Noto Kufi Arabic', sans-serif !important;
+                }
+                .kser-page {
+                    direction: rtl;
+                    text-align: right;
+                    padding: 0 15px;
+                    font-size: 11px;
+                    color: #000;
+                }
+                .kser-header-table {
+                    width: 100%;
+                    margin-bottom: 10px;
+                    border: none;
+                }
+                .kser-header-table td {
+                    vertical-align: middle;
+                    border: none;
+                    padding: 5px 8px;
+                }
+                .kser-title {
+                    font-size: 18px;
+                    font-weight: 700;
+                    color: #0E5E3A;
+                    text-align: center;
+                    margin: 8px 0 5px 0;
+                }
+                .kser-subtitle-box {
+                    background-color: #E8F1EC;
+                    border-radius: 8px;
+                    padding: 8px 15px;
+                    text-align: center;
+                    margin: 0 auto 12px auto;
+                    max-width: 380px;
+                    font-size: 12px;
+                    font-weight: 600;
+                }
+                .kser-section-title {
+                    font-size: 13px;
+                    font-weight: 700;
+                    color: #0E5E3A;
+                    margin: 14px 0 6px 0;
+                    padding-bottom: 3px;
+                    border-bottom: 2px solid #0E5E3A;
+                    display: inline-block;
+                }
+                .kser-section-title .green-sq {
+                    display: inline-block;
+                    width: 12px;
+                    height: 12px;
+                    background-color: #0E5E3A;
+                    margin-left: 6px;
+                    vertical-align: middle;
+                }
+                .kser-table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin-bottom: 12px;
+                    font-size: 10.5px;
+                }
+                .kser-table th {
+                    background-color: #0E5E3A;
+                    color: #FFFFFF;
+                    font-weight: 700;
+                    text-align: center;
+                    padding: 7px 5px;
+                    border: 1px solid #0E5E3A;
+                }
+                .kser-table td {
+                    text-align: center;
+                    padding: 6px 5px;
+                    border: 1px solid #333;
+                }
+                .kser-table tr:nth-child(even) td {
+                    background-color: #f7faf8;
+                }
+                .kser-table .total-row td {
+                    background-color: #E8F1EC !important;
+                    font-weight: 700;
+                    color: #0E5E3A;
+                    border-top: 2px solid #0E5E3A;
+                }
+                .kser-dotted-line {
+                    border-bottom: 2px dotted #000;
+                    height: 28px;
+                    margin-bottom: 6px;
+                    line-height: 28px;
+                }
+                .kser-notes-section {
+                    margin-top: 15px;
+                }
+                .kser-notes-section .section-label {
+                    font-weight: 700;
+                    font-size: 12px;
+                    color: #0E5E3A;
+                    margin-bottom: 5px;
+                }
+                .kser-bottom-bar {
+                    background-color: #0E5E3A;
+                    color: #FFFFFF;
+                    padding: 10px 15px;
+                    margin-top: 20px;
+                    border-radius: 4px;
+                    font-weight: 600;
+                    font-size: 11px;
+                }
+                .kser-bottom-bar table {
+                    width: 100%;
+                    border: none;
+                    color: #FFFFFF;
+                }
+                .kser-bottom-bar table td {
+                    border: none;
+                    padding: 3px 8px;
+                    color: #FFFFFF;
+                    text-align: center;
+                    font-weight: 600;
+                }
+                .kser-summary-box {
+                    border: 2px solid #0E5E3A;
+                    border-radius: 8px;
+                    padding: 10px 20px;
+                    text-align: center;
+                    font-size: 13px;
+                    font-weight: 700;
+                    color: #0E5E3A;
+                    margin: 10px auto;
+                    max-width: 450px;
+                }
+                .kser-signature-text table {
+                    width: 100%;
+                    border: none;
+                    margin-top: 25px;
+                }
+                .kser-signature-text table td {
+                    border: none;
+                    text-align: center;
+                    padding: 5px 10px;
+                    font-weight: 600;
+                    font-size: 11px;
+                }
+                .kser-net-row td {
+                    background-color: #0E5E3A !important;
+                    color: #FFFFFF !important;
+                    font-weight: 700 !important;
+                    font-size: 12px;
+                    border: 1px solid #0E5E3A !important;
+                }
+                .kser-sub-row td {
+                    padding-right: 30px !important;
+                    text-align: right !important;
+                    font-size: 10px;
+                    color: #444;
+                }
+                .kser-bold-row td {
+                    font-weight: 700;
+                }
+                .kser-revenue-header td {
+                    background-color: #0E5E3A !important;
+                    color: #FFFFFF !important;
+                    font-weight: 700;
+                    font-size: 12px;
+                    text-align: center;
+                    border: 1px solid #0E5E3A;
+                    padding: 7px 5px;
+                }
+                .kser-meta-row {
+                    background-color: #E8F1EC;
+                    border-radius: 6px;
+                    padding: 6px 12px;
+                    margin-bottom: 12px;
+                }
+                .kser-meta-row table {
+                    width: 100%;
+                    border: none;
+                    font-size: 11px;
+                }
+                .kser-meta-row table td {
+                    border: none;
+                    text-align: center;
+                    padding: 4px 8px;
+                    font-weight: 600;
+                }
+            </style>
+        </template>
+
+        <!-- ================================================================== -->
+        <!--  REPORT 1: تقرير إنجاز المتطوعين الميدانيين                        -->
+        <!-- ================================================================== -->
+        <template id="report_volunteer_template">
+            <t t-call="web.basic_layout">
+                <t t-call="kser_erp.kser_report_shared_styles"/>
+                <div class="kser-page">
+
+                    <!-- ===== HEADER ===== -->
+                    <table class="kser-header-table">
+                        <tr>
+                            <td style="width: 20%; text-align: right;">
+                                <img t-if="company.logo" t-att-src="image_data_uri(company.logo)"
+                                     style="max-height: 65px;" alt="Logo"/>
+                            </td>
+                            <td style="width: 60%; text-align: center;">
+                                <div class="kser-title">تقرير إنجاز المتطوعين الميدانيين</div>
+                            </td>
+                            <td style="width: 20%; text-align: left;">
+                                <img src="/kser_erp/static/description/icon.png"
+                                     style="max-height: 60px;" alt="KSER Logo"/>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <div class="kser-subtitle-box">
+                        <div>الفترة: <t t-esc="date_from"/> إلى <t t-esc="date_to"/></div>
+                        <div>المحلية: جبل أولياء</div>
+                    </div>
+
+                    <!-- ===== MAIN DATA TABLE ===== -->
+                    <table class="kser-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 5%;">#</th>
+                                <th style="width: 22%;">اسم المتطوع</th>
+                                <th style="width: 16%;">الرقم الوطني</th>
+                                <th style="width: 16%;">إجمالي ساعات التطوع</th>
+                                <th style="width: 14%;">عدد المهام المكتملة</th>
+                                <th style="width: 14%;">متوسط نسبة الإنجاز (%)</th>
+                                <th style="width: 13%;">إجمالي الحوافز (جنيه)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-set="counter" t-value="0"/>
+                            <t t-set="sum_hours" t-value="0"/>
+                            <t t-set="sum_tasks" t-value="0"/>
+                            <t t-set="sum_incentives" t-value="0"/>
+                            <t t-foreach="volunteers" t-as="vol">
+                                <t t-set="counter" t-value="counter + 1"/>
+                                <t t-set="sum_hours" t-value="sum_hours + vol['total_hours']"/>
+                                <t t-set="sum_tasks" t-value="sum_tasks + vol['completed_tasks']"/>
+                                <t t-set="sum_incentives" t-value="sum_incentives + vol['total_incentives']"/>
+                                <tr>
+                                    <td><t t-esc="counter"/></td>
+                                    <td style="text-align: right;"><t t-esc="vol['name']"/></td>
+                                    <td><t t-esc="vol['national_id']"/></td>
+                                    <td><t t-esc="vol['total_hours']"/></td>
+                                    <td><t t-esc="vol['completed_tasks']"/></td>
+                                    <td><t t-esc="vol['avg_completion_rate']"/>%</td>
+                                    <td><t t-esc="'{:,.2f}'.format(vol['total_incentives'])"/></td>
+                                </tr>
+                            </t>
+                            <!-- Total Row -->
+                            <tr class="total-row">
+                                <td colspan="3" style="text-align: center; font-size: 12px;">الإجمالي</td>
+                                <td><t t-esc="sum_hours"/></td>
+                                <td><t t-esc="sum_tasks"/></td>
+                                <td>-</td>
+                                <td><t t-esc="'{:,.2f}'.format(sum_incentives)"/></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <!-- ===== DISTINGUISHED VOLUNTEERS ===== -->
+                    <div class="kser-notes-section">
+                        <div class="section-label">🏅 متطوعو الربع المتميزون:</div>
+                        <div class="kser-dotted-line">1. ...............................................................................</div>
+                        <div class="kser-dotted-line">2. ...............................................................................</div>
+                        <div class="kser-dotted-line">3. ...............................................................................</div>
+                    </div>
+
+                    <!-- ===== NOTES ===== -->
+                    <div class="kser-notes-section" style="margin-top: 10px;">
+                        <div class="section-label">ملاحظات:</div>
+                        <div class="kser-dotted-line">...............................................................................</div>
+                        <div class="kser-dotted-line">...............................................................................</div>
+                        <div class="kser-dotted-line">...............................................................................</div>
+                    </div>
+
+                    <!-- ===== BOTTOM SIGNATURE BAR ===== -->
+                    <div class="kser-bottom-bar">
+                        <table>
+                            <tr>
+                                <td style="width: 33%;">إعداد: ........................</td>
+                                <td style="width: 34%;">تحريراً في: ___ / ___ / 2026</td>
+                                <td style="width: 33%;">اعتماد: ........................</td>
+                            </tr>
+                        </table>
+                    </div>
+
+                </div>
+            </t>
+        </template>
+
+
+        <!-- ================================================================== -->
+        <!--  REPORT 2: تقرير أداء الغرفة وحجم المساعدات                        -->
+        <!-- ================================================================== -->
+        <template id="report_performance_template">
+            <t t-call="web.basic_layout">
+                <t t-call="kser_erp.kser_report_shared_styles"/>
+                <div class="kser-page">
+
+                    <!-- ===== HEADER ===== -->
+                    <table class="kser-header-table">
+                        <tr>
+                            <td style="width: 20%; text-align: right;">
+                                <img t-if="company.logo" t-att-src="image_data_uri(company.logo)"
+                                     style="max-height: 65px;" alt="Logo"/>
+                            </td>
+                            <td style="width: 60%; text-align: center;">
+                                <div class="kser-title">تقرير أداء الغرفة وحجم المساعدات</div>
+                            </td>
+                            <td style="width: 20%; text-align: left;">
+                                <img src="/kser_erp/static/description/icon.png"
+                                     style="max-height: 60px;" alt="KSER Logo"/>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <div class="kser-subtitle-box">
+                        <div>الفترة: <t t-esc="date_from"/> إلى <t t-esc="date_to"/></div>
+                        <div>المحلية: جبل أولياء</div>
+                    </div>
+
+                    <!-- ===== SECTION 1: DISTRIBUTED MATERIALS ===== -->
+                    <div class="kser-section-title">
+                        <span class="green-sq"></span>
+                        أولاً: جدول المواد الموزعة
+                    </div>
+
+                    <table class="kser-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 5%;">#</th>
+                                <th style="width: 14%;">رقم أمر التوزيع</th>
+                                <th style="width: 13%;">تاريخ أمر التوزيع</th>
+                                <th style="width: 16%;">اسم الحملة</th>
+                                <th style="width: 18%;">الصنف</th>
+                                <th style="width: 12%;">الكمية المصروفة</th>
+                                <th style="width: 10%;">وحدة القياس</th>
+                                <th style="width: 12%;">عدد المستفيدين</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-set="counter" t-value="0"/>
+                            <t t-set="sum_qty" t-value="0"/>
+                            <t t-foreach="distribution_lines" t-as="line">
+                                <t t-set="counter" t-value="counter + 1"/>
+                                <t t-set="sum_qty" t-value="sum_qty + line['quantity']"/>
+                                <tr>
+                                    <td><t t-esc="counter"/></td>
+                                    <td><t t-esc="line['order_name']"/></td>
+                                    <td><t t-esc="line['date']"/></td>
+                                    <td style="text-align: right;"><t t-esc="line['campaign_name']"/></td>
+                                    <td style="text-align: right;"><t t-esc="line['product_name']"/></td>
+                                    <td><t t-esc="line['quantity']"/></td>
+                                    <td><t t-esc="line['uom']"/></td>
+                                    <td><t t-esc="line['beneficiary_name']"/></td>
+                                </tr>
+                            </t>
+                            <!-- Total Row -->
+                            <tr class="total-row">
+                                <td colspan="5" style="text-align: center; font-size: 12px;">الإجمالي</td>
+                                <td><t t-esc="'{:,.0f}'.format(total_quantity)"/></td>
+                                <td>-</td>
+                                <td><t t-esc="total_beneficiaries"/></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <!-- ===== SECTION 2: BENEFICIARIES ===== -->
+                    <div class="kser-section-title">
+                        <span class="green-sq"></span>
+                        ثانياً: جدول المستفيدين
+                    </div>
+
+                    <table class="kser-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 5%;">#</th>
+                                <th style="width: 25%;">نوع المستفيد</th>
+                                <th style="width: 15%;">ذكور</th>
+                                <th style="width: 15%;">إناث</th>
+                                <th style="width: 20%;">إجمالي المستفيدين</th>
+                                <th style="width: 20%;">النسبة المئوية</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td style="text-align: right;">أسر محتاجة</td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td style="text-align: right;">مرضى</td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td>3</td>
+                                <td style="text-align: right;">كبار السن</td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td>4</td>
+                                <td style="text-align: right;">أيتام</td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td>5</td>
+                                <td style="text-align: right;">أخرى</td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr class="total-row">
+                                <td colspan="2" style="text-align: center; font-size: 12px;">إجمالي المستفيدين خلال الربع</td>
+                                <td></td>
+                                <td></td>
+                                <td><t t-esc="total_beneficiaries"/></td>
+                                <td>100%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <!-- Summary Box -->
+                    <div class="kser-summary-box">
+                        إجمالي المستفيدين خلال الربع : [ <t t-esc="total_beneficiaries"/> ] مستفيد
+                    </div>
+
+                    <!-- ===== SECTION 3: CLOSING ANALYSIS ===== -->
+                    <div class="kser-section-title">
+                        <span class="green-sq"></span>
+                        ثالثاً: التحليل الختامي
+                    </div>
+                    <div class="kser-dotted-line">...............................................................................</div>
+                    <div class="kser-dotted-line">...............................................................................</div>
+                    <div class="kser-dotted-line">...............................................................................</div>
+                    <div class="kser-dotted-line">...............................................................................</div>
+
+                    <!-- ===== BOTTOM SIGNATURE BAR ===== -->
+                    <div class="kser-bottom-bar">
+                        <table>
+                            <tr>
+                                <td style="width: 33%;">إعداد: ........................</td>
+                                <td style="width: 34%;">تحريراً في: ___ / ___ / 2026</td>
+                                <td style="width: 33%;">اعتماد: ........................</td>
+                            </tr>
+                        </table>
+                    </div>
+
+                </div>
+            </t>
+        </template>
+
+
+        <!-- ================================================================== -->
+        <!--  REPORT 3: تقرير الميزانية التشغيلية                               -->
+        <!-- ================================================================== -->
+        <template id="report_budget_template">
+            <t t-call="web.basic_layout">
+                <t t-call="kser_erp.kser_report_shared_styles"/>
+                <div class="kser-page">
+
+                    <!-- ===== HEADER ===== -->
+                    <table class="kser-header-table">
+                        <tr>
+                            <td style="width: 20%; text-align: right;">
+                                <img t-if="company.logo" t-att-src="image_data_uri(company.logo)"
+                                     style="max-height: 65px;" alt="Logo"/>
+                            </td>
+                            <td style="width: 60%; text-align: center;">
+                                <div class="kser-title">تقرير الميزانية التشغيلية</div>
+                            </td>
+                            <td style="width: 20%; text-align: left;">
+                                <img src="/kser_erp/static/description/icon.png"
+                                     style="max-height: 60px;" alt="KSER Logo"/>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <div class="kser-subtitle-box">
+                        <div>الفترة: <t t-esc="date_from"/> إلى <t t-esc="date_to"/></div>
+                        <div>المحلية: جبل أولياء</div>
+                    </div>
+
+                    <!-- Sub-header Meta Row -->
+                    <div class="kser-meta-row">
+                        <table>
+                            <tr>
+                                <td>العملة: جنيه سوداني</td>
+                                <td>تاريخ التقرير: <t t-esc="date_to"/></td>
+                                <td>نوع التقرير: ربع سنوي</td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <!-- ===== SECTION 1: REVENUES ===== -->
+                    <table class="kser-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 60%;">البيان</th>
+                                <th style="width: 40%;">المبلغ (ج.س)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Revenue Header -->
+                            <tr class="kser-revenue-header">
+                                <td colspan="2">الإيرادات</td>
+                            </tr>
+                            <!-- Opening Balance -->
+                            <tr>
+                                <td style="text-align: right; font-weight: 600;">الرصيد الافتتاحي</td>
+                                <td><t t-esc="'{:,.2f}'.format(opening_balance)"/></td>
+                            </tr>
+                            <!-- Cash Donations (bold parent) -->
+                            <tr class="kser-bold-row">
+                                <td style="text-align: right;">تبرعات نقدية</td>
+                                <td></td>
+                            </tr>
+                            <!-- Sub-rows -->
+                            <tr class="kser-sub-row">
+                                <td>تبرعات الأفراد</td>
+                                <td style="text-align: center;"><t t-esc="'{:,.2f}'.format(revenues.get('Individual Donations', 0))"/></td>
+                            </tr>
+                            <tr class="kser-sub-row">
+                                <td>تبرعات المؤسسات</td>
+                                <td style="text-align: center;"><t t-esc="'{:,.2f}'.format(revenues.get('Corporate Donations', 0))"/></td>
+                            </tr>
+                            <tr class="kser-sub-row">
+                                <td>تبرعات المشاريع والحملات</td>
+                                <td style="text-align: center;"><t t-esc="'{:,.2f}'.format(revenues.get('Campaign Donations', 0))"/></td>
+                            </tr>
+                            <!-- Total Cash Donations -->
+                            <tr class="kser-bold-row" style="background-color: #f0f5f2;">
+                                <td style="text-align: right;">إجمالي التبرعات النقدية</td>
+                                <td><t t-esc="'{:,.2f}'.format(
+                                    revenues.get('Individual Donations', 0) +
+                                    revenues.get('Corporate Donations', 0) +
+                                    revenues.get('Campaign Donations', 0))"/></td>
+                            </tr>
+                            <!-- Clinic Revenue -->
+                            <tr>
+                                <td style="text-align: right;">إيرادات رمزية (عيادات)</td>
+                                <td><t t-esc="'{:,.2f}'.format(revenues.get('Clinic Nominal Revenues', 0))"/></td>
+                            </tr>
+                            <!-- Total Revenue -->
+                            <tr class="total-row">
+                                <td style="text-align: center; font-size: 12px;">إجمالي الإيرادات</td>
+                                <td style="font-size: 12px;"><t t-esc="'{:,.2f}'.format(total_revenues)"/></td>
+                            </tr>
+
+                            <!-- Expenses Header -->
+                            <tr class="kser-revenue-header">
+                                <td colspan="2">المصروفات</td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: right;">إيجار مستودعات</td>
+                                <td><t t-esc="'{:,.2f}'.format(expenses.get('Warehouse Rent', 0))"/></td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: right;">حوافز متطوعين</td>
+                                <td><t t-esc="'{:,.2f}'.format(expenses.get('Volunteer Incentives', 0))"/></td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: right;">شراء مواد إغاثية</td>
+                                <td><t t-esc="'{:,.2f}'.format(expenses.get('Relief Materials Purchases', 0))"/></td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: right;">مصاريف تشغيلية أخرى</td>
+                                <td><t t-esc="'{:,.2f}'.format(expenses.get('Other Operational Expenses', 0))"/></td>
+                            </tr>
+                            <!-- Total Expenses -->
+                            <tr class="total-row">
+                                <td style="text-align: center; font-size: 12px;">إجمالي المصروفات</td>
+                                <td style="font-size: 12px;"><t t-esc="'{:,.2f}'.format(total_expenses)"/></td>
+                            </tr>
+
+                            <!-- Net Balance Row -->
+                            <tr class="kser-net-row">
+                                <td style="text-align: center; font-size: 13px;">صافي الرصيد المتبقي</td>
+                                <td style="font-size: 13px;"><t t-esc="'{:,.2f}'.format(net_balance)"/></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <!-- ===== NOTES ===== -->
+                    <div class="kser-notes-section">
+                        <div class="section-label">ملاحظات:</div>
+                        <div class="kser-dotted-line">...............................................................................</div>
+                        <div class="kser-dotted-line">...............................................................................</div>
+                        <div class="kser-dotted-line">...............................................................................</div>
+                    </div>
+
+                    <!-- ===== SIGNATURE (TEXT BASED) ===== -->
+                    <div class="kser-signature-text">
+                        <table>
+                            <tr>
+                                <td style="width: 33%;">إعداد: ........................</td>
+                                <td style="width: 34%;">مراجعة: ........................</td>
+                                <td style="width: 33%;">اعتماد: ........................</td>
+                            </tr>
+                        </table>
+                    </div>
+
+                </div>
+            </t>
+        </template>
+
+
+        <!-- ================================================================== -->
+        <!--  REPORT ACTION RECORDS (ir.actions.report)                         -->
+        <!-- ================================================================== -->
+
+        <!-- Report 1: تقرير إنجاز المتطوعين الميدانيين -->
+        <record id="report_kser_volunteers_achievement" model="ir.actions.report">
+            <field name="name">تقرير إنجاز المتطوعين الميدانيين</field>
+            <field name="model">project.task</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">kser_erp.report_volunteer_template</field>
+            <field name="report_file">kser_erp.report_volunteer_template</field>
+            <field name="print_report_name">'تقرير_إنجاز_المتطوعين_%s' % (object.name if object else 'report')</field>
+            <field name="binding_type">report</field>
+            <field name="paperformat_id" ref="base.paperformat_euro"/>
+        </record>
+
+        <!-- Report 2: تقرير أداء الغرفة وحجم المساعدات -->
+        <record id="report_kser_room_performance" model="ir.actions.report">
+            <field name="name">تقرير أداء الغرفة وحجم المساعدات</field>
+            <field name="model">stock.move</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">kser_erp.report_performance_template</field>
+            <field name="report_file">kser_erp.report_performance_template</field>
+            <field name="print_report_name">'تقرير_أداء_الغرفة_%s' % (object.name if object else 'report')</field>
+            <field name="binding_type">report</field>
+            <field name="paperformat_id" ref="base.paperformat_euro"/>
+        </record>
+
+        <!-- Report 3: تقرير الميزانية التشغيلية -->
+        <record id="report_kser_operational_budget" model="ir.actions.report">
+            <field name="name">تقرير الميزانية التشغيلية</field>
+            <field name="model">account.move</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">kser_erp.report_budget_template</field>
+            <field name="report_file">kser_erp.report_budget_template</field>
+            <field name="print_report_name">'تقرير_الميزانية_التشغيلية_%s' % (object.name if object else 'report')</field>
+            <field name="binding_type">report</field>
+            <field name="paperformat_id" ref="base.paperformat_euro"/>
+        </record>
+
+    </data>
+</odoo>

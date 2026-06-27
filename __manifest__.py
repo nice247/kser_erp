@@ -27,6 +27,7 @@
         'security/kser_security.xml',
         'security/ir.model.access.csv',
         'data/kser_data.xml',
+        'report/kser_report_templates.xml',
         'views/kser_beneficiary_views.xml',
         'views/kser_cash_donation_views.xml',
         'views/kser_audit_log_views.xml',
