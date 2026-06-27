@@ -1,38 +1,141 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <data noupdate="1">
-
+    <data>
+        <!-- ==============================
+             تصنيف الموديول
+        ============================== -->
         <record id="module_category_kser" model="ir.module.category">
             <field name="name">KSER ERP</field>
             <field name="description">نظام إدارة غرف الطوارئ</field>
             <field name="sequence">50</field>
         </record>
 
+        <!-- ==============================
+             المجموعات (الأدوار)
+        ============================== -->
+
+        <!-- مستخدم أساسي (مخفي): لتقييد القوائم الأساسية -->
+        <record id="group_kser_user" model="res.groups">
+            <field name="name">مستخدم غرفة الطوارئ (أساسي)</field>
+            <field name="category_id" ref="base.module_category_hidden"/>
+        </record>
+
+        <!-- المشرف الإداري: يشرف على الحملات ويعتمد الميزانيات -->
         <record id="group_admin_supervisor" model="res.groups">
             <field name="name">المشرف الإداري</field>
             <field name="category_id" ref="module_category_kser"/>
+            <field name="implied_ids" eval="[(4, ref('group_kser_user'))]"/>
         </record>
 
+        <!-- مسؤول البيانات: يدير بيانات المستفيدين والمتبرعين -->
         <record id="group_data_manager" model="res.groups">
             <field name="name">مسؤول البيانات</field>
             <field name="category_id" ref="module_category_kser"/>
+            <field name="implied_ids" eval="[(4, ref('group_kser_user'))]"/>
         </record>
 
+        <!-- مسؤول المخازن: يدير المخزون الإغاثي -->
         <record id="group_stock_manager" model="res.groups">
             <field name="name">مسؤول المخازن</field>
             <field name="category_id" ref="module_category_kser"/>
+            <field name="implied_ids" eval="[(4, ref('group_kser_user'))]"/>
         </record>
 
+        <!-- المشرف الميداني: يتواصل مع المتطوعين في الميدان -->
         <record id="group_field_supervisor" model="res.groups">
             <field name="name">المشرف الميداني</field>
             <field name="category_id" ref="module_category_kser"/>
+            <field name="implied_ids" eval="[(4, ref('group_kser_user'))]"/>
         </record>
 
+        <!-- مسؤول النظام: صلاحيات كاملة ويرث جميع الأدوار -->
         <record id="group_system_admin" model="res.groups">
             <field name="name">مسؤول النظام</field>
             <field name="category_id" ref="module_category_kser"/>
-            <field name="implied_ids" eval="[(4, ref('group_admin_supervisor')), (4, ref('group_data_manager')), (4, ref('group_stock_manager')), (4, ref('group_field_supervisor'))]"/>
-            <field name="users" eval="[(4, ref('base.user_admin')), (4, ref('base.user_root'))]"/>
+            <field name="implied_ids" eval="[
+                (4, ref('group_admin_supervisor')),
+                (4, ref('group_data_manager')),
+                (4, ref('group_stock_manager')),
+                (4, ref('group_field_supervisor')),
+                (4, ref('group_kser_user'))
+            ]"/>
+            <field name="users" eval="[
+                (4, ref('base.user_admin')),
+                (4, ref('base.user_root'))
+            ]"/>
+        </record>
+
+        <!-- ==========================================
+             قواعد الوصول (Record Rules)
+        =========================================== -->
+
+        <!-- 1. قواعد Contacts (res.partner) -->
+        <record id="rule_partner_own_records" model="ir.rule">
+            <field name="name">Volunteers/Donors/Contacts: Own Records Only</field>
+            <field name="model_id" ref="base.model_res_partner"/>
+            <field name="groups" eval="[(4, ref('group_data_manager')), (4, ref('group_stock_manager')), (4, ref('group_field_supervisor'))]"/>
+            <field name="domain_force">['|', '|', '|', ('create_uid', '=', user.id), ('id', '=', user.partner_id.id), ('id', '=', user.company_id.partner_id.id), ('user_ids', '!=', False)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+
+        <record id="rule_partner_admin_all" model="ir.rule">
+            <field name="name">Contacts: Admin/Supervisor All Records</field>
+            <field name="model_id" ref="base.model_res_partner"/>
+            <field name="groups" eval="[(4, ref('group_admin_supervisor')), (4, ref('group_system_admin'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+
+        <!-- 2. قواعد Beneficiaries (kser.beneficiary) -->
+        <record id="rule_beneficiary_own_records" model="ir.rule">
+            <field name="name">Beneficiaries: Own Records Only</field>
+            <field name="model_id" ref="kser_erp.model_kser_beneficiary"/>
+            <field name="groups" eval="[(4, ref('group_data_manager')), (4, ref('group_stock_manager')), (4, ref('group_field_supervisor'))]"/>
+            <field name="domain_force">[('create_uid', '=', user.id)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+
+        <record id="rule_beneficiary_admin_all" model="ir.rule">
+            <field name="name">Beneficiaries: Admin/Supervisor All Records</field>
+            <field name="model_id" ref="kser_erp.model_kser_beneficiary"/>
+            <field name="groups" eval="[(4, ref('group_admin_supervisor')), (4, ref('group_system_admin'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+
+        <!-- 3. قواعد Donations (kser.cash.donation) -->
+        <record id="rule_donation_own_records" model="ir.rule">
+            <field name="name">Donations: Own Records Only</field>
+            <field name="model_id" ref="kser_erp.model_kser_cash_donation"/>
+            <field name="groups" eval="[(4, ref('group_data_manager')), (4, ref('group_stock_manager')), (4, ref('group_field_supervisor'))]"/>
+            <field name="domain_force">[('create_uid', '=', user.id)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+
+        <record id="rule_donation_admin_all" model="ir.rule">
+            <field name="name">Donations: Admin/Supervisor All Records</field>
+            <field name="model_id" ref="kser_erp.model_kser_cash_donation"/>
+            <field name="groups" eval="[(4, ref('group_admin_supervisor')), (4, ref('group_system_admin'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
         </record>
 
     </data>

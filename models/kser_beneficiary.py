@@ -172,3 +172,34 @@ class KserBeneficiary(models.Model):
             'domain': [('beneficiary_id', '=', self.id)],
             'context': {'default_beneficiary_id': self.id},
         }
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        records = super().create(vals_list)
+        for rec in records:
+            self.env['kser.audit.log'].sudo().create({
+                'action_type': 'create',
+                'target_model': self._name,
+                'target_id': rec.id,
+                'details': f"Beneficiary registered: National ID {rec.national_id_number}, District: {rec.district}",
+            })
+        return records
+
+    def write(self, vals):
+        res = super().write(vals)
+        for rec in self:
+            if 'is_verified' in vals and vals['is_verified']:
+                self.env['kser.audit.log'].sudo().create({
+                    'action_type': 'approve',
+                    'target_model': self._name,
+                    'target_id': rec.id,
+                    'details': f"Beneficiary (National ID: {rec.national_id_number}) was verified",
+                })
+            elif vals:
+                self.env['kser.audit.log'].sudo().create({
+                    'action_type': 'update',
+                    'target_model': self._name,
+                    'target_id': rec.id,
+                    'details': f"Beneficiary (National ID: {rec.national_id_number}) was modified: {list(vals.keys())}",
+                })
+        return res

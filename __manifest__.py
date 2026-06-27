@@ -21,6 +21,7 @@
         'account',
         'web',
         'board',
+        'contacts',
     ],
     'data': [
         'security/kser_security.xml',

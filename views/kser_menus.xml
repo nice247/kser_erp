@@ -53,7 +53,7 @@
             <field name="res_model">res.partner</field>
             <field name="view_mode">list,form</field>
             <field name="view_id" ref="view_res_partner_tree_kser"/>
-            <field name="domain" eval="[('category_tag', '=', ref('partner_category_volunteer'))]"/>
+            <field name="domain" eval="[('category_tag', '=', ref('partner_category_volunteer')), ('user_ids', '=', False), ('is_company', '=', False)]"/>
             <field name="context" eval="{'default_category_tag': ref('partner_category_volunteer')}"/>
             <field name="help" type="html">
                 <p class="o_view_nocontent_smiling_face">
@@ -148,6 +148,7 @@
                   name="غرفة الطوارئ"
                   action="action_kser_emergency_dashboard"
                   web_icon="kser_erp,static/description/icon.png"
+                  groups="kser_erp.group_kser_user"
                   sequence="1"/>
 
         <!-- ============================================================ -->
@@ -165,42 +166,49 @@
         <menuitem id="menu_kser_contacts"
                   name="جهات الاتصال"
                   parent="menu_kser_root"
+                  groups="kser_erp.group_admin_supervisor,kser_erp.group_data_manager,kser_erp.group_field_supervisor,kser_erp.group_system_admin"
                   sequence="5"/>
 
         <!-- 2. المستفيدين -->
         <menuitem id="menu_kser_beneficiaries"
                   name="المستفيدين"
                   parent="menu_kser_root"
+                  groups="kser_erp.group_admin_supervisor,kser_erp.group_data_manager,kser_erp.group_stock_manager,kser_erp.group_field_supervisor,kser_erp.group_system_admin"
                   sequence="10"/>
 
         <!-- 3. التبرعات -->
         <menuitem id="menu_kser_donations"
                   name="التبرعات"
                   parent="menu_kser_root"
+                  groups="kser_erp.group_admin_supervisor,kser_erp.group_data_manager,kser_erp.group_system_admin"
                   sequence="20"/>
 
         <!-- 4. المهام الميدانية -->
         <menuitem id="menu_kser_field_tasks"
                   name="المهام الميدانية"
                   parent="menu_kser_root"
+                  groups="kser_erp.group_admin_supervisor,kser_erp.group_field_supervisor,kser_erp.group_system_admin"
                   sequence="30"/>
 
         <!-- 5. المخزون والذكاء الاصطناعي -->
         <menuitem id="menu_kser_inventory_ai"
                   name="المخزون والذكاء الاصطناعي"
                   parent="menu_kser_root"
+                  groups="kser_erp.group_stock_manager,kser_erp.group_system_admin"
                   sequence="40"/>
 
         <!-- 6. سجل التدقيق -->
         <menuitem id="menu_kser_audit"
                   name="سجل التدقيق"
                   parent="menu_kser_root"
+                  groups="kser_erp.group_admin_supervisor,kser_erp.group_system_admin"
                   sequence="50"/>
 
         <!-- 7. الضبط -->
         <menuitem id="menu_kser_settings"
                   name="الضبط"
                   parent="menu_kser_root"
+                  groups="kser_erp.group_system_admin"
                   sequence="99"/>
 
         <!-- ============================================================ -->
@@ -208,23 +216,29 @@
         <!-- ============================================================ -->
 
         <!-- جهات الاتصال Sub-Items -->
-        <menuitem id="menu_kser_contacts_all"
-                  name="كل جهات الاتصال"
-                  parent="menu_kser_contacts"
-                  action="action_kser_contacts"
-                  sequence="1"/>
+        <record id="menu_kser_contacts_all" model="ir.ui.menu">
+            <field name="name">كل جهات الاتصال</field>
+            <field name="parent_id" ref="menu_kser_contacts"/>
+            <field name="action" ref="action_kser_contacts"/>
+            <field name="sequence" eval="1"/>
+            <field name="groups_id" eval="[(6, 0, [ref('group_admin_supervisor'), ref('group_data_manager'), ref('group_system_admin')])]"/>
+        </record>
 
-        <menuitem id="menu_kser_volunteers"
-                  name="المتطوعين"
-                  parent="menu_kser_contacts"
-                  action="action_kser_volunteers"
-                  sequence="2"/>
+        <record id="menu_kser_volunteers" model="ir.ui.menu">
+            <field name="name">المتطوعين</field>
+            <field name="parent_id" ref="menu_kser_contacts"/>
+            <field name="action" ref="action_kser_volunteers"/>
+            <field name="sequence" eval="2"/>
+            <field name="groups_id" eval="[(6, 0, [ref('group_admin_supervisor'), ref('group_data_manager'), ref('group_field_supervisor'), ref('group_system_admin')])]"/>
+        </record>
 
-        <menuitem id="menu_kser_donors"
-                  name="المتبرعين"
-                  parent="menu_kser_contacts"
-                  action="action_kser_donors"
-                  sequence="3"/>
+        <record id="menu_kser_donors" model="ir.ui.menu">
+            <field name="name">المتبرعين</field>
+            <field name="parent_id" ref="menu_kser_contacts"/>
+            <field name="action" ref="action_kser_donors"/>
+            <field name="sequence" eval="3"/>
+            <field name="groups_id" eval="[(6, 0, [ref('group_admin_supervisor'), ref('group_data_manager'), ref('group_system_admin')])]"/>
+        </record>
 
         <!-- المستفيدين Sub-Items -->
         <menuitem id="menu_kser_beneficiary_list"
@@ -263,18 +277,21 @@
                   name="الحملات"
                   parent="menu_kser_field_tasks"
                   action="action_kser_campaigns"
+                  groups="kser_erp.group_admin_supervisor,kser_erp.group_field_supervisor,kser_erp.group_system_admin"
                   sequence="1"/>
 
         <menuitem id="menu_kser_field_tasks_list"
                   name="قائمة المهام"
                   parent="menu_kser_field_tasks"
                   action="action_kser_field_tasks"
+                  groups="kser_erp.group_admin_supervisor,kser_erp.group_field_supervisor,kser_erp.group_system_admin"
                   sequence="2"/>
 
         <menuitem id="menu_kser_field_volunteers"
                   name="المتطوعين"
                   parent="menu_kser_field_tasks"
                   action="action_kser_volunteers"
+                  groups="kser_erp.group_admin_supervisor,kser_erp.group_field_supervisor,kser_erp.group_system_admin"
                   sequence="3"/>
 
         <!-- المخزون والذكاء الاصطناعي Sub-Items -->
@@ -282,6 +299,7 @@
                   name="عمليات التوزيع"
                   parent="menu_kser_inventory_ai"
                   action="action_kser_stock_picking"
+                  groups="kser_erp.group_stock_manager,kser_erp.group_system_admin"
                   sequence="1"/>
 
         <menuitem id="menu_kser_ai_wizard"
@@ -303,6 +321,30 @@
                   parent="menu_kser_settings"
                   action="action_kser_settings"
                   sequence="1"/>
+
+        <!-- ============================================================ -->
+        <!--             تقييد قوائم النظام الأساسية                       -->
+        <!-- ============================================================ -->
+
+        <!-- منيو التطبيقات يظهر لمدير النظام فقط -->
+        <menuitem id="base.menu_management" groups="kser_erp.group_system_admin"/>
+
+        <!-- جهات الاتصال القياسي -->
+        <record id="contacts.menu_contacts" model="ir.ui.menu">
+            <field name="groups_id" eval="[(6, 0, [ref('group_admin_supervisor'), ref('group_data_manager'), ref('group_system_admin')])]"/>
+        </record>
+
+        <!-- المشاريع القياسي -->
+        <menuitem id="project.menu_main_pm" groups="kser_erp.group_admin_supervisor,kser_erp.group_field_supervisor,kser_erp.group_system_admin"/>
+
+        <!-- المخزن القياسي -->
+        <menuitem id="stock.menu_stock_root" groups="kser_erp.group_stock_manager,kser_erp.group_system_admin"/>
+
+        <!-- الحسابات والفوترة القياسي -->
+        <menuitem id="account.menu_finance" groups="kser_erp.group_admin_supervisor,kser_erp.group_system_admin"/>
+
+        <!-- المناقشة والمراسلات القياسي -->
+        <menuitem id="mail.menu_root_discuss" groups="kser_erp.group_kser_user"/>
 
     </data>
 </odoo>

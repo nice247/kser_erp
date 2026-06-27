@@ -30,4 +30,13 @@ class StockPicking(models.Model):
         for rec in self:
             if rec.project_id and rec.project_id.state != 'approved':
                 raise UserError(_("Cannot validate transfer. The campaign '%s' budget is not approved!") % rec.project_id.name)
-        return super().button_validate()
+        res = super().button_validate()
+        for rec in self:
+            if rec.state == 'done':
+                self.env['kser.audit.log'].sudo().create({
+                    'action_type': 'approve',
+                    'target_model': self._name,
+                    'target_id': rec.id,
+                    'details': f"Distribution transfer {rec.name} validated. Campaign: {rec.project_id.name if rec.project_id else 'N/A'}",
+                })
+        return res
