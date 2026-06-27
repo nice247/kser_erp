@@ -235,5 +235,51 @@
             <field name="target">new</field>
         </record>
 
+        <!-- ============================================================ -->
+        <!--     Wizard: Report Generator — kser.report.wizard           -->
+        <!-- ============================================================ -->
+        <record id="view_kser_report_wizard_form" model="ir.ui.view">
+            <field name="name">kser.report.wizard.form</field>
+            <field name="model">kser.report.wizard</field>
+            <field name="arch" type="xml">
+                <form string="طباعة التقارير">
+                    <group>
+                        <field name="report_type"/>
+                        <field name="date_from"/>
+                        <field name="date_to"/>
+                        <field name="opening_balance" invisible="report_type != 'budget'"/>
+                    </group>
+                    <footer>
+                        <button name="action_print_report" string="تحميل التقرير (PDF)" type="object" class="btn-primary"/>
+                        <button string="إلغاء" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_kser_report_volunteers" model="ir.actions.act_window">
+            <field name="name">تقرير إنجاز المتطوعين الميدانيين</field>
+            <field name="res_model">kser.report.wizard</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+            <field name="context">{'default_report_type': 'volunteers'}</field>
+        </record>
+
+        <record id="action_kser_report_performance" model="ir.actions.act_window">
+            <field name="name">تقرير أداء الغرفة وحجم المساعدات</field>
+            <field name="res_model">kser.report.wizard</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+            <field name="context">{'default_report_type': 'performance'}</field>
+        </record>
+
+        <record id="action_kser_report_budget" model="ir.actions.act_window">
+            <field name="name">تقرير الميزانية التشغيلية</field>
+            <field name="res_model">kser.report.wizard</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+            <field name="context">{'default_report_type': 'budget'}</field>
+        </record>
+
     </data>
 </odoo>

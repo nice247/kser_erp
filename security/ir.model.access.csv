@@ -21,3 +21,5 @@ access_kser_national_id_field,kser.national.id.field,model_kser_national_id_wiza
 access_kser_national_id_system,kser.national.id.system,model_kser_national_id_wizard,kser_erp.group_system_admin,1,1,1,1
 access_kser_bank_receipt_data,kser.bank.receipt.data,model_kser_bank_receipt_wizard,kser_erp.group_data_manager,1,1,1,1
 access_kser_bank_receipt_system,kser.bank.receipt.system,model_kser_bank_receipt_wizard,kser_erp.group_system_admin,1,1,1,1
+access_kser_report_wizard_admin,kser.report.wizard.admin,model_kser_report_wizard,kser_erp.group_admin_supervisor,1,1,1,1
+access_kser_report_wizard_system,kser.report.wizard.system,model_kser_report_wizard,kser_erp.group_system_admin,1,1,1,1

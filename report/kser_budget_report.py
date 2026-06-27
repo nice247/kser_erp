@@ -27,6 +27,7 @@ class KserBudgetReport(models.AbstractModel):
         return {
             'doc_ids': docids,
             'doc_model': 'account.move',
+            'company': self.env.company,
             'date_from': date_from,
             'date_to': date_to,
             'opening_balance': opening_balance,

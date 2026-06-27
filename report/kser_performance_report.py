@@ -58,6 +58,7 @@ class KserPerformanceReport(models.AbstractModel):
         return {
             'doc_ids': docids,
             'doc_model': 'stock.move',
+            'company': self.env.company,
             'date_from': date_from,
             'date_to': date_to,
             'distribution_lines': distribution_lines,

@@ -322,6 +322,35 @@
                   action="action_kser_settings"
                   sequence="1"/>
 
+        <!-- التقارير Parent Menu -->
+        <menuitem id="menu_kser_reports"
+                  name="التقارير"
+                  parent="menu_kser_root"
+                  groups="kser_erp.group_admin_supervisor,kser_erp.group_system_admin"
+                  sequence="55"/>
+
+        <!-- التقارير Sub-Items -->
+        <menuitem id="menu_kser_report_volunteers"
+                  name="تقرير إنجاز المتطوعين الميدانيين"
+                  parent="menu_kser_reports"
+                  action="action_kser_report_volunteers"
+                  groups="kser_erp.group_admin_supervisor,kser_erp.group_system_admin"
+                  sequence="1"/>
+
+        <menuitem id="menu_kser_report_performance"
+                  name="تقرير أداء الغرفة وحجم المساعدات"
+                  parent="menu_kser_reports"
+                  action="action_kser_report_performance"
+                  groups="kser_erp.group_admin_supervisor,kser_erp.group_system_admin"
+                  sequence="2"/>
+
+        <menuitem id="menu_kser_report_budget"
+                  name="تقرير الميزانية التشغيلية"
+                  parent="menu_kser_reports"
+                  action="action_kser_report_budget"
+                  groups="kser_erp.group_admin_supervisor,kser_erp.group_system_admin"
+                  sequence="3"/>
+
         <!-- ============================================================ -->
         <!--             تقييد قوائم النظام الأساسية                       -->
         <!-- ============================================================ -->

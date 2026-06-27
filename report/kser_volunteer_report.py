@@ -69,19 +69,6 @@ class KserVolunteerReport(models.AbstractModel):
                 incentive_map.setdefault(pid, 0.0)
                 incentive_map[pid] += line.debit - line.credit
 
-        timesheet_lines = self.env['account.analytic.line'].search([
-            ('date', '>=', date_from),
-            ('date', '<=', date_to),
-            ('project_id', '!=', False),
-        ])
-
-        hours_map = {}
-        for ts in timesheet_lines:
-            if ts.user_id and ts.user_id.partner_id:
-                pid = ts.user_id.partner_id.id
-                hours_map.setdefault(pid, 0.0)
-                hours_map[pid] += ts.unit_amount or 0.0
-
         volunteers_list = []
         for vol_id, vol_data in volunteer_map.items():
             rates = vol_data['completion_rates']
@@ -92,7 +79,7 @@ class KserVolunteerReport(models.AbstractModel):
                 raw_incentive = 0.0
 
             vol_data['avg_completion_rate'] = round(avg_rate, 2)
-            vol_data['total_hours'] = round(hours_map.get(vol_id, 0.0), 2)
+            vol_data['total_hours'] = round(vol_data.get('total_hours', 0.0), 2)
             vol_data['total_incentives'] = round(raw_incentive, 2)
             vol_data['campaign_count'] = len(vol_data['campaign_ids'])
 
@@ -109,6 +96,7 @@ class KserVolunteerReport(models.AbstractModel):
         return {
             'doc_ids': docids,
             'doc_model': 'project.task',
+            'company': self.env.company,
             'date_from': date_from,
             'date_to': date_to,
             'volunteers': volunteers_list,
