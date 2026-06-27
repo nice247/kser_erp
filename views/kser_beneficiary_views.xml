@@ -60,7 +60,16 @@
             <field name="arch" type="xml">
                 <form string="بيانات المستفيد">
                     <sheet>
-                        <div class="oe_button_box" name="button_box"/>
+                        <div class="oe_button_box" name="button_box">
+                            <button name="action_view_moves" type="object"
+                                    class="oe_stat_button" icon="fa-truck"
+                                    invisible="move_count == 0">
+                                <div class="o_stat_info">
+                                    <field name="move_count" class="o_stat_value"/>
+                                    <span class="o_stat_text">المساعدات المستلمة</span>
+                                </div>
+                            </button>
+                        </div>
                         <widget name="web_ribbon" title="تم التحقق" bg_color="text-bg-success"
                                 invisible="not is_verified"/>
                         <widget name="web_ribbon" title="لم يتم التحقق" bg_color="text-bg-danger"

@@ -1,16 +1,28 @@
-from odoo import models, fields, api
+from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError
-from odoo.tools.translate import _
 
 
 class ProjectTask(models.Model):
     _inherit = 'project.task'
 
+    volunteer_id = fields.Many2one(
+        'res.partner',
+        string='Volunteer',
+        domain=[('category_tag', '!=', False)], # Will filter by volunteer category in action context or generic classification tag
+        tracking=True,
+    )
+    picking_id = fields.Many2one(
+        'stock.picking',
+        string='Distribution Order (Picking)',
+        tracking=True,
+    )
     completion_rate = fields.Float(
         string='Completion Rate',
+        tracking=True,
     )
     evaluation_notes = fields.Text(
         string='Evaluation Notes',
+        tracking=True,
     )
 
     @api.constrains('completion_rate')

@@ -146,3 +146,29 @@ class KserBeneficiary(models.Model):
         for rec in self:
             if rec.ocr_confidence and not (0 <= rec.ocr_confidence <= 1):
                 raise ValidationError(_('OCR confidence must be between 0 and 1!'))
+
+    move_ids = fields.One2many(
+        'stock.move',
+        'beneficiary_id',
+        string='Relief Received',
+    )
+    move_count = fields.Integer(
+        compute='_compute_move_count',
+        string='Relief Count',
+    )
+
+    @api.depends('move_ids')
+    def _compute_move_count(self):
+        for rec in self:
+            rec.move_count = len(rec.move_ids)
+
+    def action_view_moves(self):
+        self.ensure_one()
+        return {
+            'name': _('Relief Received'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'stock.move',
+            'view_mode': 'list,form',
+            'domain': [('beneficiary_id', '=', self.id)],
+            'context': {'default_beneficiary_id': self.id},
+        }

@@ -29,3 +29,7 @@ access_kser_national_id_system,kser.national.id.system,model_kser_national_id_wi
 access_kser_bank_receipt_user,kser.bank.receipt.user,model_kser_bank_receipt_wizard,base.group_user,1,1,1,1
 access_kser_bank_receipt_data,kser.bank.receipt.data,model_kser_bank_receipt_wizard,group_data_manager,1,1,1,1
 access_kser_bank_receipt_system,kser.bank.receipt.system,model_kser_bank_receipt_wizard,group_system_admin,1,1,1,1
+access_kser_ai_suggestion_line_user,kser.ai.suggestion.line.user,model_kser_ai_suggestion_line,base.group_user,1,1,1,1
+access_kser_ai_suggestion_line_stock,kser.ai.suggestion.line.stock,model_kser_ai_suggestion_line,group_stock_manager,1,1,1,1
+access_kser_ai_suggestion_line_system,kser.ai.suggestion.line.system,model_kser_ai_suggestion_line,group_system_admin,1,1,1,1
+

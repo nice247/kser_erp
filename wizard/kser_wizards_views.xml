@@ -184,22 +184,44 @@
             <field name="model">kser.ai.wizard</field>
             <field name="arch" type="xml">
                 <form string="معالج التوزيع الذكي">
+                    <field name="state" invisible="1"/>
                     <sheet>
-                        <group string="إعدادات التوزيع الذكي">
+                        <group string="إعدادات التوزيع الذكي" invisible="state != 'draft'">
                             <group>
                                 <field name="campaign_id" string="الحملة"/>
                             </group>
                         </group>
-                        <div class="alert alert-info" role="alert">
+                        <div class="alert alert-info" role="alert" invisible="state != 'draft'">
                             <strong>ملاحظة:</strong>
                             سيقوم النظام بتحليل المخزون الحالي ومطابقته مع احتياجات المستفيدين
                             باستخدام الذكاء الاصطناعي لاقتراح أفضل توزيع ممكن.
                         </div>
+
+                        <!-- Results Section -->
+                        <div invisible="state != 'result'">
+                            <h2 class="mb16">نتائج التوزيع المقترحة بالذكاء الاصطناعي</h2>
+                            <field name="line_ids">
+                                <list editable="bottom" create="0" delete="0">
+                                    <field name="approved" string="اعتماد" widget="boolean_toggle"/>
+                                    <field name="product_id" string="الصنف (الدواء)" readonly="1"/>
+                                    <field name="beneficiary_ids" string="المستفيدين المطابقين" widget="many2many_tags" readonly="1"/>
+                                    <field name="priority" string="مستوى الأهمية" readonly="1" widget="badge"
+                                           decoration-danger="priority == 'urgent'"
+                                           decoration-warning="priority == 'medium'"
+                                           decoration-success="priority == 'normal'"/>
+                                    <field name="rationale" string="السبب التقني والتحليل" readonly="1"/>
+                                </list>
+                            </field>
+                        </div>
                     </sheet>
-                    <footer class="oe_edit_only">
+                    <footer>
                         <button name="action_get_ai_suggestions" type="object"
-                                string="بدء المطابقة الذكية" class="btn-primary"/>
-                        <button string="إلغاء" special="cancel"/>
+                                string="بدء المطابقة الذكية" class="btn-primary"
+                                invisible="state != 'draft'"/>
+                        <button name="action_apply" type="object"
+                                string="اعتماد وتوزيع" class="btn-primary"
+                                invisible="state != 'result'"/>
+                        <button string="إلغاء" special="cancel" class="btn-secondary"/>
                     </footer>
                 </form>
             </field>
