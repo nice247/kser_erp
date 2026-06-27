@@ -63,11 +63,11 @@ class KserAiWizard(models.TransientModel):
 
         try:
             response = requests.post(
-                f'{base_url}/api/v1/ai/match',
+                f'{base_url}/api/v1/ai/match-inventory',
                 json=payload,
                 headers={
                     'Content-Type': 'application/json',
-                    'Authorization': f'Bearer {api_key}',
+                    'X-API-KEY': api_key,
                 },
                 timeout=30,
             )

@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- ============================================================ -->
+        <!--       KSER Custom Tree View: res.partner (volunteers/donors) -->
+        <!-- ============================================================ -->
+        <record id="view_res_partner_tree_kser" model="ir.ui.view">
+            <field name="name">res.partner.list.kser</field>
+            <field name="model">res.partner</field>
+            <field name="arch" type="xml">
+                <list string="جهات الاتصال">
+                    <field name="name" string="الاسم"/>
+                    <field name="national_id_number" string="الرقم الوطني"/>
+                    <field name="category_tag" string="التصنيف"/>
+                    <field name="phone" string="الهاتف"/>
+                    <field name="email" string="البريد الإلكتروني"/>
+                    <field name="supervisor_id" string="المشرف الميداني" optional="hide"/>
+                    <field name="city" string="المدينة" optional="hide"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- ============================================================ -->
+        <!--       Inherited View: res.partner form — KSER fields         -->
+        <!-- ============================================================ -->
+        <record id="view_res_partner_form_inherit_kser" model="ir.ui.view">
+            <field name="name">res.partner.form.inherit.kser</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="base.view_partner_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//sheet//group" position="after">
+                    <group string="بيانات KSER" name="kser_identity_group">
+                        <group string="التصنيف والإشراف">
+                            <field name="category_tag" string="تصنيف جهة الاتصال"/>
+                            <field name="supervisor_id" string="المشرف الميداني"/>
+                        </group>
+                        <group string="بيانات الهوية">
+                            <field name="national_id_number" string="رقم الهوية الوطنية"/>
+                            <field name="national_id_image" string="صورة الهوية" widget="image"
+                                   class="oe_avatar"/>
+                        </group>
+                    </group>
+                </xpath>
+            </field>
+        </record>
+
+        <!-- ============================================================ -->
+        <!--     Inherited View: project.task form — KSER fields          -->
+        <!-- ============================================================ -->
+        <record id="view_project_task_form_inherit_kser" model="ir.ui.view">
+            <field name="name">project.task.form.inherit.kser</field>
+            <field name="model">project.task</field>
+            <field name="inherit_id" ref="project.view_task_form2"/>
+            <field name="arch" type="xml">
+                <xpath expr="//sheet" position="inside">
+                    <group string="بيانات التقييم (KSER)" name="kser_evaluation_group">
+                        <group>
+                            <field name="completion_rate" string="نسبة الإنجاز" widget="progressbar"/>
+                        </group>
+                        <group>
+                            <field name="evaluation_notes" string="ملاحظات التقييم"/>
+                        </group>
+                    </group>
+                </xpath>
+            </field>
+        </record>
+
+        <!-- ============================================================ -->
+        <!--     Inherited View: stock.picking form — KSER fields         -->
+        <!-- ============================================================ -->
+        <record id="view_stock_picking_form_inherit_kser" model="ir.ui.view">
+            <field name="name">stock.picking.form.inherit.kser</field>
+            <field name="model">stock.picking</field>
+            <field name="inherit_id" ref="stock.view_picking_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//sheet" position="inside">
+                    <group string="التوزيع والذكاء الاصطناعي (KSER)" name="kser_distribution_group">
+                        <group>
+                            <field name="distribution_type" string="نوع التوزيع"/>
+                        </group>
+                        <group>
+                            <field name="ai_suggestion" string="اقتراح الذكاء الاصطناعي"
+                                   widget="boolean_toggle"/>
+                        </group>
+                    </group>
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</odoo>

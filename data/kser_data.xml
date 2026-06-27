@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- ============================================================ -->
+        <!--           Partner Categories (Contact Classification)        -->
+        <!-- ============================================================ -->
+        <record id="partner_category_volunteer" model="res.partner.category">
+            <field name="name">متطوع</field>
+        </record>
+
+        <record id="partner_category_beneficiary" model="res.partner.category">
+            <field name="name">مستفيد</field>
+        </record>
+
+        <record id="partner_category_donor" model="res.partner.category">
+            <field name="name">متبرع</field>
+        </record>
+
+    </data>
+</odoo>

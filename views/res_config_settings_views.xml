@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- ============================================================ -->
+        <!--          KSER Settings: res.config.settings form             -->
+        <!-- ============================================================ -->
+        <record id="view_res_config_settings_form_kser" model="ir.ui.view">
+            <field name="name">res.config.settings.form.kser</field>
+            <field name="model">res.config.settings</field>
+            <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//form" position="inside">
+                    <app data-string="غرفة الطوارئ" string="غرفة الطوارئ"
+                         name="kser_erp">
+                        <block title="إعدادات خادم الذكاء الاصطناعي (AI/OCR)"
+                               name="kser_api_settings">
+                            <setting string="رابط الخادم"
+                                     help="رابط خادم Spring Boot للذكاء الاصطناعي والتعرف الآلي (مثال: https://api.example.com)">
+                                <div class="content-group">
+                                    <div class="row mt16">
+                                        <label for="kser_springboot_base_url" class="col-lg-3"/>
+                                        <field name="kser_springboot_base_url"
+                                               placeholder="https://api.example.com"/>
+                                    </div>
+                                </div>
+                            </setting>
+                            <setting string="مفتاح API"
+                                     help="مفتاح المصادقة للاتصال بخادم الذكاء الاصطناعي">
+                                <div class="content-group">
+                                    <div class="row mt16">
+                                        <label for="kser_springboot_api_key" class="col-lg-3"/>
+                                        <field name="kser_springboot_api_key"
+                                               password="True"
+                                               placeholder="أدخل مفتاح API هنا..."/>
+                                    </div>
+                                </div>
+                            </setting>
+                        </block>
+                    </app>
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</odoo>

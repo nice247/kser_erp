@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- ============================================================ -->
+        <!--              Window Actions for all models                   -->
+        <!-- ============================================================ -->
+
+        <!-- Beneficiaries Action -->
+        <record id="action_kser_beneficiary" model="ir.actions.act_window">
+            <field name="name">المستفيدين</field>
+            <field name="res_model">kser.beneficiary</field>
+            <field name="view_mode">list,form</field>
+            <field name="search_view_id" ref="view_kser_beneficiary_search"/>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    لا يوجد مستفيدين حالياً
+                </p>
+                <p>اضغط لإضافة مستفيد جديد.</p>
+            </field>
+        </record>
+
+        <!-- Cash Donations Action -->
+        <record id="action_kser_cash_donation" model="ir.actions.act_window">
+            <field name="name">التبرعات النقدية</field>
+            <field name="res_model">kser.cash.donation</field>
+            <field name="view_mode">list,form</field>
+            <field name="search_view_id" ref="view_kser_cash_donation_search"/>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    لا توجد تبرعات مسجلة
+                </p>
+                <p>اضغط لتسجيل تبرع نقدي جديد.</p>
+            </field>
+        </record>
+
+        <!-- Field Tasks Action (project.task) -->
+        <record id="action_kser_field_tasks" model="ir.actions.act_window">
+            <field name="name">المهام الميدانية</field>
+            <field name="res_model">project.task</field>
+            <field name="view_mode">list,form,kanban</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    لا توجد مهام ميدانية حالياً
+                </p>
+                <p>اضغط لإنشاء مهمة ميدانية جديدة.</p>
+            </field>
+        </record>
+
+        <!-- Volunteers Action (res.partner filtered by category) -->
+        <record id="action_kser_volunteers" model="ir.actions.act_window">
+            <field name="name">المتطوعين</field>
+            <field name="res_model">res.partner</field>
+            <field name="view_mode">list,form</field>
+            <field name="view_id" ref="view_res_partner_tree_kser"/>
+            <field name="domain" eval="[('category_tag', '=', ref('partner_category_volunteer'))]"/>
+            <field name="context" eval="{'default_category_tag': ref('partner_category_volunteer')}"/>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    لا يوجد متطوعين مسجلين حالياً
+                </p>
+                <p>اضغط لإضافة متطوع جديد.</p>
+            </field>
+        </record>
+
+        <!-- Inventory / Stock Picking Action -->
+        <record id="action_kser_stock_picking" model="ir.actions.act_window">
+            <field name="name">عمليات التوزيع</field>
+            <field name="res_model">stock.picking</field>
+            <field name="view_mode">list,form</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    لا توجد عمليات توزيع حالياً
+                </p>
+                <p>اضغط لإنشاء عملية توزيع جديدة.</p>
+            </field>
+        </record>
+
+        <!-- Audit Log Action -->
+        <record id="action_kser_audit_log" model="ir.actions.act_window">
+            <field name="name">سجل التدقيق</field>
+            <field name="res_model">kser.audit.log</field>
+            <field name="view_mode">list,form</field>
+            <field name="search_view_id" ref="view_kser_audit_log_search"/>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    لا توجد سجلات تدقيق
+                </p>
+            </field>
+        </record>
+
+        <!-- All Contacts Action -->
+        <record id="action_kser_contacts" model="ir.actions.act_window">
+            <field name="name">جهات الاتصال</field>
+            <field name="res_model">res.partner</field>
+            <field name="view_mode">list,form,kanban</field>
+            <field name="view_id" ref="view_res_partner_tree_kser"/>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    لا توجد جهات اتصال
+                </p>
+                <p>اضغط لإضافة جهة اتصال جديدة.</p>
+            </field>
+        </record>
+
+        <!-- Donors Action -->
+        <record id="action_kser_donors" model="ir.actions.act_window">
+            <field name="name">المتبرعين</field>
+            <field name="res_model">res.partner</field>
+            <field name="view_mode">list,form</field>
+            <field name="view_id" ref="view_res_partner_tree_kser"/>
+            <field name="domain" eval="[('category_tag', '=', ref('partner_category_donor'))]"/>
+            <field name="context" eval="{'default_category_tag': ref('partner_category_donor')}"/>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    لا يوجد متبرعين مسجلين حالياً
+                </p>
+                <p>اضغط لإضافة متبرع جديد.</p>
+            </field>
+        </record>
+
+        <!-- Projects / Campaigns Action -->
+        <record id="action_kser_campaigns" model="ir.actions.act_window">
+            <field name="name">الحملات</field>
+            <field name="res_model">project.project</field>
+            <field name="view_mode">list,form,kanban</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    لا توجد حملات حالياً
+                </p>
+                <p>اضغط لإنشاء حملة جديدة.</p>
+            </field>
+        </record>
+
+        <!-- Settings Action (KSER Settings Page) -->
+        <record id="action_kser_settings" model="ir.actions.act_window">
+            <field name="name">إعدادات غرفة الطوارئ</field>
+            <field name="res_model">res.config.settings</field>
+            <field name="view_mode">form</field>
+            <field name="target">inline</field>
+            <field name="context">{'module': 'kser_erp'}</field>
+        </record>
+
+        <!-- ============================================================ -->
+        <!--                  Main Menu: غرفة الطوارئ                     -->
+        <!-- ============================================================ -->
+        <menuitem id="menu_kser_root"
+                  name="غرفة الطوارئ"
+                  web_icon="kser_erp,static/description/icon.png"
+                  sequence="1"/>
+
+        <!-- ============================================================ -->
+        <!--               Level 1: Sub-Menu Categories                   -->
+        <!-- ============================================================ -->
+
+        <!-- 1. جهات الاتصال -->
+        <menuitem id="menu_kser_contacts"
+                  name="جهات الاتصال"
+                  parent="menu_kser_root"
+                  sequence="5"/>
+
+        <!-- 2. المستفيدين -->
+        <menuitem id="menu_kser_beneficiaries"
+                  name="المستفيدين"
+                  parent="menu_kser_root"
+                  sequence="10"/>
+
+        <!-- 3. التبرعات -->
+        <menuitem id="menu_kser_donations"
+                  name="التبرعات"
+                  parent="menu_kser_root"
+                  sequence="20"/>
+
+        <!-- 4. المهام الميدانية -->
+        <menuitem id="menu_kser_field_tasks"
+                  name="المهام الميدانية"
+                  parent="menu_kser_root"
+                  sequence="30"/>
+
+        <!-- 5. المخزون والذكاء الاصطناعي -->
+        <menuitem id="menu_kser_inventory_ai"
+                  name="المخزون والذكاء الاصطناعي"
+                  parent="menu_kser_root"
+                  sequence="40"/>
+
+        <!-- 6. سجل التدقيق -->
+        <menuitem id="menu_kser_audit"
+                  name="سجل التدقيق"
+                  parent="menu_kser_root"
+                  sequence="50"/>
+
+        <!-- 7. الضبط -->
+        <menuitem id="menu_kser_settings"
+                  name="الضبط"
+                  parent="menu_kser_root"
+                  sequence="99"/>
+
+        <!-- ============================================================ -->
+        <!--             Level 2: Action Menu Items                       -->
+        <!-- ============================================================ -->
+
+        <!-- جهات الاتصال Sub-Items -->
+        <menuitem id="menu_kser_contacts_all"
+                  name="كل جهات الاتصال"
+                  parent="menu_kser_contacts"
+                  action="action_kser_contacts"
+                  sequence="1"/>
+
+        <menuitem id="menu_kser_volunteers"
+                  name="المتطوعين"
+                  parent="menu_kser_contacts"
+                  action="action_kser_volunteers"
+                  sequence="2"/>
+
+        <menuitem id="menu_kser_donors"
+                  name="المتبرعين"
+                  parent="menu_kser_contacts"
+                  action="action_kser_donors"
+                  sequence="3"/>
+
+        <!-- المستفيدين Sub-Items -->
+        <menuitem id="menu_kser_beneficiary_list"
+                  name="قائمة المستفيدين"
+                  parent="menu_kser_beneficiaries"
+                  action="action_kser_beneficiary"
+                  sequence="1"/>
+
+        <menuitem id="menu_kser_beneficiary_ocr_wizard"
+                  name="استخراج بيانات الهوية (OCR)"
+                  parent="menu_kser_beneficiaries"
+                  action="action_kser_national_id_wizard"
+                  sequence="2"/>
+
+        <!-- التبرعات Sub-Items -->
+        <menuitem id="menu_kser_donation_list"
+                  name="التبرعات النقدية"
+                  parent="menu_kser_donations"
+                  action="action_kser_cash_donation"
+                  sequence="1"/>
+
+        <menuitem id="menu_kser_receipt_ocr_wizard"
+                  name="استخراج بيانات الإيصال (OCR)"
+                  parent="menu_kser_donations"
+                  action="action_kser_bank_receipt_wizard"
+                  sequence="2"/>
+
+        <menuitem id="menu_kser_donor_import_wizard"
+                  name="استيراد كشوفات المتبرعين"
+                  parent="menu_kser_donations"
+                  action="action_kser_donor_import_wizard"
+                  sequence="3"/>
+
+        <!-- المهام الميدانية Sub-Items -->
+        <menuitem id="menu_kser_campaigns"
+                  name="الحملات"
+                  parent="menu_kser_field_tasks"
+                  action="action_kser_campaigns"
+                  sequence="1"/>
+
+        <menuitem id="menu_kser_field_tasks_list"
+                  name="قائمة المهام"
+                  parent="menu_kser_field_tasks"
+                  action="action_kser_field_tasks"
+                  sequence="2"/>
+
+        <menuitem id="menu_kser_field_volunteers"
+                  name="المتطوعين"
+                  parent="menu_kser_field_tasks"
+                  action="action_kser_volunteers"
+                  sequence="3"/>
+
+        <!-- المخزون والذكاء الاصطناعي Sub-Items -->
+        <menuitem id="menu_kser_stock_picking_list"
+                  name="عمليات التوزيع"
+                  parent="menu_kser_inventory_ai"
+                  action="action_kser_stock_picking"
+                  sequence="1"/>
+
+        <menuitem id="menu_kser_ai_wizard"
+                  name="التوزيع الذكي (AI)"
+                  parent="menu_kser_inventory_ai"
+                  action="action_kser_ai_wizard"
+                  sequence="2"/>
+
+        <!-- سجل التدقيق Sub-Items -->
+        <menuitem id="menu_kser_audit_log_list"
+                  name="سجلات التدقيق"
+                  parent="menu_kser_audit"
+                  action="action_kser_audit_log"
+                  sequence="1"/>
+
+        <!-- الضبط Sub-Items -->
+        <menuitem id="menu_kser_settings_params"
+                  name="إعدادات النظام"
+                  parent="menu_kser_settings"
+                  action="action_kser_settings"
+                  sequence="1"/>
+
+    </data>
+</odoo>

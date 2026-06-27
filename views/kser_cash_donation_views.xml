@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- ============================================================ -->
+        <!--                Cash Donation: Search View                    -->
+        <!-- ============================================================ -->
+        <record id="view_kser_cash_donation_search" model="ir.ui.view">
+            <field name="name">kser.cash.donation.search</field>
+            <field name="model">kser.cash.donation</field>
+            <field name="arch" type="xml">
+                <search string="بحث في التبرعات">
+                    <field name="transaction_number" string="رقم العملية البنكية"/>
+                    <field name="bank_name" string="اسم البنك"/>
+                    <field name="campaign_id" string="الحملة"/>
+                    <separator/>
+                    <filter name="filter_matched" string="تمت المطابقة" domain="[('matched_by_ocr', '=', True)]"/>
+                    <filter name="filter_pending" string="قيد الانتظار" domain="[('ocr_status', '=', 'pending')]"/>
+                    <filter name="filter_failed" string="فشلت المطابقة" domain="[('ocr_status', '=', 'failed')]"/>
+                    <separator/>
+                    <filter name="filter_draft" string="مسودة" domain="[('state', '=', 'draft')]"/>
+                    <filter name="filter_posted" string="مؤكد مالياً" domain="[('state', '=', 'posted')]"/>
+                    <separator/>
+                    <group expand="0" string="تجميع حسب">
+                        <filter name="group_bank" string="اسم البنك" context="{'group_by': 'bank_name'}"/>
+                        <filter name="group_status" string="حالة التعرف" context="{'group_by': 'ocr_status'}"/>
+                        <filter name="group_campaign" string="الحملة" context="{'group_by': 'campaign_id'}"/>
+                        <filter name="group_date" string="تاريخ التبرع" context="{'group_by': 'donation_date:month'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <!-- ============================================================ -->
+        <!--                Cash Donation: Tree View                      -->
+        <!-- ============================================================ -->
+        <record id="view_kser_cash_donation_tree" model="ir.ui.view">
+            <field name="name">kser.cash.donation.list</field>
+            <field name="model">kser.cash.donation</field>
+            <field name="arch" type="xml">
+                <list string="التبرعات النقدية"
+                      decoration-success="ocr_status == 'matched'"
+                      decoration-danger="ocr_status == 'failed'">
+                    <field name="transaction_number" string="رقم العملية"/>
+                    <field name="partner_id" string="المتبرع" optional="show"/>
+                    <field name="bank_name" string="اسم البنك"/>
+                    <field name="amount" string="المبلغ"/>
+                    <field name="currency_id" string="العملة" optional="hide"/>
+                    <field name="state" string="الحالة" widget="badge" 
+                           decoration-info="state == 'draft'" 
+                           decoration-success="state == 'posted'"/>
+                    <field name="donation_date" string="تاريخ التبرع"/>
+                    <field name="campaign_id" string="الحملة" optional="hide"/>
+                    <field name="ocr_status" string="حالة التعرف" optional="hide"/>
+                    <field name="matched_by_ocr" string="مطابقة آلية" widget="boolean_toggle"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- ============================================================ -->
+        <!--                Cash Donation: Form View                      -->
+        <!-- ============================================================ -->
+        <record id="view_kser_cash_donation_form" model="ir.ui.view">
+            <field name="name">kser.cash.donation.form</field>
+            <field name="model">kser.cash.donation</field>
+            <field name="arch" type="xml">
+                <form string="تبرع نقدي">
+                    <header>
+                        <button name="action_confirm" type="object" string="تأكيد مالياً"
+                                class="oe_highlight" invisible="state != 'draft'"/>
+                        <field name="state" widget="statusbar" statusbar_visible="draft,posted"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_button_box" name="button_box">
+                            <button name="action_view_payment" type="object"
+                                    class="oe_stat_button" icon="fa-money"
+                                    invisible="not payment_id">
+                                <div class="o_stat_info">
+                                    <span class="o_stat_text">السند المالي</span>
+                                </div>
+                            </button>
+                        </div>
+                        <div class="oe_title">
+                            <h1>
+                                <field name="transaction_number" string="رقم العملية البنكية"
+                                       placeholder="رقم العملية البنكية..."/>
+                            </h1>
+                        </div>
+
+                        <group>
+                            <group string="بيانات التبرع">
+                                <field name="partner_id" string="المتبرع"/>
+                                <field name="campaign_id" string="الحملة المرتبطة"/>
+                                <field name="amount" string="المبلغ"/>
+                                <field name="currency_id" string="العملة" invisible="1"/>
+                                <field name="donation_date" string="تاريخ التبرع"/>
+                                <field name="bank_name" string="اسم البنك"/>
+                            </group>
+                            <group string="بيانات الحسابات">
+                                <field name="sender_account_number" string="رقم حساب المرسل"/>
+                                <field name="receiver_account_number" string="رقم حساب المستلم"/>
+                                <field name="payment_id" string="السند المرتبط" readonly="1"
+                                       invisible="not payment_id"/>
+                                <field name="move_id" string="القيد المرتبط" readonly="1"
+                                       invisible="not move_id"/>
+                                <field name="created_by" string="رُفع بواسطة"/>
+                            </group>
+                        </group>
+
+                        <notebook>
+                            <page string="التعرف الآلي (OCR)" name="page_ocr">
+                                <group>
+                                    <group string="حالة المعالجة">
+                                        <field name="ocr_status" string="حالة التعرف"/>
+                                        <field name="ocr_confidence" string="دقة التعرف"/>
+                                        <field name="matched_by_ocr" string="تمت المطابقة آلياً"
+                                               widget="boolean_toggle"/>
+                                    </group>
+                                </group>
+                            </page>
+                            <page string="صورة الإيصال" name="page_receipt">
+                                <group>
+                                    <field name="receipt_image" string="صورة إيصال البنك"
+                                           widget="image" class="oe_avatar"/>
+                                </group>
+                            </page>
+                        </notebook>
+                    </sheet>
+                    <chatter/>
+                </form>
+            </field>
+        </record>
+
+    </data>
+</odoo>

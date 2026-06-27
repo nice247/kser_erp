@@ -24,6 +24,14 @@
     'data': [
         'security/kser_security.xml',
         'security/ir.model.access.csv',
+        'data/kser_data.xml',
+        'views/kser_beneficiary_views.xml',
+        'views/kser_cash_donation_views.xml',
+        'views/kser_audit_log_views.xml',
+        'views/inherited_views.xml',
+        'wizard/kser_wizards_views.xml',
+        'views/res_config_settings_views.xml',
+        'views/kser_menus.xml',
     ],
     'assets': {
         'web.assets_backend': [

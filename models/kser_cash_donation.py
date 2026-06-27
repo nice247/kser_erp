@@ -12,6 +12,23 @@ class KserCashDonation(models.Model):
         ('transaction_number_unique', 'UNIQUE(transaction_number)', 'This Bank Transaction ID is already registered!'),
     ]
 
+    state = fields.Selection(
+        [
+            ('draft', 'Draft'),
+            ('posted', 'Confirmed'),
+        ],
+        string='Status',
+        default='draft',
+        tracking=True,
+    )
+
+    partner_id = fields.Many2one(
+        'res.partner',
+        string='Donor (Partner)',
+        domain=[('category_tag', '!=', False)],
+        tracking=True,
+    )
+
     campaign_id = fields.Many2one(
         'project.project',
         string='Linked Campaign',
@@ -81,8 +98,15 @@ class KserCashDonation(models.Model):
     )
     move_id = fields.Many2one(
         'account.move',
-        string='Linked Invoice',
+        string='Linked Journal Entry',
         ondelete='set null',
+        readonly=True,
+    )
+    payment_id = fields.Many2one(
+        'account.payment',
+        string='Linked Payment',
+        ondelete='set null',
+        readonly=True,
     )
     created_by = fields.Many2one(
         'res.users',
@@ -101,3 +125,82 @@ class KserCashDonation(models.Model):
         for rec in self:
             if rec.ocr_confidence and not (0 <= rec.ocr_confidence <= 1):
                 raise ValidationError(_('OCR confidence must be between 0 and 1!'))
+
+    def action_confirm(self):
+        """Creates an account.payment (Inbound) for this donation."""
+        for rec in self:
+            if rec.state != 'draft':
+                continue
+            if not rec.partner_id:
+                raise ValidationError(_("Please select a Donor (Partner) before confirming."))
+
+            # Find a suitable bank/cash journal
+            journal = self.env['account.journal'].search([
+                ('type', 'in', ('bank', 'cash')),
+                ('company_id', '=', self.env.company.id)
+            ], limit=1)
+            
+            if not journal:
+                raise ValidationError(_("No Bank or Cash journal found for this company."))
+
+            payment_vals = {
+                'payment_type': 'inbound',
+                'partner_type': 'customer',
+                'partner_id': rec.partner_id.id,
+                'amount': rec.amount,
+                'currency_id': rec.currency_id.id,
+                'journal_id': journal.id,
+                'date': rec.donation_date,
+                'ref': f"Donation: {rec.transaction_number}",
+            }
+            payment = self.env['account.payment'].create(payment_vals)
+            payment.action_post()
+
+            rec.write({
+                'payment_id': payment.id,
+                'move_id': payment.move_id.id,
+                'state': 'posted',
+            })
+            
+    @api.model_create_multi
+    def create(self, vals_list):
+        records = super().create(vals_list)
+        for rec in records:
+            self.env['kser.audit.log'].create({
+                'action_type': 'create',
+                'target_model': self._name,
+                'target_id': rec.id,
+                'details': f"Bank receipt uploaded/created with Transaction ID: {rec.transaction_number}, Amount: {rec.amount}",
+            })
+        return records
+
+    def write(self, vals):
+        res = super().write(vals)
+        for rec in self:
+            if 'state' in vals and vals['state'] == 'posted':
+                self.env['kser.audit.log'].create({
+                    'action_type': 'approve',
+                    'target_model': self._name,
+                    'target_id': rec.id,
+                    'details': f"Donation {rec.transaction_number} confirmed financially. Linked to Payment: {rec.payment_id.id if rec.payment_id else 'N/A'}",
+                })
+            elif vals:
+                self.env['kser.audit.log'].create({
+                    'action_type': 'update',
+                    'target_model': self._name,
+                    'target_id': rec.id,
+                    'details': f"Donation {rec.transaction_number} was modified: {list(vals.keys())}",
+                })
+        return res
+
+    def action_view_payment(self):
+        self.ensure_one()
+        if self.payment_id:
+            return {
+                'type': 'ir.actions.act_window',
+                'name': _('Linked Payment'),
+                'res_model': 'account.payment',
+                'view_mode': 'form',
+                'res_id': self.payment_id.id,
+                'target': 'current',
+            }

@@ -21,8 +21,10 @@ class ResPartner(models.Model):
     national_id_number = fields.Char(
         string='National ID Number',
         size=20,
+        required=True,
     )
     national_id_image = fields.Binary(
         string='ID Image',
         attachment=True,
+        required=True,
     )

@@ -32,6 +32,7 @@ class KserBeneficiary(models.Model):
     national_id_image = fields.Binary(
         string='ID Image',
         attachment=True,
+        required=True,
     )
     profession = fields.Char(
         string='Profession',

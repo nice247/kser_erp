@@ -30,7 +30,6 @@ class KserNationalIdWizard(models.TransientModel):
 
     id_image = fields.Binary(
         string='National ID Image',
-        required=True,
     )
     id_image_filename = fields.Char(
         string='File Name',
@@ -44,6 +43,11 @@ class KserNationalIdWizard(models.TransientModel):
     extracted_gender = fields.Char(string='Extracted Gender')
     extracted_confidence = fields.Float(string='OCR Confidence', readonly=True)
 
+    is_manual_entry = fields.Boolean(
+        string='Manual Entry',
+        default=False,
+    )
+
     state = fields.Selection(
         [
             ('upload', 'Upload Image'),
@@ -52,6 +56,21 @@ class KserNationalIdWizard(models.TransientModel):
         string='Stage',
         default='upload',
     )
+
+    def action_manual_entry(self):
+        """Skip OCR and go directly to manual data entry."""
+        self.ensure_one()
+        self.write({
+            'state': 'review',
+            'is_manual_entry': True,
+        })
+        return {
+            'type': 'ir.actions.act_window',
+            'res_model': self._name,
+            'res_id': self.id,
+            'view_mode': 'form',
+            'target': 'new',
+        }
 
     def action_extract_data(self):
         self.ensure_one()
@@ -71,22 +90,33 @@ class KserNationalIdWizard(models.TransientModel):
 
         try:
             response = requests.post(
-                f'{base_url}/api/v1/ocr/id',
+                f'{base_url}/api/v1/ocr/national-id',
                 files={'image': ('national_id.jpg', image_bytes, 'image/jpeg')},
-                headers={'Authorization': f'Bearer {api_key}'},
+                headers={'X-API-KEY': api_key},
                 timeout=30,
             )
-            response.raise_for_status()
         except requests.exceptions.RequestException as e:
             _logger.error('National ID OCR request failed: %s', str(e))
             raise UserError(_('Connection failed: %s') % str(e))
 
-        result = response.json()
+        try:
+            result = response.json()
+        except Exception:
+            raise UserError(_('Invalid response from server: %s') % response.text)
 
         if not result.get('success'):
+            backend_msg = result.get('message', '')
             errors = result.get('data', {}).get('errors', [])
-            error_msg = ', '.join(errors or [result.get('message', '')])
-            raise UserError(_('Data extraction failed: %s') % error_msg)
+            detailed_errors = ', '.join(errors) if errors else ''
+            
+            if backend_msg and detailed_errors:
+                error_msg = f"{backend_msg} \n(التفاصيل: {detailed_errors})"
+            elif backend_msg:
+                error_msg = backend_msg
+            else:
+                error_msg = detailed_errors or "حدث خطأ غير معروف أثناء المعالجة."
+                
+            raise UserError(f"فشلت عملية استخراج البيانات:\n{error_msg}")
 
         data = result.get('data', {})
 
