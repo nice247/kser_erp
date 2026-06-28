@@ -151,7 +151,7 @@ class KserCashDonation(models.Model):
                 'currency_id': rec.currency_id.id,
                 'journal_id': journal.id,
                 'date': rec.donation_date,
-                'ref': f"Donation: {rec.transaction_number}",
+                'memo': f"Donation: {rec.transaction_number}",
             }
             payment = self.env['account.payment'].create(payment_vals)
             payment.action_post()
