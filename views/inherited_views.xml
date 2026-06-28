@@ -32,6 +32,7 @@
                 <xpath expr="//div[@name='button_box']" position="inside">
                     <field name="is_volunteer" invisible="1"/>
                     <field name="is_donor" invisible="1"/>
+                    <field name="is_beneficiary" invisible="1"/>
                     <button name="action_view_tasks" type="object"
                             class="oe_stat_button" icon="fa-tasks"
                             invisible="not is_volunteer">
@@ -216,10 +217,10 @@
             <field name="inherit_id" ref="account.partner_view_buttons"/>
             <field name="arch" type="xml">
                 <xpath expr="//button[@name='action_view_partner_invoices']" position="attributes">
-                    <attribute name="invisible">is_volunteer</attribute>
+                    <attribute name="invisible">is_volunteer or is_beneficiary</attribute>
                 </xpath>
                 <xpath expr="//field[@name='supplier_invoice_count']/.." position="attributes">
-                    <attribute name="invisible">is_volunteer or supplier_invoice_count == 0</attribute>
+                    <attribute name="invisible">is_volunteer or is_beneficiary or supplier_invoice_count == 0</attribute>
                 </xpath>
             </field>
         </record>
@@ -230,10 +231,10 @@
             <field name="inherit_id" ref="account.view_partner_property_form"/>
             <field name="arch" type="xml">
                 <xpath expr="//page[@name='accounting']" position="attributes">
-                    <attribute name="invisible">is_volunteer or (not is_company and parent_id)</attribute>
+                    <attribute name="invisible">is_volunteer or is_beneficiary or (not is_company and parent_id)</attribute>
                 </xpath>
                 <xpath expr="//page[@name='accounting_disabled']" position="attributes">
-                    <attribute name="invisible">is_volunteer or (is_company or not parent_id)</attribute>
+                    <attribute name="invisible">is_volunteer or is_beneficiary or (is_company or not parent_id)</attribute>
                 </xpath>
             </field>
         </record>
