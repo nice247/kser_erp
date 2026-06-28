@@ -19,12 +19,12 @@
 
         <function model="ir.config_parameter" name="set_param">
             <value>pwa.manifest.theme_color</value>
-            <value>#007A3D</value>
+            <value>#149b74</value>
         </function>
 
         <function model="ir.config_parameter" name="set_param">
             <value>pwa.manifest.background_color</value>
-            <value>#007A3D</value>
+            <value>#149b74</value>
         </function>
     </data>
 </odoo>
