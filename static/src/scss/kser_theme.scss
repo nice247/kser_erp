@@ -1,0 +1,155 @@
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300%3B400%3B500%3B600%3B700%3B800&family=Tajawal:wght@300%3B400%3B500%3B700%3B900&display=swap');
+
+body, h1, h2, h3, h4, h5, h6, .o_main_navbar, .btn, .o_input, .o_form_view, .o_list_view, .o_kanban_view, .o_control_panel, .breadcrumb, .o_field_widget {
+    font-family: 'Cairo', 'Tajawal', sans-serif !important;
+}
+
+.fa, [class^="fa-"], [class*=" fa-"] {
+    font-family: 'FontAwesome' !important;
+}
+
+.oi, [class^="oi-"], [class*=" oi-"] {
+    font-family: 'odoo_ui_icons' !important;
+}
+
+body {
+    color: #212529 !important;
+}
+
+.o_main_navbar {
+    background-color: #007A3D !important;
+    border-bottom: 1px solid #005a2d !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+}
+
+.o_main_navbar a, .o_main_navbar span, .o_main_navbar button {
+    color: #ffffff !important;
+    transition: background-color 0.2s ease-in-out !important;
+}
+
+.o_main_navbar .dropdown-menu a, .o_main_navbar .dropdown-menu span, .o_main_navbar .dropdown-menu button {
+    color: #212529 !important;
+}
+
+.o_main_navbar a:hover, .o_main_navbar button:hover {
+    background-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+.btn-primary, .oe_highlight, .o_btn_primary {
+    background-color: #2563eb !important;
+    border-color: #2563eb !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    border-radius: 8px !important;
+    box-shadow: 0 2px 4px rgba(37, 99, 235, 0.15) !important;
+    transition: all 0.2s ease-in-out !important;
+}
+
+.btn-primary:hover, .btn-primary:focus, .btn-primary:active, .oe_highlight:hover, .oe_highlight:focus, .oe_highlight:active, .o_btn_primary:hover {
+    background-color: #1d4ed8 !important;
+    border-color: #1a56db !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25) !important;
+    transform: translateY(-1px) !important;
+}
+
+.btn-secondary {
+    background-color: #F8F9FA !important;
+    border: 1px solid #dee2e6 !important;
+    color: #000000 !important;
+    border-radius: 8px !important;
+    transition: all 0.2s ease-in-out !important;
+}
+
+.btn-secondary:hover {
+    background-color: #e9ecef !important;
+    border-color: #ced4da !important;
+    color: #000000 !important;
+    transform: translateY(-1px) !important;
+}
+
+.o_required_modifier.o_input, .o_required_modifier .o_input, input[required], select[required], textarea[required] {
+    border-bottom: 2px solid #2563eb !important;
+    background-color: #f0f7ff !important;
+}
+
+.o_input:focus {
+    border-color: #2563eb !important;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18) !important;
+}
+
+.alert-danger {
+    background-color: #fdf2f2 !important;
+    border-color: #f8b4b4 !important;
+    color: #9b1c1c !important;
+    border-radius: 8px !important;
+}
+
+.alert-warning {
+    background-color: #fdf8e6 !important;
+    border-color: #f3ebc0 !important;
+    color: #723b12 !important;
+    border-radius: 8px !important;
+}
+
+.alert-success {
+    background-color: #f3faf7 !important;
+    border-color: #def7ec !important;
+    color: #007A3D !important;
+    border-radius: 8px !important;
+}
+
+.o_form_view {
+    background-color: #ffffff !important;
+}
+
+.o_form_sheet_bg {
+    background-color: #f8f9fa !important;
+}
+
+.o_form_sheet {
+    background-color: #ffffff !important;
+    border: 1px solid #e9ecef !important;
+    border-radius: 12px !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05) !important;
+}
+
+.badge.bg-success, .badge.badge-success {
+    background-color: #007A3D !important;
+    color: #ffffff !important;
+}
+
+.badge.bg-warning, .badge.badge-warning {
+    background-color: #FFC107 !important;
+    color: #212529 !important;
+}
+
+.badge.bg-danger, .badge.badge-danger {
+    background-color: #CE1126 !important;
+    color: #ffffff !important;
+}
+
+.badge.bg-secondary, .badge.badge-secondary {
+    background-color: #000000 !important;
+    color: #ffffff !important;
+}
+
+@media (max-width: 768px) {
+    .btn {
+        padding: 10px 18px !important;
+        font-size: 15px !important;
+        min-height: 44px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+    
+    .o_form_view .o_group .o_td_label {
+        min-width: 100px !important;
+    }
+    
+    .o_main_navbar {
+        height: auto !important;
+        flex-wrap: wrap !important;
+    }
+}

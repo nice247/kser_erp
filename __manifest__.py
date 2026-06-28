@@ -39,7 +39,11 @@
         'views/kser_menus.xml',
     ],
     'assets': {
+        'web._assets_primary_variables': [
+            ('before', 'web/static/src/scss/primary_variables.scss', 'kser_erp/static/src/scss/kser_variables.scss'),
+        ],
         'web.assets_backend': [
+            'kser_erp/static/src/scss/kser_theme.scss',
             'kser_erp/static/src/js/kser_indexeddb.js',
         ],
     },
