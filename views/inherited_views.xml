@@ -210,9 +210,37 @@
             </field>
         </record>
 
+        <record id="view_partner_form_buttons_inherit_kser" model="ir.ui.view">
+            <field name="name">res.partner.form.buttons.inherit.kser</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="account.partner_view_buttons"/>
+            <field name="arch" type="xml">
+                <xpath expr="//button[@name='action_view_partner_invoices']" position="attributes">
+                    <attribute name="invisible">is_volunteer</attribute>
+                </xpath>
+                <xpath expr="//field[@name='supplier_invoice_count']/.." position="attributes">
+                    <attribute name="invisible">is_volunteer or supplier_invoice_count == 0</attribute>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="view_partner_form_property_inherit_kser" model="ir.ui.view">
+            <field name="name">res.partner.form.property.inherit.kser</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="account.view_partner_property_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//page[@name='accounting']" position="attributes">
+                    <attribute name="invisible">is_volunteer or (not is_company and parent_id)</attribute>
+                </xpath>
+                <xpath expr="//page[@name='accounting_disabled']" position="attributes">
+                    <attribute name="invisible">is_volunteer or (is_company or not parent_id)</attribute>
+                </xpath>
+            </field>
+        </record>
+
         <template id="webclient_bootstrap_inherit" inherit_id="web.webclient_bootstrap">
             <xpath expr="//meta[@name='theme-color']" position="attributes">
-                <attribute name="content">#149b74</attribute>
+                <attribute name="content">#007A3D</attribute>
             </xpath>
         </template>
     </data>
