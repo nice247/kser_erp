@@ -240,7 +240,7 @@
 
         <template id="webclient_bootstrap_inherit" inherit_id="web.webclient_bootstrap">
             <xpath expr="//meta[@name='theme-color']" position="attributes">
-                <attribute name="content">#007A3D</attribute>
+                <attribute name="content">#1d4ed8</attribute>
             </xpath>
         </template>
     </data>
