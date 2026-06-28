@@ -24,8 +24,9 @@ access_kser_bank_receipt_data,kser.bank.receipt.data,model_kser_bank_receipt_wiz
 access_kser_bank_receipt_system,kser.bank.receipt.system,model_kser_bank_receipt_wizard,kser_erp.group_system_admin,1,1,1,1
 access_kser_report_wizard_admin,kser.report.wizard.admin,model_kser_report_wizard,kser_erp.group_admin_supervisor,1,1,1,1
 access_kser_report_wizard_system,kser.report.wizard.system,model_kser_report_wizard,kser_erp.group_system_admin,1,1,1,1
-access_project_project_admin,project.project.admin,project.model_project_project,kser_erp.group_admin_supervisor,1,1,1,1
-access_project_project_field,project.project.field,project.model_project_project,kser_erp.group_field_supervisor,1,1,0,0
-access_project_project_data,project.project.data,project.model_project_project,kser_erp.group_data_manager,1,0,0,0
-access_project_project_stock,project.project.stock,project.model_project_project,kser_erp.group_stock_manager,1,0,0,0
-access_project_project_system,project.project.system,project.model_project_project,kser_erp.group_system_admin,1,1,1,1
+access_kser_project_admin,kser.project.admin,model_project_project,kser_erp.group_admin_supervisor,1,1,1,0
+access_kser_project_system,kser.project.system,model_project_project,kser_erp.group_system_admin,1,1,1,0
+access_kser_project_field,kser.project.field,model_project_project,kser_erp.group_field_supervisor,1,1,0,0
+access_kser_project_stock,kser.project.stock,model_project_project,kser_erp.group_stock_manager,1,0,0,0
+access_kser_project_data,kser.project.data,model_project_project,kser_erp.group_data_manager,1,0,0,0
+access_kser_project_user,kser.project.user,model_project_project,kser_erp.group_kser_user,1,0,0,0

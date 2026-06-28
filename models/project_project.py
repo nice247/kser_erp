@@ -98,3 +98,19 @@ class ProjectProject(models.Model):
             'domain': [('campaign_id', '=', self.id)],
             'context': {'default_campaign_id': self.id},
         }
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        if not (self.env.user.has_group('kser_erp.group_admin_supervisor') or self.env.user.has_group('kser_erp.group_system_admin')):
+            raise ValidationError(_("غير مسموح بإنشاء المشاريع / الحملات إلا للمشرف الإداري!"))
+        return super().create(vals_list)
+
+    def write(self, vals):
+        if not (self.env.user.has_group('kser_erp.group_admin_supervisor') or self.env.user.has_group('kser_erp.group_system_admin')):
+            allowed_fields = {'state', 'stage_id', 'active'}
+            if not set(vals.keys()).issubset(allowed_fields):
+                raise ValidationError(_("المشرف الميداني مسموح له فقط بتحديث حالة المشروع / الحملة عند انتهائه!"))
+        return super().write(vals)
+
+    def unlink(self):
+        raise ValidationError(_("غير مسموح بحذف المشاريع / الحملات مطلقاً! يمكنكم أرشفتها بدلاً من ذلك."))

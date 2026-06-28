@@ -22,6 +22,7 @@
         'web',
         'board',
         'contacts',
+        'spreadsheet_dashboard',
     ],
     'data': [
         'security/kser_security.xml',

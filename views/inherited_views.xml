@@ -163,6 +163,7 @@
                 <xpath expr="//field[@name='partner_id']" position="attributes">
                     <attribute name="invisible">1</attribute>
                 </xpath>
+                <!-- Add state buttons to header -->
                 <xpath expr="//header" position="inside">
                     <button name="action_approve_budget" type="object" string="اعتماد الميزانية"
                             class="oe_highlight" invisible="state != 'draft'"
@@ -172,6 +173,7 @@
                             groups="kser_erp.group_admin_supervisor"/>
                     <field name="state" widget="statusbar" statusbar_visible="draft,approved"/>
                 </xpath>
+                <!-- Add budget fields -->
                 <xpath expr="//group" position="inside">
                     <group string="ميزانية KSER" name="kser_budget_group">
                         <field name="budget_amount" string="قيمة الميزانية" readonly="state == 'approved'"/>
@@ -203,7 +205,7 @@
             <field name="inherit_id" ref="project.view_project"/>
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='partner_id']" position="attributes">
-                    <attribute name="invisible">1</attribute>
+                    <attribute name="column_invisible">True</attribute>
                 </xpath>
             </field>
         </record>

@@ -16,6 +16,7 @@ class ResPartner(models.Model):
     supervisor_id = fields.Many2one(
         'res.users',
         string='Field Supervisor',
+        domain=lambda self: [('groups_id', 'in', [self.env.ref('kser_erp.group_field_supervisor', raise_if_not_found=False).id])] if self.env.ref('kser_erp.group_field_supervisor', raise_if_not_found=False) else [],
         index=True,
     )
     national_id_number = fields.Char(

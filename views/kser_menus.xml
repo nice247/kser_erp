@@ -160,7 +160,8 @@
                   name="لوحة القيادة"
                   parent="menu_kser_root"
                   action="action_kser_emergency_dashboard"
-                  sequence="1"/>
+                  sequence="1"
+                  active="False"/>
 
         <!-- 1. جهات الاتصال -->
         <menuitem id="menu_kser_contacts"
@@ -221,7 +222,7 @@
             <field name="parent_id" ref="menu_kser_contacts"/>
             <field name="action" ref="action_kser_contacts"/>
             <field name="sequence" eval="1"/>
-            <field name="groups_id" eval="[(6, 0, [ref('group_admin_supervisor'), ref('group_data_manager'), ref('group_system_admin')])]"/>
+            <field name="groups_id" eval="[(6, 0, [ref('group_system_admin')])]"/>
         </record>
 
         <record id="menu_kser_volunteers" model="ir.ui.menu">
@@ -368,7 +369,7 @@
 
         <!-- جهات الاتصال القياسي -->
         <record id="contacts.menu_contacts" model="ir.ui.menu">
-            <field name="groups_id" eval="[(6, 0, [ref('group_admin_supervisor'), ref('group_data_manager'), ref('group_system_admin')])]"/>
+            <field name="active" eval="False"/>
         </record>
 
         <record id="contacts.action_contacts" model="ir.actions.act_window">
@@ -376,7 +377,7 @@
         </record>
 
         <!-- المشاريع القياسي -->
-        <menuitem id="project.menu_main_pm" name="المشاريع / الحملات" groups="kser_erp.group_admin_supervisor,kser_erp.group_field_supervisor,kser_erp.group_system_admin"/>
+        <menuitem id="project.menu_main_pm" groups="kser_erp.group_admin_supervisor,kser_erp.group_field_supervisor,kser_erp.group_system_admin"/>
 
         <!-- المخزن القياسي -->
         <menuitem id="stock.menu_stock_root" groups="kser_erp.group_stock_manager,kser_erp.group_system_admin"/>
@@ -387,5 +388,8 @@
         <!-- المناقشة والمراسلات القياسي -->
         <menuitem id="mail.menu_root_discuss" groups="kser_erp.group_kser_user"/>
 
+        <record id="spreadsheet_dashboard.spreadsheet_dashboard_menu_root" model="ir.ui.menu">
+            <field name="active" eval="False"/>
+        </record>
     </data>
 </odoo>

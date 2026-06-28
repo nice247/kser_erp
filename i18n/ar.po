@@ -479,3 +479,16 @@ msgstr "بيانات الاعتماد للـ API (kser.springboot_api_key أو k
 #. module: kser_erp
 msgid "Connection failed: %s"
 msgstr "فشل الاتصال: %s"
+
+#. module: project
+msgid "Project"
+msgstr "مشروع / حملة"
+
+#. module: project
+msgid "Projects"
+msgstr "مشاريع / حملات"
+
+#. module: project
+#: model:ir.model,name:project.model_project_project
+msgid "Project"
+msgstr "مشروع / حملة"

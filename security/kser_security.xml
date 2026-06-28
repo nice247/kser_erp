@@ -74,7 +74,7 @@
             <field name="name">Volunteers/Donors/Contacts: Own Records Only</field>
             <field name="model_id" ref="base.model_res_partner"/>
             <field name="groups" eval="[(4, ref('group_data_manager')), (4, ref('group_stock_manager')), (4, ref('group_field_supervisor'))]"/>
-            <field name="domain_force">['|', '|', '|', '|', ('create_uid', '=', user.id), ('supervisor_id', '=', user.id), ('id', '=', user.partner_id.id), ('id', '=', user.company_id.partner_id.id), ('user_ids', '!=', False)]</field>
+            <field name="domain_force">['|', '|', '|', ('create_uid', '=', user.id), ('id', '=', user.partner_id.id), ('id', '=', user.company_id.partner_id.id), ('user_ids', '!=', False)]</field>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>
             <field name="perm_create" eval="True"/>
