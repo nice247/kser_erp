@@ -198,7 +198,7 @@ class KserAiWizard(models.TransientModel):
                 'action_type': 'create',
                 'target_model': 'stock.picking',
                 'target_id': picking.id,
-                'details': f"AI suggestion applied. Created picking {picking.name} for Campaign: {self.campaign_id.name}, Product: {line.product_id.name}, Beneficiaries count: {len(line.beneficiary_ids)}",
+                'details': f"تم تطبيق اقتراح الذكاء الاصطناعي. تم إنشاء إذن التوزيع {picking.name} للحملة: {self.campaign_id.name}، الصنف: {line.product_id.name}، عدد المستفيدين: {len(line.beneficiary_ids)}",
             })
 
         # Return list action of created pickings

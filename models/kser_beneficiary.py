@@ -260,7 +260,7 @@ class KserBeneficiary(models.Model):
                 'action_type': 'create',
                 'target_model': self._name,
                 'target_id': rec.id,
-                'details': f"Beneficiary registered: National ID {rec.national_id_number}, District: {rec.district}",
+                'details': f"تم تسجيل مستفيد جديد: الرقم الوطني {rec.national_id_number}، الحي/المنطقة: {rec.district or '-'}",
             })
         return records
 
@@ -281,13 +281,13 @@ class KserBeneficiary(models.Model):
                     'action_type': 'approve',
                     'target_model': self._name,
                     'target_id': rec.id,
-                    'details': f"Beneficiary (National ID: {rec.national_id_number}) was verified",
+                    'details': f"تم التحقق من المستفيد (الرقم الوطني: {rec.national_id_number})",
                 })
             elif vals:
                 self.env['kser.audit.log'].sudo().create({
                     'action_type': 'update',
                     'target_model': self._name,
                     'target_id': rec.id,
-                    'details': f"Beneficiary (National ID: {rec.national_id_number}) was modified: {list(vals.keys())}",
+                    'details': f"تم تعديل بيانات المستفيد (الرقم الوطني: {rec.national_id_number}). الحقول المعدلة: {list(vals.keys())}",
                 })
         return res

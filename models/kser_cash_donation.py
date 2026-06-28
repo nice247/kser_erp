@@ -170,7 +170,7 @@ class KserCashDonation(models.Model):
                 'action_type': 'create',
                 'target_model': self._name,
                 'target_id': rec.id,
-                'details': f"Bank receipt uploaded/created with Transaction ID: {rec.transaction_number}, Amount: {rec.amount}",
+                'details': f"تم إنشاء/رفع إيصال بنكي برقم معاملة: {rec.transaction_number}، بمبلغ: {rec.amount}",
             })
         return records
 
@@ -182,14 +182,14 @@ class KserCashDonation(models.Model):
                     'action_type': 'approve',
                     'target_model': self._name,
                     'target_id': rec.id,
-                    'details': f"Donation {rec.transaction_number} confirmed financially. Linked to Payment: {rec.payment_id.id if rec.payment_id else 'N/A'}",
+                    'details': f"تم تأكيد استلام التبرع {rec.transaction_number} مالياً. رقم قيد الدفع: {rec.payment_id.id if rec.payment_id else 'غير محدد'}",
                 })
             elif vals:
                 self.env['kser.audit.log'].sudo().create({
                     'action_type': 'update',
                     'target_model': self._name,
                     'target_id': rec.id,
-                    'details': f"Donation {rec.transaction_number} was modified: {list(vals.keys())}",
+                    'details': f"تم تعديل التبرع {rec.transaction_number}. الحقول المعدلة: {list(vals.keys())}",
                 })
         return res
 

@@ -64,7 +64,7 @@ class ProjectProject(models.Model):
                 'action_type': 'approve',
                 'target_model': self._name,
                 'target_id': rec.id,
-                'details': f"Campaign budget approved: {rec.name}, Budget Amount: {rec.budget_amount} {rec.currency_id.name}",
+                'details': f"تم اعتماد ميزانية الحملة: {rec.name}، بمبلغ: {rec.budget_amount} {rec.currency_id.name}",
             })
 
     def action_draft_budget(self):
@@ -74,7 +74,7 @@ class ProjectProject(models.Model):
                 'action_type': 'update',
                 'target_model': self._name,
                 'target_id': rec.id,
-                'details': f"Campaign budget reset to draft: {rec.name}",
+                'details': f"تمت إعادة ميزانية الحملة للمسودة: {rec.name}",
             })
 
     def action_view_pickings(self):

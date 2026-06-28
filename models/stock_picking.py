@@ -37,6 +37,6 @@ class StockPicking(models.Model):
                     'action_type': 'approve',
                     'target_model': self._name,
                     'target_id': rec.id,
-                    'details': f"Distribution transfer {rec.name} validated. Campaign: {rec.project_id.name if rec.project_id else 'N/A'}",
+                    'details': f"تم تصديق إذن التوزيع {rec.name}. الحملة: {rec.project_id.name if rec.project_id else 'غير محدد'}",
                 })
         return res
