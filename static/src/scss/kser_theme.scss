@@ -38,20 +38,20 @@ body, .o_web_client, .o_action_manager, .o_content, .o_form_view, .o_list_view, 
 }
 
 .btn-primary, .oe_highlight, .o_btn_primary {
-    background-color: #0284c7 !important;
-    border-color: #0284c7 !important;
+    background-color: #0d9488 !important;
+    border-color: #0d9488 !important;
     color: #ffffff !important;
     font-weight: 600 !important;
     border-radius: 8px !important;
-    box-shadow: 0 2px 4px rgba(2, 132, 199, 0.2) !important;
+    box-shadow: 0 2px 4px rgba(13, 148, 136, 0.2) !important;
     transition: all 0.2s ease-in-out !important;
 }
 
 .btn-primary:hover, .btn-primary:focus, .btn-primary:active, .oe_highlight:hover, .oe_highlight:focus, .oe_highlight:active, .o_btn_primary:hover {
-    background-color: #0369a1 !important;
-    border-color: #0284c7 !important;
+    background-color: #0f766e !important;
+    border-color: #0d9488 !important;
     color: #ffffff !important;
-    box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3) !important;
+    box-shadow: 0 4px 12px rgba(13, 148, 136, 0.3) !important;
     transform: translateY(-1px) !important;
 }
 
@@ -95,15 +95,15 @@ body, .o_web_client, .o_action_manager, .o_content, .o_form_view, .o_list_view, 
 }
 
 .o_required_modifier.o_input, .o_required_modifier .o_input, input[required], select[required], textarea[required] {
-    border-bottom: 2px solid #0284c7 !important;
+    border-bottom: 2px solid #0d9488 !important;
     background-color: #0f172a !important;
 }
 
 .o_input:focus, input:focus, select:focus, textarea:focus {
-    border-color: #0284c7 !important;
+    border-color: #0d9488 !important;
     background-color: #0f172a !important;
     color: #ffffff !important;
-    box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.25) !important;
+    box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.25) !important;
 }
 
 .o_control_panel, .o_control_panel_main, .o_control_panel_navigation, .o_control_panel_breadcrumbs {
@@ -113,7 +113,7 @@ body, .o_web_client, .o_action_manager, .o_content, .o_form_view, .o_list_view, 
 }
 
 .breadcrumb-item a {
-    color: #0284c7 !important;
+    color: #0d9488 !important;
 }
 
 .breadcrumb-item.active {
@@ -300,7 +300,7 @@ body, .o_web_client, .o_action_manager, .o_content, .o_form_view, .o_list_view, 
 }
 
 .kser-ptr-active .kser-ptr-arrow {
-    fill: #0284c7 !important;
+    fill: #0d9488 !important;
 }
 
 .kser-ptr-refreshing {
@@ -316,7 +316,7 @@ body, .o_web_client, .o_action_manager, .o_content, .o_form_view, .o_list_view, 
 }
 
 .kser-ptr-refreshing .kser-ptr-head {
-    stroke: #0284c7 !important;
+    stroke: #0d9488 !important;
     stroke-dashoffset: 20 !important;
     animation: kser-dash 1.5s ease-in-out infinite alternate !important;
 }
