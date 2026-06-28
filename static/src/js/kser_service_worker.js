@@ -80,8 +80,13 @@ async function ksDeleteRequest(id) {
 
 self.addEventListener("fetch", (event) => {
     const url = new URL(event.request.url);
+    const isTarget = event.request.method === "POST" && (
+        url.pathname === "/web/dataset/call_kw/kser.beneficiary/create" ||
+        url.pathname === "/web/dataset/call_kw/kser.beneficiary/web_save" ||
+        url.pathname === "/web/dataset/call_kw/kser.beneficiary/write"
+    );
 
-    if (event.request.method === "POST" && url.pathname === KSER_TARGET_PATH) {
+    if (isTarget) {
         event.respondWith(
             (async () => {
                 try {
@@ -106,9 +111,15 @@ self.addEventListener("fetch", (event) => {
                         await self.registration.sync.register(KSER_SYNC_TAG);
                     }
 
+                    let reqId = null;
+                    try {
+                        const parsed = JSON.parse(body);
+                        reqId = parsed.id;
+                    } catch (e) {}
+
                     const mockResponse = {
                         jsonrpc: "2.0",
-                        id: null,
+                        id: reqId,
                         result: true,
                     };
 

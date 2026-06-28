@@ -70,3 +70,30 @@ async function deleteRequest(id) {
         request.onerror = () => reject(request.error);
     });
 }
+
+async function replayPendingRequestsFallback() {
+    if (!navigator.onLine) return;
+    try {
+        const pending = await getPendingRequests();
+        if (!pending || pending.length === 0) return;
+        
+        for (const record of pending) {
+            try {
+                const response = await fetch(record.url, {
+                    method: "POST",
+                    headers: record.headers,
+                    body: record.payload,
+                });
+                if (response.ok) {
+                    await deleteRequest(record.id);
+                }
+            } catch (err) {
+            }
+        }
+    } catch (e) {
+    }
+}
+
+window.addEventListener('online', replayPendingRequestsFallback);
+setInterval(replayPendingRequestsFallback, 30000);
+window.addEventListener('load', replayPendingRequestsFallback);
