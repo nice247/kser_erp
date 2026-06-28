@@ -22,7 +22,6 @@ class ResPartner(models.Model):
     national_id_number = fields.Char(
         string='National ID Number',
         size=20,
-        required=True,
     )
     is_volunteer = fields.Boolean(
         compute='_compute_role_booleans',
@@ -41,7 +40,6 @@ class ResPartner(models.Model):
     national_id_image = fields.Binary(
         string='ID Image',
         attachment=True,
-        required=True,
     )
 
     @api.constrains('national_id_number', 'national_id_image', 'category_tag')
