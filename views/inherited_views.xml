@@ -11,8 +11,8 @@
             <field name="arch" type="xml">
                 <list string="جهات الاتصال" default_order="create_date desc">
                     <field name="name" string="الاسم"/>
-                    <field name="national_id_number" string="الرقم الوطني"/>
                     <field name="category_tag" string="التصنيف"/>
+                    <field name="national_id_number" string="الرقم الوطني"/>
                     <field name="phone" string="الهاتف"/>
                     <field name="email" string="البريد الإلكتروني"/>
                     <field name="supervisor_id" string="المشرف الميداني" optional="hide"/>
