@@ -7,4 +7,5 @@ from . import stock_picking
 from . import stock_move
 from . import project_task
 from . import project_project
+from . import account_move
 

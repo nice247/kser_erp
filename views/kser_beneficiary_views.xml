@@ -41,6 +41,7 @@
                       decoration-warning="priority_level == 'medium'">
                     <field name="partner_id" string="اسم المستفيد"/>
                     <field name="national_id_number" string="رقم الهوية"/>
+                    <field name="phone" string="الهاتف"/>
                     <field name="district" string="المحلية"/>
                     <field name="family_size" string="حجم الأسرة"/>
                     <field name="priority_level" string="مستوى الأولوية"/>
@@ -62,8 +63,7 @@
                     <sheet>
                         <div class="oe_button_box" name="button_box">
                             <button name="action_view_moves" type="object"
-                                    class="oe_stat_button" icon="fa-truck"
-                                    invisible="move_count == 0">
+                                    class="oe_stat_button" icon="fa-truck">
                                 <div class="o_stat_info">
                                     <field name="move_count" class="o_stat_value"/>
                                     <span class="o_stat_text">المساعدات المستلمة</span>
@@ -83,6 +83,10 @@
                         <group>
                             <group string="البيانات الأساسية">
                                 <field name="national_id_number" string="رقم الهوية الوطنية"/>
+                                <field name="phone" string="رقم الهاتف"/>
+                                <field name="mobile" string="رقم الجوال"/>
+                                <field name="relationship" string="العلاقة برب الأسرة"/>
+                                <field name="head_of_family_id" string="رب الأسرة المسؤول" invisible="relationship == 'self'"/>
                                 <field name="profession" string="المهنة"/>
                                 <field name="marital_status" string="الحالة الاجتماعية"/>
                                 <field name="birthdate" string="تاريخ الميلاد"/>
@@ -94,11 +98,21 @@
                                 <field name="registered_by" string="مسجّل بواسطة"/>
                                 <field name="is_verified" string="تم التحقق" widget="boolean_toggle"/>
                                 <field name="ocr_confidence" string="دقة التعرف الآلي"/>
-                                <field name="head_of_family_id" string="رب الأسرة"/>
                             </group>
                         </group>
 
                         <notebook>
+                            <page string="أفراد الأسرة" name="family_members" invisible="relationship != 'self'">
+                                <field name="member_ids">
+                                    <list editable="bottom">
+                                        <field name="partner_id" string="اسم المستفيد"/>
+                                        <field name="national_id_number" string="رقم الهوية الوطنية"/>
+                                        <field name="phone" string="رقم الهاتف"/>
+                                        <field name="relationship" string="العلاقة برب الأسرة"/>
+                                        <field name="is_verified" string="تم التحقق" widget="boolean_toggle"/>
+                                    </list>
+                                </field>
+                            </page>
                             <page string="الأولوية والحالة الصحية" name="page_priority">
                                 <group>
                                     <group string="الأولوية">

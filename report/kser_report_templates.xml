@@ -22,6 +22,7 @@
                 .kser-header-table {
                     width: 100%;
                     margin-bottom: 10px;
+                    margin-top: 0;
                     border: none;
                 }
                 .kser-header-table td {
@@ -206,17 +207,14 @@
                     <!-- ===== HEADER ===== -->
                     <table class="kser-header-table">
                         <tr>
-                            <td style="width: 20%; text-align: right;">
+                            <td style="width: 25%; text-align: right; vertical-align: middle;">
                                 <img t-if="company.logo" t-att-src="image_data_uri(company.logo)"
-                                     style="max-height: 65px;" alt="Logo"/>
+                                     style="height: 80px; width: auto;" alt="Logo"/>
                             </td>
-                            <td style="width: 60%; text-align: center;">
+                            <td style="width: 50%; text-align: center; vertical-align: middle;">
                                 <div class="kser-title">تقرير إنجاز المتطوعين الميدانيين</div>
                             </td>
-                            <td style="width: 20%; text-align: left;">
-                                <img src="/kser_erp/static/description/icon.png"
-                                     style="max-height: 60px;" alt="KSER Logo"/>
-                            </td>
+                            <td style="width: 25%;"></td>
                         </tr>
                     </table>
 
@@ -312,17 +310,14 @@
                     <!-- ===== HEADER ===== -->
                     <table class="kser-header-table">
                         <tr>
-                            <td style="width: 20%; text-align: right;">
+                            <td style="width: 25%; text-align: right; vertical-align: middle;">
                                 <img t-if="company.logo" t-att-src="image_data_uri(company.logo)"
-                                     style="max-height: 65px;" alt="Logo"/>
+                                     style="height: 80px; width: auto;" alt="Logo"/>
                             </td>
-                            <td style="width: 60%; text-align: center;">
+                            <td style="width: 50%; text-align: center; vertical-align: middle;">
                                 <div class="kser-title">تقرير أداء الغرفة وحجم المساعدات</div>
                             </td>
-                            <td style="width: 20%; text-align: left;">
-                                <img src="/kser_erp/static/description/icon.png"
-                                     style="max-height: 60px;" alt="KSER Logo"/>
-                            </td>
+                            <td style="width: 25%;"></td>
                         </tr>
                     </table>
 
@@ -487,17 +482,14 @@
                     <!-- ===== HEADER ===== -->
                     <table class="kser-header-table">
                         <tr>
-                            <td style="width: 20%; text-align: right;">
+                            <td style="width: 25%; text-align: right; vertical-align: middle;">
                                 <img t-if="company.logo" t-att-src="image_data_uri(company.logo)"
-                                     style="max-height: 65px;" alt="Logo"/>
+                                     style="height: 80px; width: auto;" alt="Logo"/>
                             </td>
-                            <td style="width: 60%; text-align: center;">
+                            <td style="width: 50%; text-align: center; vertical-align: middle;">
                                 <div class="kser-title">تقرير الميزانية التشغيلية</div>
                             </td>
-                            <td style="width: 20%; text-align: left;">
-                                <img src="/kser_erp/static/description/icon.png"
-                                     style="max-height: 60px;" alt="KSER Logo"/>
-                            </td>
+                            <td style="width: 25%;"></td>
                         </tr>
                     </table>
 
@@ -631,6 +623,23 @@
 
 
         <!-- ================================================================== -->
+        <!--  CUSTOM PAPER FORMAT: هامش علوي صغير لإزالة المسافة الزائدة       -->
+        <!-- ================================================================== -->
+        <record id="paperformat_kser" model="report.paperformat">
+            <field name="name">KSER A4</field>
+            <field name="default" eval="False"/>
+            <field name="format">A4</field>
+            <field name="orientation">Portrait</field>
+            <field name="margin_top">5</field>
+            <field name="margin_bottom">5</field>
+            <field name="margin_left">5</field>
+            <field name="margin_right">5</field>
+            <field name="header_line" eval="False"/>
+            <field name="header_spacing">0</field>
+            <field name="dpi">90</field>
+        </record>
+
+        <!-- ================================================================== -->
         <!--  REPORT ACTION RECORDS (ir.actions.report)                         -->
         <!-- ================================================================== -->
 
@@ -641,9 +650,9 @@
             <field name="report_type">qweb-pdf</field>
             <field name="report_name">kser_erp.report_volunteer_template</field>
             <field name="report_file">kser_erp.report_volunteer_template</field>
-            <field name="print_report_name">'تقرير_إنجاز_المتطوعين_%s' % (object.name if object else 'report')</field>
+            <field name="print_report_name">'تقرير_إنجاز_المتطوعين_الميدانيين_%s' % (object.create_date.strftime('%Y-%m-%d'))</field>
             <field name="binding_type">report</field>
-            <field name="paperformat_id" ref="base.paperformat_euro"/>
+            <field name="paperformat_id" ref="kser_erp.paperformat_kser"/>
         </record>
 
         <!-- Report 2: تقرير أداء الغرفة وحجم المساعدات -->
@@ -653,9 +662,9 @@
             <field name="report_type">qweb-pdf</field>
             <field name="report_name">kser_erp.report_performance_template</field>
             <field name="report_file">kser_erp.report_performance_template</field>
-            <field name="print_report_name">'تقرير_أداء_الغرفة_%s' % (object.name if object else 'report')</field>
+            <field name="print_report_name">'تقرير_أداء_الغرفة_وحجم_المساعدات_%s' % (object.create_date.strftime('%Y-%m-%d'))</field>
             <field name="binding_type">report</field>
-            <field name="paperformat_id" ref="base.paperformat_euro"/>
+            <field name="paperformat_id" ref="kser_erp.paperformat_kser"/>
         </record>
 
         <!-- Report 3: تقرير الميزانية التشغيلية -->
@@ -665,9 +674,9 @@
             <field name="report_type">qweb-pdf</field>
             <field name="report_name">kser_erp.report_budget_template</field>
             <field name="report_file">kser_erp.report_budget_template</field>
-            <field name="print_report_name">'تقرير_الميزانية_التشغيلية_%s' % (object.name if object else 'report')</field>
+            <field name="print_report_name">'تقرير_الميزانية_التشغيلية_%s' % (object.create_date.strftime('%Y-%m-%d'))</field>
             <field name="binding_type">report</field>
-            <field name="paperformat_id" ref="base.paperformat_euro"/>
+            <field name="paperformat_id" ref="kser_erp.paperformat_kser"/>
         </record>
 
     </data>

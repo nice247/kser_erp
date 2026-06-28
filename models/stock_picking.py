@@ -7,7 +7,7 @@ class StockPicking(models.Model):
 
     project_id = fields.Many2one(
         'project.project',
-        string='Campaign (Project)',
+        string='Project / Campaign',
         index=True,
         tracking=True,
     )

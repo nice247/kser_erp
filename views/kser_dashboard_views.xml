@@ -56,11 +56,11 @@
 
         <!-- 7. Contacts List Action -->
         <record id="action_contacts_dashboard_list" model="ir.actions.act_window">
-            <field name="name">أحدث سجلات جهات الاتصال المسجلة</field>
+            <field name="name">أحدث الشركاء المسجلين (الشركات والمنظمات)</field>
             <field name="res_model">res.partner</field>
             <field name="view_mode">list</field>
             <field name="view_id" ref="kser_erp.view_res_partner_tree_kser"/>
-            <field name="domain" eval="[('user_ids', '=', False), ('is_company', '=', False)]"/>
+            <field name="domain" eval="[('is_company', '=', True)]"/>
             <field name="limit">5</field>
         </record>
 
@@ -96,7 +96,7 @@
                                     string="سجلات التدقيق الأخيرة"
                                     groups="kser_erp.group_admin_supervisor,kser_erp.group_system_admin"/>
                             <action name="%(action_contacts_dashboard_list)d" 
-                                    string="أحدث سجلات جهات الاتصال المسجلة"
+                                    string="الشركاء (الشركات والمنظمات)"
                                     groups="kser_erp.group_admin_supervisor,kser_erp.group_system_admin"/>
                         </column>
                     </board>

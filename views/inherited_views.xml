@@ -29,11 +29,12 @@
             <field name="model">res.partner</field>
             <field name="inherit_id" ref="base.view_partner_form"/>
             <field name="arch" type="xml">
-                <!-- Smart Buttons for Partner -->
                 <xpath expr="//div[@name='button_box']" position="inside">
+                    <field name="is_volunteer" invisible="1"/>
+                    <field name="is_donor" invisible="1"/>
                     <button name="action_view_tasks" type="object"
                             class="oe_stat_button" icon="fa-tasks"
-                            invisible="task_count == 0">
+                            invisible="not is_volunteer">
                         <div class="o_stat_info">
                             <field name="task_count" class="o_stat_value"/>
                             <span class="o_stat_text">المهام الميدانية</span>
@@ -41,14 +42,52 @@
                     </button>
                     <button name="action_view_donations" type="object"
                             class="oe_stat_button" icon="fa-money"
-                            invisible="donation_count == 0">
+                            invisible="not is_donor">
                         <div class="o_stat_info">
                             <field name="donation_count" class="o_stat_value"/>
                             <span class="o_stat_text">التبرعات النقدية</span>
                         </div>
                     </button>
                 </xpath>
-                <!-- Identity Group -->
+                <xpath expr="//field[@name='company_type']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='parent_id']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='company_name']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//button[@name='create_company']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='vat']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='function']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='website']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='title']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='lang']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='category_id']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//span[@name='address_name']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//page[@name='contact_addresses']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//page[@name='sales_purchases']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
                 <xpath expr="//sheet//group" position="after">
                     <group string="بيانات KSER" name="kser_identity_group">
                         <group string="التصنيف والإشراف">
@@ -121,7 +160,9 @@
             <field name="model">project.project</field>
             <field name="inherit_id" ref="project.edit_project"/>
             <field name="arch" type="xml">
-                <!-- Add state buttons to header -->
+                <xpath expr="//field[@name='partner_id']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
                 <xpath expr="//header" position="inside">
                     <button name="action_approve_budget" type="object" string="اعتماد الميزانية"
                             class="oe_highlight" invisible="state != 'draft'"
@@ -131,26 +172,22 @@
                             groups="kser_erp.group_admin_supervisor"/>
                     <field name="state" widget="statusbar" statusbar_visible="draft,approved"/>
                 </xpath>
-                <!-- Add budget fields -->
                 <xpath expr="//group" position="inside">
                     <group string="ميزانية KSER" name="kser_budget_group">
                         <field name="budget_amount" string="قيمة الميزانية" readonly="state == 'approved'"/>
                         <field name="currency_id" string="العملة" readonly="state == 'approved'"/>
                     </group>
                 </xpath>
-                <!-- Smart Buttons for Project -->
                 <xpath expr="//div[@name='button_box']" position="inside">
                     <button name="action_view_pickings" type="object"
-                            class="oe_stat_button" icon="fa-truck"
-                            invisible="picking_count == 0">
+                            class="oe_stat_button" icon="fa-truck">
                         <div class="o_stat_info">
                             <field name="picking_count" class="o_stat_value"/>
                             <span class="o_stat_text">عمليات التوزيع</span>
                         </div>
                     </button>
                     <button name="action_view_donations" type="object"
-                            class="oe_stat_button" icon="fa-money"
-                            invisible="donation_count == 0">
+                            class="oe_stat_button" icon="fa-money">
                         <div class="o_stat_info">
                             <field name="donation_count" class="o_stat_value"/>
                             <span class="o_stat_text">التبرعات النقدية</span>
@@ -160,5 +197,15 @@
             </field>
         </record>
 
+        <record id="view_project_project_tree_inherit_kser" model="ir.ui.view">
+            <field name="name">project.project.tree.inherit.kser</field>
+            <field name="model">project.project</field>
+            <field name="inherit_id" ref="project.view_project"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='partner_id']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+            </field>
+        </record>
     </data>
 </odoo>

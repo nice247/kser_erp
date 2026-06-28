@@ -28,6 +28,11 @@ class KserNationalIdWizard(models.TransientModel):
     _name = 'kser.national.id.wizard'
     _description = 'National ID Extraction Wizard'
 
+    target_type = fields.Selection([
+        ('beneficiary', 'Beneficiary'),
+        ('volunteer', 'Volunteer'),
+    ], string='Target Type', default='beneficiary')
+
     id_image = fields.Binary(
         string='National ID Image',
     )
@@ -145,6 +150,28 @@ class KserNationalIdWizard(models.TransientModel):
         if not self.extracted_national_id:
             raise UserError(_('No extracted National ID!'))
 
+        if self.target_type == 'volunteer':
+            existing_partner = self.env['res.partner'].search([
+                ('national_id_number', '=', self.extracted_national_id),
+            ], limit=1)
+
+            volunteer_tag = self.env.ref('kser_erp.partner_category_volunteer', raise_if_not_found=False)
+
+            if existing_partner:
+                existing_partner.write({
+                    'name': self.extracted_name or existing_partner.name,
+                    'national_id_image': self.id_image,
+                    'category_tag': volunteer_tag.id if volunteer_tag else False,
+                })
+            else:
+                self.env['res.partner'].create({
+                    'name': self.extracted_name or _('New Volunteer'),
+                    'national_id_number': self.extracted_national_id,
+                    'national_id_image': self.id_image,
+                    'category_tag': volunteer_tag.id if volunteer_tag else False,
+                })
+            return {'type': 'ir.actions.act_window_close'}
+
         existing = self.env['kser.beneficiary'].search([
             ('national_id_number', '=', self.extracted_national_id),
         ], limit=1)
@@ -159,10 +186,14 @@ class KserNationalIdWizard(models.TransientModel):
                     continue
 
         marital_key = MARITAL_STATUS_MAP.get(self.extracted_marital_status, False)
+        beneficiary_tag = self.env.ref('kser_erp.partner_category_beneficiary', raise_if_not_found=False)
 
         if existing:
             partner = existing.partner_id
-            partner.write({'name': self.extracted_name or partner.name})
+            partner.write({
+                'name': self.extracted_name or partner.name,
+                'category_tag': beneficiary_tag.id if beneficiary_tag else partner.category_tag.id,
+            })
 
             existing.write({
                 'national_id_image': self.id_image,
@@ -176,6 +207,9 @@ class KserNationalIdWizard(models.TransientModel):
 
         partner = self.env['res.partner'].create({
             'name': self.extracted_name or _('New Beneficiary'),
+            'category_tag': beneficiary_tag.id if beneficiary_tag else False,
+            'national_id_number': self.extracted_national_id,
+            'national_id_image': self.id_image,
         })
 
         self.env['kser.beneficiary'].create({

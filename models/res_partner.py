@@ -23,11 +23,35 @@ class ResPartner(models.Model):
         size=20,
         required=True,
     )
+    is_volunteer = fields.Boolean(
+        compute='_compute_role_booleans',
+    )
+    is_donor = fields.Boolean(
+        compute='_compute_role_booleans',
+    )
+
+    @api.depends('category_tag')
+    def _compute_role_booleans(self):
+        volunteer_tag = self.env.ref('kser_erp.partner_category_volunteer', raise_if_not_found=False)
+        donor_tag = self.env.ref('kser_erp.partner_category_donor', raise_if_not_found=False)
+        for rec in self:
+            rec.is_volunteer = (rec.category_tag == volunteer_tag) if volunteer_tag else False
+            rec.is_donor = (rec.category_tag == donor_tag) if donor_tag else False
     national_id_image = fields.Binary(
         string='ID Image',
         attachment=True,
         required=True,
     )
+
+    @api.constrains('national_id_number', 'national_id_image', 'category_tag')
+    def _check_national_id_volunteer(self):
+        volunteer_tag = self.env.ref('kser_erp.partner_category_volunteer', raise_if_not_found=False)
+        for rec in self:
+            if volunteer_tag and rec.category_tag == volunteer_tag:
+                if not rec.national_id_image:
+                    raise ValidationError(_("يجب رفع صورة الرقم الوطني للمتطوع!"))
+                if not rec.national_id_number or len(rec.national_id_number) != 11 or not rec.national_id_number.isdigit():
+                    raise ValidationError(_("يجب أن يتكون الرقم الوطني للمتطوع من 11 خانة رقمية فقط!"))
 
     task_ids = fields.One2many(
         'project.task',

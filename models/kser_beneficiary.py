@@ -29,6 +29,16 @@ class KserBeneficiary(models.Model):
         required=True,
         tracking=True,
     )
+    phone = fields.Char(
+        related='partner_id.phone',
+        string='Phone',
+        readonly=False,
+    )
+    mobile = fields.Char(
+        related='partner_id.mobile',
+        string='Mobile',
+        readonly=False,
+    )
     national_id_image = fields.Binary(
         string='ID Image',
         attachment=True,
@@ -49,8 +59,8 @@ class KserBeneficiary(models.Model):
     )
     family_size = fields.Integer(
         string='Family Size',
-        required=True,
-        default=1,
+        compute='_compute_family_size',
+        store=True,
     )
     health_conditions = fields.Text(
         string='Chronic Diseases',
@@ -98,13 +108,43 @@ class KserBeneficiary(models.Model):
         'kser.beneficiary',
         string='Head of Family',
         index=True,
-        ondelete='set null',
+        ondelete='restrict',
+    )
+    relationship = fields.Selection(
+        [
+            ('self', 'رب الأسرة (نفسه)'),
+            ('spouse', 'زوج/زوجة'),
+            ('child', 'ابن/ابنة'),
+            ('parent', 'أب/أم'),
+            ('sibling', 'أخ/أخت'),
+            ('relative', 'قريب آخر'),
+        ],
+        string='Relationship to Head of Family',
+        default='self',
+        required=True,
+    )
+    member_ids = fields.One2many(
+        'kser.beneficiary',
+        'head_of_family_id',
+        string='Family Members',
+        domain=[('relationship', '!=', 'self')],
     )
     registered_by = fields.Many2one(
         'res.users',
         string='Registered By',
         default=lambda self: self.env.uid,
     )
+
+    @api.depends('relationship', 'head_of_family_id', 'member_ids', 'member_ids.relationship')
+    def _compute_family_size(self):
+        for rec in self:
+            if rec.relationship == 'self':
+                rec.family_size = 1 + len(rec.member_ids)
+            else:
+                if rec.head_of_family_id:
+                    rec.family_size = rec.head_of_family_id.family_size
+                else:
+                    rec.family_size = 1
 
     @api.depends('health_conditions', 'marital_status', 'family_size', 'birthdate')
     def _compute_priority(self):
@@ -147,6 +187,29 @@ class KserBeneficiary(models.Model):
             if rec.ocr_confidence and not (0 <= rec.ocr_confidence <= 1):
                 raise ValidationError(_('OCR confidence must be between 0 and 1!'))
 
+    @api.constrains('head_of_family_id', 'relationship')
+    def _check_family_relationship(self):
+        for rec in self:
+            if rec.head_of_family_id and rec.head_of_family_id.id != rec._origin.id:
+                if rec.relationship == 'self':
+                    raise ValidationError(_("لا يمكن اختيار 'رب الأسرة (نفسه)' إذا كان هناك رب أسرة آخر محدد!"))
+            else:
+                if rec.relationship != 'self':
+                    raise ValidationError(_("يجب أن تكون العلاقة 'رب الأسرة (نفسه)' إذا كان الشخص هو رب الأسرة!"))
+
+    @api.onchange('head_of_family_id')
+    def _onchange_head_of_family_id(self):
+        if self.head_of_family_id and self.head_of_family_id.id != self._origin.id:
+            if self.relationship == 'self':
+                self.relationship = 'spouse'
+        else:
+            self.relationship = 'self'
+
+    @api.onchange('relationship')
+    def _onchange_relationship(self):
+        if self.relationship == 'self':
+            self.head_of_family_id = self._origin.id or False
+
     move_ids = fields.One2many(
         'stock.move',
         'beneficiary_id',
@@ -156,6 +219,14 @@ class KserBeneficiary(models.Model):
         compute='_compute_move_count',
         string='Relief Count',
     )
+
+    @api.constrains('national_id_number', 'national_id_image')
+    def _check_national_id_beneficiary(self):
+        for rec in self:
+            if not rec.national_id_image:
+                raise ValidationError(_("يجب رفع صورة الرقم الوطني للمستفيد!"))
+            if not rec.national_id_number or len(rec.national_id_number) != 11 or not rec.national_id_number.isdigit():
+                raise ValidationError(_("يجب أن يتكون الرقم الوطني للمستفيد من 11 خانة رقمية فقط!"))
 
     @api.depends('move_ids')
     def _compute_move_count(self):
@@ -177,6 +248,14 @@ class KserBeneficiary(models.Model):
     def create(self, vals_list):
         records = super().create(vals_list)
         for rec in records:
+            if not rec.head_of_family_id:
+                rec.head_of_family_id = rec.id
+        beneficiary_tag = self.env.ref('kser_erp.partner_category_beneficiary', raise_if_not_found=False)
+        if beneficiary_tag:
+            for rec in records:
+                if rec.partner_id and rec.partner_id.category_tag != beneficiary_tag:
+                    rec.partner_id.category_tag = beneficiary_tag.id
+        for rec in records:
             self.env['kser.audit.log'].sudo().create({
                 'action_type': 'create',
                 'target_model': self._name,
@@ -187,6 +266,15 @@ class KserBeneficiary(models.Model):
 
     def write(self, vals):
         res = super().write(vals)
+        if 'head_of_family_id' in vals and not vals['head_of_family_id']:
+            for rec in self:
+                super(KserBeneficiary, rec).write({'head_of_family_id': rec.id})
+        if 'partner_id' in vals:
+            beneficiary_tag = self.env.ref('kser_erp.partner_category_beneficiary', raise_if_not_found=False)
+            if beneficiary_tag:
+                for rec in self:
+                    if rec.partner_id and rec.partner_id.category_tag != beneficiary_tag:
+                        rec.partner_id.category_tag = beneficiary_tag.id
         for rec in self:
             if 'is_verified' in vals and vals['is_verified']:
                 self.env['kser.audit.log'].sudo().create({
