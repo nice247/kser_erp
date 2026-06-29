@@ -1,9 +1,5 @@
-import base64
-import requests
-import logging
-from datetime import datetime
 from odoo import models, fields, api
-from odoo.exceptions import ValidationError, UserError
+from odoo.exceptions import ValidationError
 from odoo.tools.translate import _
 
 
@@ -42,6 +38,7 @@ class KserCashDonation(models.Model):
     )
     amount = fields.Monetary(
         string='Amount',
+        required=True,
         currency_field='currency_id',
         tracking=True,
     )
@@ -53,22 +50,27 @@ class KserCashDonation(models.Model):
     transaction_number = fields.Char(
         string='Bank Transaction ID',
         size=50,
+        required=True,
         tracking=True,
     )
     bank_name = fields.Char(
         string='Bank Name',
         size=20,
+        required=True,
     )
     sender_account_number = fields.Char(
         string='Sender Account Number',
         size=30,
+        required=True,
     )
     receiver_account_number = fields.Char(
         string='Receiver Account Number',
         size=30,
+        required=True,
     )
     donation_date = fields.Date(
         string='Donation Date',
+        required=True,
         index=True,
         tracking=True,
     )
@@ -125,6 +127,107 @@ class KserCashDonation(models.Model):
             if rec.ocr_confidence and not (0 <= rec.ocr_confidence <= 1):
                 raise ValidationError(_('OCR confidence must be between 0 and 1!'))
 
+    def _preprocess_image(self, image_base64):
+        if not image_base64:
+            return False
+        try:
+            import io
+            from PIL import Image, ImageOps
+            import base64
+            image_bytes = base64.b64decode(image_base64)
+            img = Image.open(io.BytesIO(image_bytes))
+            img = ImageOps.exif_transpose(img)
+            if img.mode in ('RGBA', 'LA') or (img.mode == 'P' and 'transparency' in img.info):
+                img = img.convert('RGB')
+            elif img.mode != 'RGB':
+                img = img.convert('RGB')
+            output = io.BytesIO()
+            img.save(output, format='JPEG', quality=95)
+            return base64.b64encode(output.getvalue()).decode('utf-8')
+        except Exception:
+            return image_base64
+
+    @api.onchange('receipt_image')
+    def _onchange_receipt_image(self):
+        if not self.receipt_image:
+            return
+        cleaned_image = self._preprocess_image(self.receipt_image)
+        if cleaned_image:
+            self.receipt_image = cleaned_image
+        api_key = self.env['ir.config_parameter'].sudo().get_param('kser.springboot_api_key')
+        base_url = self.env['ir.config_parameter'].sudo().get_param('kser.springboot_base_url')
+        if not api_key or not base_url:
+            return {
+                'warning': {
+                    'title': _('Configuration Error'),
+                    'message': _('Spring Boot API credentials are not configured!')
+                }
+            }
+        base_url = base_url.rstrip('/')
+        import base64
+        image_bytes = base64.b64decode(self.receipt_image)
+        try:
+            import requests
+            response = requests.post(
+                f'{base_url}/api/v1/ocr/process',
+                files={'image': ('receipt.jpg', image_bytes, 'image/jpeg')},
+                headers={'X-API-KEY': api_key},
+                timeout=30,
+            )
+            response.raise_for_status()
+            result = response.json()
+        except Exception as e:
+            self.ocr_status = 'failed'
+            return {
+                'warning': {
+                    'title': _('OCR Connection Error'),
+                    'message': _('Connection failed: %s') % str(e)
+                }
+            }
+        if not result.get('success'):
+            self.ocr_status = 'failed'
+            backend_msg = result.get('message', '')
+            errors = result.get('data', {}).get('errors', [])
+            detailed_errors = ', '.join(errors) if errors else ''
+            error_msg = f"{backend_msg} (Details: {detailed_errors})" if detailed_errors else backend_msg
+            return {
+                'warning': {
+                    'title': _('OCR Extraction Failed'),
+                    'message': error_msg
+                }
+            }
+        data = result.get('data', {})
+        extracted_date = data.get('date', '')
+        donation_date = fields.Date.today()
+        if extracted_date:
+            from datetime import datetime
+            for fmt in ('%Y-%m-%d', '%d/%m/%Y', '%d-%m-%Y'):
+                try:
+                    donation_date = datetime.strptime(extracted_date, fmt).date()
+                    break
+                except ValueError:
+                    continue
+        self.amount = data.get('amount', 0.0)
+        self.transaction_number = data.get('transactionId', '')
+        self.bank_name = data.get('bankName', '-')
+        self.sender_account_number = data.get('senderAccount', '-')
+        self.receiver_account_number = data.get('receiverAccount', '-')
+        self.donation_date = donation_date
+        self.ocr_confidence = data.get('ocr_confidence', 0.0)
+        self.matched_by_ocr = True
+        self.ocr_status = 'matched'
+        if self.transaction_number:
+            existing = self.env['kser.cash.donation'].search([
+                ('transaction_number', '=', self.transaction_number),
+            ], limit=1)
+            if existing:
+                return {
+                    'warning': {
+                        'title': _('Duplicate Transaction ID'),
+                        'message': _('This Bank Transaction ID "%s" is already registered!') % self.transaction_number
+                    }
+                }
+
     def action_confirm(self):
         """Creates an account.payment (Inbound) for this donation."""
         for rec in self:
@@ -132,18 +235,6 @@ class KserCashDonation(models.Model):
                 continue
             if not rec.partner_id:
                 raise ValidationError(_("Please select a Donor (Partner) before confirming."))
-            if not rec.transaction_number:
-                raise ValidationError(_("Please provide a Bank Transaction ID before confirming."))
-            if not rec.bank_name:
-                raise ValidationError(_("Please provide a Bank Name before confirming."))
-            if not rec.sender_account_number:
-                raise ValidationError(_("Please provide a Sender Account Number before confirming."))
-            if not rec.receiver_account_number:
-                raise ValidationError(_("Please provide a Receiver Account Number before confirming."))
-            if not rec.donation_date:
-                raise ValidationError(_("Please provide a Donation Date before confirming."))
-            if rec.amount <= 0:
-                raise ValidationError(_("Amount must be greater than zero!"))
 
             # Find a suitable bank/cash journal
             journal = self.env['account.journal'].search([
@@ -215,65 +306,3 @@ class KserCashDonation(models.Model):
                 'res_id': self.payment_id.id,
                 'target': 'current',
             }
-
-    def action_ocr_extract(self):
-        self.ensure_one()
-        if not self.receipt_image:
-            raise UserError(_('يجب رفع صورة الإيصال البنكي أولاً في علامة التبويب "صورة الإيصال" قبل محاولة قراءة البيانات.'))
-
-        api_key = self.env['ir.config_parameter'].sudo().get_param('kser.springboot_api_key')
-        base_url = self.env['ir.config_parameter'].sudo().get_param('kser.springboot_base_url')
-
-        if not api_key or not base_url:
-            raise UserError(_('API credentials (kser.springboot_api_key or kser.springboot_base_url) are not configured!'))
-
-        base_url = base_url.rstrip('/')
-        image_bytes = base64.b64decode(self.receipt_image)
-
-        try:
-            response = requests.post(
-                f'{base_url}/api/v1/ocr/process',
-                files={'image': ('receipt.jpg', image_bytes, 'image/jpeg')},
-                headers={'X-API-KEY': api_key},
-                timeout=30,
-            )
-            result = response.json()
-        except Exception as e:
-            raise UserError(_('OCR Service failed: %s') % str(e))
-
-        if not result.get('success'):
-            backend_msg = result.get('message', '')
-            errors = result.get('data', {}).get('errors', [])
-            detailed_errors = ', '.join(errors) if errors else ''
-            error_msg = f"{backend_msg} (Details: {detailed_errors})" if detailed_errors else backend_msg
-            raise UserError(error_msg or _('Failed to extract data.'))
-
-        data = result.get('data', {})
-
-        existing = self.env['kser.cash.donation'].search([
-            ('transaction_number', '=', data.get('transactionId')),
-        ], limit=1)
-        if existing and existing.id != self.id:
-            raise UserError(_('Transaction ID "%s" is already registered!') % data.get('transactionId'))
-
-        donation_date = fields.Date.today()
-        extracted_date = data.get('date')
-        if extracted_date:
-            for fmt in ('%Y-%m-%d', '%d/%m/%Y', '%d-%m-%Y'):
-                try:
-                    donation_date = datetime.strptime(extracted_date, fmt).date()
-                    break
-                except ValueError:
-                    continue
-
-        self.write({
-            'amount': data.get('amount') or 0.0,
-            'transaction_number': data.get('transactionId') or '',
-            'bank_name': data.get('bankName') or '-',
-            'sender_account_number': data.get('senderAccount') or '-',
-            'receiver_account_number': data.get('receiverAccount') or '-',
-            'donation_date': donation_date,
-            'ocr_status': 'matched',
-            'ocr_confidence': data.get('ocr_confidence') or 0.0,
-            'matched_by_ocr': True,
-        })

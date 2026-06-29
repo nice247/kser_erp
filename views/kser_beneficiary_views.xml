@@ -60,11 +60,6 @@
             <field name="model">kser.beneficiary</field>
             <field name="arch" type="xml">
                 <form string="بيانات المستفيد">
-                    <header>
-                        <button name="action_ocr_extract" string="قراءة بطاقة الهوية (OCR)"
-                                type="object" class="btn-primary" invisible="is_verified"
-                                context="{'bypass_id_validation': True}"/>
-                    </header>
                     <sheet>
                         <div class="oe_button_box" name="button_box">
                             <button name="action_view_moves" type="object"
@@ -86,6 +81,10 @@
                         </div>
 
                         <group>
+                            <group string="الهوية الوطنية">
+                                <field name="national_id_image" string="صورة الهوية الوطنية"
+                                       widget="image" class="oe_avatar" options="{'size': [150, 150]}"/>
+                            </group>
                             <group string="البيانات الأساسية">
                                 <field name="national_id_number" string="رقم الهوية الوطنية"/>
                                 <field name="phone" string="رقم الهاتف"/>
@@ -127,12 +126,6 @@
                                     <group string="الحالة الصحية">
                                         <field name="health_conditions" string="الأمراض المزمنة"/>
                                     </group>
-                                </group>
-                            </page>
-                            <page string="صورة الهوية" name="page_id_image">
-                                <group>
-                                    <field name="national_id_image" string="صورة الهوية الوطنية"
-                                           widget="image" class="oe_avatar"/>
                                 </group>
                             </page>
                         </notebook>

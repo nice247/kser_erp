@@ -1,10 +1,7 @@
-import base64
-import requests
-import logging
-from datetime import datetime
 from dateutil.relativedelta import relativedelta
+
 from odoo import models, fields, api
-from odoo.exceptions import ValidationError, UserError
+from odoo.exceptions import ValidationError
 from odoo.tools.translate import _
 
 
@@ -21,6 +18,7 @@ class KserBeneficiary(models.Model):
     partner_id = fields.Many2one(
         'res.partner',
         string='Contact',
+        required=True,
         index=True,
         ondelete='restrict',
         tracking=True,
@@ -28,6 +26,7 @@ class KserBeneficiary(models.Model):
     national_id_number = fields.Char(
         string='National ID Number',
         size=20,
+        required=True,
         tracking=True,
     )
     phone = fields.Char(
@@ -43,6 +42,7 @@ class KserBeneficiary(models.Model):
     national_id_image = fields.Binary(
         string='ID Image',
         attachment=True,
+        required=True,
     )
     profession = fields.Char(
         string='Profession',
@@ -71,6 +71,7 @@ class KserBeneficiary(models.Model):
     district = fields.Char(
         string='District',
         size=100,
+        required=True,
         index=True,
     )
     registration_date = fields.Date(
@@ -187,6 +188,116 @@ class KserBeneficiary(models.Model):
             if rec.ocr_confidence and not (0 <= rec.ocr_confidence <= 1):
                 raise ValidationError(_('OCR confidence must be between 0 and 1!'))
 
+    def _preprocess_image(self, image_base64):
+        if not image_base64:
+            return False
+        try:
+            import io
+            from PIL import Image, ImageOps
+            import base64
+            image_bytes = base64.b64decode(image_base64)
+            img = Image.open(io.BytesIO(image_bytes))
+            img = ImageOps.exif_transpose(img)
+            if img.mode in ('RGBA', 'LA') or (img.mode == 'P' and 'transparency' in img.info):
+                img = img.convert('RGB')
+            elif img.mode != 'RGB':
+                img = img.convert('RGB')
+            output = io.BytesIO()
+            img.save(output, format='JPEG', quality=95)
+            return base64.b64encode(output.getvalue()).decode('utf-8')
+        except Exception:
+            return image_base64
+
+    @api.onchange('national_id_image')
+    def _onchange_national_id_image(self):
+        if not self.national_id_image:
+            return
+        cleaned_image = self._preprocess_image(self.national_id_image)
+        if cleaned_image:
+            self.national_id_image = cleaned_image
+        api_key = self.env['ir.config_parameter'].sudo().get_param('kser.springboot_api_key')
+        base_url = self.env['ir.config_parameter'].sudo().get_param('kser.springboot_base_url')
+        if not api_key or not base_url:
+            return {
+                'warning': {
+                    'title': _('Configuration Error'),
+                    'message': _('Spring Boot API credentials are not configured!')
+                }
+            }
+        base_url = base_url.rstrip('/')
+        import base64
+        image_bytes = base64.b64decode(self.national_id_image)
+        try:
+            import requests
+            response = requests.post(
+                f'{base_url}/api/v1/ocr/national-id',
+                files={'image': ('national_id.jpg', image_bytes, 'image/jpeg')},
+                headers={'X-API-KEY': api_key},
+                timeout=30,
+            )
+            response.raise_for_status()
+            result = response.json()
+        except Exception as e:
+            return {
+                'warning': {
+                    'title': _('OCR Connection Error'),
+                    'message': _('Connection failed: %s') % str(e)
+                }
+            }
+        if not result.get('success'):
+            backend_msg = result.get('message', '')
+            errors = result.get('data', {}).get('errors', [])
+            detailed_errors = ', '.join(errors) if errors else ''
+            error_msg = f"{backend_msg} (Details: {detailed_errors})" if detailed_errors else backend_msg
+            return {
+                'warning': {
+                    'title': _('OCR Extraction Failed'),
+                    'message': error_msg
+                }
+            }
+        data = result.get('data', {})
+        extracted_dob = data.get('dateOfBirth', '')
+        birthdate = False
+        if extracted_dob:
+            from datetime import datetime
+            for fmt in ('%d/%m/%Y', '%Y-%m-%d', '%d-%m-%Y'):
+                try:
+                    birthdate = datetime.strptime(extracted_dob, fmt).date()
+                    break
+                except ValueError:
+                    continue
+        extracted_id = data.get('nationalIdNumber', '')
+        if extracted_id:
+            existing = self.env['kser.beneficiary'].search([
+                ('national_id_number', '=', extracted_id),
+            ], limit=1)
+            if existing:
+                return {
+                    'warning': {
+                        'title': _('Duplicate National ID'),
+                        'message': _('A beneficiary with National ID "%s" is already registered!') % extracted_id
+                    }
+                }
+        MARITAL_STATUS_MAP = {
+            'أعزب': 'single',
+            'متزوج': 'married',
+            'متزوجة': 'married',
+            'أرمل': 'widowed',
+            'أرملة': 'widowed',
+            'أرمل/ة': 'widowed',
+            'مطلق': 'divorced',
+            'مطلقة': 'divorced',
+            'مطلق/ة': 'divorced',
+        }
+        marital_key = MARITAL_STATUS_MAP.get(data.get('maritalStatus', ''), False)
+        self.national_id_number = extracted_id
+        self.profession = data.get('profession', '')
+        self.marital_status = marital_key
+        self.birthdate = birthdate
+        self.ocr_confidence = data.get('ocr_confidence', 0.0)
+        if self.partner_id:
+            self.partner_id.name = data.get('name', self.partner_id.name)
+
     @api.constrains('head_of_family_id', 'relationship')
     def _check_family_relationship(self):
         for rec in self:
@@ -220,17 +331,13 @@ class KserBeneficiary(models.Model):
         string='Relief Count',
     )
 
-    @api.constrains('is_verified', 'partner_id', 'national_id_number', 'national_id_image', 'district')
-    def _check_verified_beneficiary(self):
-        if self.env.context.get('bypass_id_validation'):
-            return
+    @api.constrains('national_id_number', 'national_id_image')
+    def _check_national_id_beneficiary(self):
         for rec in self:
             if not rec.national_id_image:
                 raise ValidationError(_("يجب رفع صورة الرقم الوطني للمستفيد!"))
             if not rec.national_id_number or len(rec.national_id_number) != 11 or not rec.national_id_number.isdigit():
                 raise ValidationError(_("يجب أن يتكون الرقم الوطني للمستفيد من 11 خانة رقمية فقط!"))
-            if not rec.district:
-                raise ValidationError(_("يجب إدخال المحلية للمستفيد!"))
 
     @api.depends('move_ids')
     def _compute_move_count(self):
@@ -295,78 +402,3 @@ class KserBeneficiary(models.Model):
                     'details': f"تم تعديل بيانات المستفيد (الرقم الوطني: {rec.national_id_number}). الحقول المعدلة: {list(vals.keys())}",
                 })
         return res
-
-    def action_ocr_extract(self):
-        self.ensure_one()
-        if not self.national_id_image:
-            raise UserError(_('يجب رفع صورة الهوية الوطنية أولاً في علامة التبويب "صورة الهوية" قبل محاولة قراءة البيانات.'))
-
-        api_key = self.env['ir.config_parameter'].sudo().get_param('kser.springboot_api_key')
-        base_url = self.env['ir.config_parameter'].sudo().get_param('kser.springboot_base_url')
-
-        if not api_key or not base_url:
-            raise UserError(_('API credentials (kser.springboot_api_key or kser.springboot_base_url) are not configured!'))
-
-        base_url = base_url.rstrip('/')
-        image_bytes = base64.b64decode(self.national_id_image)
-
-        try:
-            response = requests.post(
-                f'{base_url}/api/v1/ocr/national-id',
-                files={'image': ('national_id.jpg', image_bytes, 'image/jpeg')},
-                headers={'X-API-KEY': api_key},
-                timeout=30,
-            )
-            result = response.json()
-        except Exception as e:
-            raise UserError(_('OCR Service failed: %s') % str(e))
-
-        if not result.get('success'):
-            backend_msg = result.get('message', '')
-            errors = result.get('data', {}).get('errors', [])
-            detailed_errors = ', '.join(errors) if errors else ''
-            error_msg = f"{backend_msg} (Details: {detailed_errors})" if detailed_errors else backend_msg
-            raise UserError(error_msg or _('Failed to extract data.'))
-
-        data = result.get('data', {})
-        extracted_dob = data.get('dateOfBirth')
-        birthdate = False
-        if extracted_dob:
-            for fmt in ('%d/%m/%Y', '%Y-%m-%d', '%d-%m-%Y'):
-                try:
-                    birthdate = datetime.strptime(extracted_dob, fmt).date()
-                    break
-                except ValueError:
-                    continue
-
-        marital_key = False
-        extracted_marital = data.get('maritalStatus')
-        if extracted_marital:
-            from odoo.addons.kser_erp.wizard.kser_national_id_wizard import MARITAL_STATUS_MAP
-            marital_key = MARITAL_STATUS_MAP.get(extracted_marital, False)
-
-        beneficiary_tag = self.env.ref('kser_erp.partner_category_beneficiary', raise_if_not_found=False)
-
-        if not self.partner_id:
-            partner = self.env['res.partner'].create({
-                'name': data.get('name') or _('New Beneficiary'),
-                'category_tag': beneficiary_tag.id if beneficiary_tag else False,
-                'national_id_number': data.get('nationalIdNumber'),
-                'national_id_image': self.national_id_image,
-            })
-            self.partner_id = partner.id
-        else:
-            self.partner_id.write({
-                'name': data.get('name') or self.partner_id.name,
-                'national_id_number': data.get('nationalIdNumber') or self.partner_id.national_id_number,
-                'national_id_image': self.national_id_image,
-                'category_tag': beneficiary_tag.id if beneficiary_tag else self.partner_id.category_tag.id,
-            })
-
-        self.write({
-            'national_id_number': data.get('nationalIdNumber') or self.national_id_number,
-            'profession': data.get('profession') or self.profession,
-            'marital_status': marital_key or self.marital_status,
-            'birthdate': birthdate or self.birthdate,
-            'ocr_confidence': data.get('ocr_confidence') or 0.0,
-        })

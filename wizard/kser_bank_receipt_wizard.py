@@ -141,8 +141,7 @@ class KserBankReceiptWizard(models.TransientModel):
             ('transaction_number', '=', self.extracted_transaction_id),
         ], limit=1)
 
-        active_id = self.env.context.get('active_id')
-        if existing and (not active_id or existing.id != active_id):
+        if existing:
             raise UserError(
                 _('Transaction ID "%s" is already registered!') % self.extracted_transaction_id
             )
@@ -156,7 +155,7 @@ class KserBankReceiptWizard(models.TransientModel):
                 except ValueError:
                     continue
 
-        vals = {
+        donation = self.env['kser.cash.donation'].create({
             'campaign_id': self.campaign_id.id if self.campaign_id else False,
             'amount': self.extracted_amount,
             'transaction_number': self.extracted_transaction_id,
@@ -168,13 +167,7 @@ class KserBankReceiptWizard(models.TransientModel):
             'ocr_status': 'matched',
             'ocr_confidence': self.extracted_confidence,
             'matched_by_ocr': True,
-        }
-
-        if active_id:
-            donation = self.env['kser.cash.donation'].browse(active_id)
-            donation.write(vals)
-        else:
-            vals['created_by'] = self.env.uid
-            self.env['kser.cash.donation'].create(vals)
+            'created_by': self.env.uid,
+        })
 
         return {'type': 'ir.actions.act_window_close'}

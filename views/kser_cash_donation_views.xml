@@ -68,9 +68,6 @@
                     <header>
                         <button name="action_confirm" type="object" string="تأكيد مالياً"
                                 class="oe_highlight" invisible="state != 'draft'"/>
-                        <button name="action_ocr_extract" string="قراءة الإيصال (OCR)"
-                                type="object" class="btn-secondary" invisible="state != 'draft'"
-                                context="{'bypass_id_validation': True}"/>
                         <field name="state" widget="statusbar" statusbar_visible="draft,posted"/>
                     </header>
                     <sheet>
@@ -91,6 +88,10 @@
                         </div>
 
                         <group>
+                            <group string="إيصال الدفع">
+                                <field name="receipt_image" string="صورة إيصال البنك"
+                                       widget="image" class="oe_avatar" options="{'size': [150, 150]}"/>
+                            </group>
                             <group string="بيانات التبرع">
                                 <field name="partner_id" string="المتبرع"/>
                                 <field name="campaign_id" string="الحملة المرتبطة"/>
@@ -119,12 +120,6 @@
                                         <field name="matched_by_ocr" string="تمت المطابقة آلياً"
                                                widget="boolean_toggle"/>
                                     </group>
-                                </group>
-                            </page>
-                            <page string="صورة الإيصال" name="page_receipt">
-                                <group>
-                                    <field name="receipt_image" string="صورة إيصال البنك"
-                                           widget="image" class="oe_avatar"/>
                                 </group>
                             </page>
                         </notebook>
