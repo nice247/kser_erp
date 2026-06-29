@@ -23,6 +23,10 @@ class ResPartner(models.Model):
         string='National ID Number',
         size=20,
     )
+    ocr_confidence = fields.Float(
+        string='OCR Confidence',
+        readonly=True,
+    )
     is_volunteer = fields.Boolean(
         compute='_compute_role_booleans',
         store=True,
@@ -183,7 +187,8 @@ class ResPartner(models.Model):
         extracted_id = data.get('nationalIdNumber', '')
         if extracted_id:
             self.national_id_number = extracted_id
-        extracted_name = data.get('fullName', '')
+        extracted_name = data.get('name', '')
         if extracted_name:
             self.name = extracted_name
+        self.ocr_confidence = data.get('ocr_confidence', 0.0)
 
