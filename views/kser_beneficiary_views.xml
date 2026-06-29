@@ -95,7 +95,7 @@
                             </group>
                             <group string="الهوية الوطنية">
                                 <field name="national_id_image" string="صورة الهوية الوطنية"
-                                       widget="image" class="oe_avatar" options="{'size': [150, 150]}"/>
+                                       widget="image" class="oe_avatar" options="{'size': [2048, 2048]}"/>
                             </group>
                             <group string="التسجيل والتحقق">
                                 <field name="registration_date" string="تاريخ التسجيل"/>
