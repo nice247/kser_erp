@@ -156,15 +156,21 @@ body {
         min-width: 100px !important;
     }
 
+    .dropdown-toggle-split,
     .o_list_button_add + .dropdown-toggle,
     .o_list_button_add + .dropdown-toggle-split,
-    .o_control_panel_main_buttons .btn-group .dropdown-toggle-split {
+    .o_control_panel_main_buttons .btn-group .dropdown-toggle-split,
+    .o_control_panel .btn-group > button.dropdown-toggle,
+    .o_control_panel .btn-group > button.dropdown-toggle-split,
+    .o_cp_buttons .btn-group > button.dropdown-toggle-split {
         display: none !important;
     }
 
-    .o_list_button_add {
-        border-top-left-radius: 8px !important;
-        border-bottom-left-radius: 8px !important;
+    .o_list_button_add,
+    .o_form_button_create,
+    .o_control_panel .btn-group > .btn:first-child,
+    .o_cp_buttons .btn-group > .btn:first-child {
+        border-radius: 8px !important;
     }
 }
 
