@@ -116,33 +116,10 @@ class ResPartner(models.Model):
             'context': {'default_partner_id': self.id},
         }
 
-    def _preprocess_image(self, image_base64):
-        if not image_base64:
-            return False
-        import base64
-        import io
-        from PIL import Image, ImageOps
-        try:
-            image_data = base64.b64decode(image_base64)
-            img = Image.open(io.BytesIO(image_data))
-            img = ImageOps.exif_transpose(img)
-            if img.mode in ('RGBA', 'LA') or (img.mode == 'P' and 'transparency' in img.info):
-                img = img.convert('RGB')
-            elif img.mode != 'RGB':
-                img = img.convert('RGB')
-            output = io.BytesIO()
-            img.save(output, format='JPEG', quality=95)
-            return base64.b64encode(output.getvalue()).decode('utf-8')
-        except Exception:
-            return image_base64
-
     @api.onchange('national_id_image')
     def _onchange_national_id_image(self):
         if not self.national_id_image:
             return
-        cleaned_image = self._preprocess_image(self.national_id_image)
-        if cleaned_image:
-            self.national_id_image = cleaned_image
         api_key = self.env['ir.config_parameter'].sudo().get_param('kser.springboot_api_key')
         base_url = self.env['ir.config_parameter'].sudo().get_param('kser.springboot_base_url')
         if not api_key or not base_url:
