@@ -30,8 +30,8 @@
             <div class="kser-ptr-card">
                 <svg class="kser-ptr-spinner" viewBox="0 0 24 24">
                     <circle class="kser-ptr-track" cx="12" cy="12" r="9" fill="none" stroke="#e5e7eb" stroke-width="3"></circle>
-                    <circle class="kser-ptr-head" cx="12" cy="12" r="9" fill="none" stroke="#2563eb" stroke-width="3" stroke-dasharray="56" stroke-dashoffset="56"></circle>
-                    <path class="kser-ptr-arrow" d="M12 4V1L8 5l4 4V6a6 6 0 1 1-6 6h-2a8 8 0 1 0 8-8z" fill="#2563eb"></path>
+                    <circle class="kser-ptr-head" cx="12" cy="12" r="9" fill="none" stroke="#0284c7" stroke-width="3" stroke-dasharray="56" stroke-dashoffset="56"></circle>
+                    <path class="kser-ptr-arrow" d="M12 4V1L8 5l4 4V6a6 6 0 1 1-6 6h-2a8 8 0 1 0 8-8z" fill="#0284c7"></path>
                 </svg>
             </div>
         `;

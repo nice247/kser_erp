@@ -17,8 +17,8 @@ body {
 }
 
 .o_main_navbar {
-    background-color: #1d4ed8 !important;
-    border-bottom: 1px solid #173eab !important;
+    background-color: #0c3246 !important;
+    border-bottom: 1px solid #092433 !important;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
 }
 
@@ -36,20 +36,20 @@ body {
 }
 
 .btn-primary, .oe_highlight, .o_btn_primary {
-    background-color: #2563eb !important;
-    border-color: #2563eb !important;
+    background-color: #0284c7 !important;
+    border-color: #0284c7 !important;
     color: #ffffff !important;
     font-weight: 600 !important;
     border-radius: 8px !important;
-    box-shadow: 0 2px 4px rgba(37, 99, 235, 0.15) !important;
+    box-shadow: 0 2px 4px rgba(2, 132, 199, 0.15) !important;
     transition: all 0.2s ease-in-out !important;
 }
 
 .btn-primary:hover, .btn-primary:focus, .btn-primary:active, .oe_highlight:hover, .oe_highlight:focus, .oe_highlight:active, .o_btn_primary:hover {
-    background-color: #1d4ed8 !important;
-    border-color: #1a56db !important;
+    background-color: #0369a1 !important;
+    border-color: #0284c7 !important;
     color: #ffffff !important;
-    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25) !important;
+    box-shadow: 0 4px 12px rgba(2, 132, 199, 0.25) !important;
     transform: translateY(-1px) !important;
 }
 
@@ -69,13 +69,13 @@ body {
 }
 
 .o_required_modifier.o_input, .o_required_modifier .o_input, input[required], select[required], textarea[required] {
-    border-bottom: 2px solid #2563eb !important;
-    background-color: #f0f7ff !important;
+    border-bottom: 2px solid #0284c7 !important;
+    background-color: #f0f9ff !important;
 }
 
 .o_input:focus {
-    border-color: #2563eb !important;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18) !important;
+    border-color: #0284c7 !important;
+    box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.18) !important;
 }
 
 .alert-danger {
@@ -130,7 +130,7 @@ body {
 }
 
 .badge.bg-secondary, .badge.badge-secondary {
-    background-color: #4b5563 !important;
+    background-color: #64748b !important;
     color: #ffffff !important;
 }
 
@@ -190,7 +190,7 @@ body {
 }
 
 .kser-ptr-active .kser-ptr-arrow {
-    fill: #1d4ed8 !important;
+    fill: #0284c7 !important;
 }
 
 .kser-ptr-refreshing {
@@ -206,7 +206,7 @@ body {
 }
 
 .kser-ptr-refreshing .kser-ptr-head {
-    stroke: #2563eb !important;
+    stroke: #0284c7 !important;
     stroke-dashoffset: 20 !important;
     animation: kser-dash 1.5s ease-in-out infinite alternate !important;
 }
