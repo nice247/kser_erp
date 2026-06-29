@@ -235,7 +235,6 @@ class KserBeneficiary(models.Model):
                 headers={'X-API-KEY': api_key},
                 timeout=30,
             )
-            response.raise_for_status()
             result = response.json()
         except Exception as e:
             return {
