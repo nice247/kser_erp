@@ -88,6 +88,7 @@ class KserBeneficiary(models.Model):
     )
     ocr_confidence = fields.Float(
         string='OCR Confidence',
+        readonly=True,
     )
     priority_score = fields.Integer(
         string='Priority Score',

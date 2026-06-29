@@ -91,6 +91,7 @@ class KserCashDonation(models.Model):
     )
     ocr_confidence = fields.Float(
         string='OCR Confidence',
+        readonly=True,
     )
     matched_by_ocr = fields.Boolean(
         string='Matched via OCR?',
