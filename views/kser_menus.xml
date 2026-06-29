@@ -198,18 +198,11 @@
                   groups="kser_erp.group_stock_manager,kser_erp.group_system_admin"
                   sequence="40"/>
 
-        <!-- 6. سجل التدقيق -->
-        <menuitem id="menu_kser_audit"
-                  name="سجل التدقيق"
-                  parent="menu_kser_root"
-                  groups="kser_erp.group_admin_supervisor,kser_erp.group_system_admin"
-                  sequence="50"/>
-
         <!-- 7. الضبط -->
         <menuitem id="menu_kser_settings"
                   name="الضبط"
                   parent="menu_kser_root"
-                  groups="kser_erp.group_system_admin"
+                  groups="kser_erp.group_admin_supervisor,kser_erp.group_system_admin"
                   sequence="99"/>
 
         <!-- ============================================================ -->
@@ -257,7 +250,7 @@
                   sequence="1"/>
 
         <menuitem id="menu_kser_beneficiary_ocr_wizard"
-                  name="استخراج بيانات الهوية (OCR)"
+                  name="استخراج بيانات الهوية للمستفيد (OCR)"
                   parent="menu_kser_beneficiaries"
                   action="action_kser_national_id_wizard"
                   sequence="2"/>
@@ -317,19 +310,20 @@
                   action="action_kser_ai_wizard"
                   sequence="2"/>
 
-        <!-- سجل التدقيق Sub-Items -->
-        <menuitem id="menu_kser_audit_log_list"
-                  name="سجلات التدقيق"
-                  parent="menu_kser_audit"
-                  action="action_kser_audit_log"
-                  sequence="1"/>
-
         <!-- الضبط Sub-Items -->
         <menuitem id="menu_kser_settings_params"
                   name="إعدادات النظام"
                   parent="menu_kser_settings"
                   action="action_kser_settings"
+                  groups="kser_erp.group_system_admin"
                   sequence="1"/>
+
+        <menuitem id="menu_kser_audit_log_list"
+                  name="سجل التدقيق"
+                  parent="menu_kser_settings"
+                  action="action_kser_audit_log"
+                  groups="kser_erp.group_admin_supervisor,kser_erp.group_system_admin"
+                  sequence="2"/>
 
         <!-- التقارير Parent Menu -->
         <menuitem id="menu_kser_reports"
