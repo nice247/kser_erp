@@ -235,12 +235,11 @@
         </record>
 
         <record id="menu_kser_volunteer_ocr_wizard" model="ir.ui.menu">
-            <field name="name">استخراج بيانات الهوية للمتطوع (OCR)</field>
+            <field name="name">إضافة متطوع (OCR)</field>
             <field name="parent_id" ref="menu_kser_partners_volunteers"/>
             <field name="action" ref="action_kser_national_id_wizard_volunteer"/>
             <field name="sequence" eval="3"/>
             <field name="groups_id" eval="[(6, 0, [ref('group_admin_supervisor'), ref('group_data_manager'), ref('group_field_supervisor'), ref('group_system_admin')])]"/>
-            <field name="active" eval="False"/>
         </record>
 
         <record id="menu_kser_donors" model="ir.ui.menu">
@@ -259,11 +258,10 @@
                   sequence="1"/>
 
         <menuitem id="menu_kser_beneficiary_ocr_wizard"
-                  name="استخراج بيانات الهوية للمستفيد (OCR)"
+                  name="إضافة مستفيد (OCR)"
                   parent="menu_kser_contacts"
                   action="action_kser_national_id_wizard"
-                  sequence="4"
-                  active="False"/>
+                  sequence="4"/>
 
         <!-- التبرعات Sub-Items -->
         <menuitem id="menu_kser_donation_list"
@@ -273,11 +271,10 @@
                   sequence="1"/>
 
         <menuitem id="menu_kser_receipt_ocr_wizard"
-                  name="استخراج بيانات الإيصال (OCR)"
+                  name="إضافة تبرع (OCR)"
                   parent="menu_kser_donations"
                   action="action_kser_bank_receipt_wizard"
-                  sequence="3"
-                  active="False"/>
+                  sequence="3"/>
 
         <menuitem id="menu_kser_donor_import_wizard"
                   name="استيراد كشوفات المتبرعين"
