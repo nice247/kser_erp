@@ -60,6 +60,10 @@
             <field name="model">kser.beneficiary</field>
             <field name="arch" type="xml">
                 <form string="بيانات المستفيد">
+                    <header>
+                        <button name="%(kser_erp.action_kser_national_id_wizard)d" type="action" 
+                                string="قراءة الهوية (AI OCR)" class="oe_highlight"/>
+                    </header>
                     <sheet>
                         <div class="oe_button_box" name="button_box">
                             <button name="action_view_moves" type="object"
@@ -95,7 +99,7 @@
                             </group>
                             <group string="الهوية الوطنية">
                                 <field name="national_id_image" string="صورة الهوية الوطنية"
-                                       widget="image" class="oe_avatar" options="{'size': [2048, 2048]}"/>
+                                       widget="image" class="oe_avatar" options="{'size': [2048, 2048]}" readonly="1"/>
                             </group>
                             <group string="التسجيل والتحقق">
                                 <field name="registration_date" string="تاريخ التسجيل"/>

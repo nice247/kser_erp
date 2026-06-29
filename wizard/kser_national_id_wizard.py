@@ -162,6 +162,7 @@ class KserNationalIdWizard(models.TransientModel):
                     'name': self.extracted_name or existing_partner.name,
                     'national_id_image': self.id_image,
                     'category_tag': volunteer_tag.id if volunteer_tag else False,
+                    'ocr_confidence': self.extracted_confidence,
                 })
             else:
                 self.env['res.partner'].create({
@@ -169,6 +170,7 @@ class KserNationalIdWizard(models.TransientModel):
                     'national_id_number': self.extracted_national_id,
                     'national_id_image': self.id_image,
                     'category_tag': volunteer_tag.id if volunteer_tag else False,
+                    'ocr_confidence': self.extracted_confidence,
                 })
             return {'type': 'ir.actions.act_window_close'}
 

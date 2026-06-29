@@ -54,6 +54,13 @@
             <field name="model">res.partner</field>
             <field name="inherit_id" ref="base.view_partner_form"/>
             <field name="arch" type="xml">
+                <xpath expr="//sheet" position="before">
+                    <header>
+                        <button name="%(kser_erp.action_kser_national_id_wizard_volunteer)d" type="action" 
+                                string="قراءة الهوية (AI OCR)" class="oe_highlight" 
+                                invisible="not is_volunteer"/>
+                    </header>
+                </xpath>
                 <xpath expr="//div[@name='button_box']" position="inside">
                     <field name="is_volunteer" invisible="1"/>
                     <field name="is_donor" invisible="1"/>
@@ -155,7 +162,7 @@
                         <group string="بيانات الهوية" invisible="is_donor">
                             <field name="national_id_number" string="رقم الهوية الوطنية" required="is_volunteer"/>
                             <field name="national_id_image" string="صورة الهوية" widget="image"
-                                   class="oe_avatar" options="{'size': [2048, 2048]}" required="is_volunteer"/>
+                                   class="oe_avatar" options="{'size': [2048, 2048]}" required="is_volunteer" readonly="1"/>
                             <field name="ocr_confidence" string="دقة التعرف الآلي" invisible="not is_volunteer"/>
                         </group>
                     </group>
