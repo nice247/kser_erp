@@ -58,7 +58,7 @@
                     <field name="is_volunteer" invisible="1"/>
                     <field name="is_donor" invisible="1"/>
                     <field name="is_beneficiary" invisible="1"/>
-                    <button name="action_view_tasks" type="object"
+                    <button name="action_view_volunteer_tasks" type="object"
                             class="oe_stat_button" icon="fa-tasks"
                             invisible="not is_volunteer">
                         <div class="o_stat_info">
@@ -288,7 +288,7 @@
             <field name="inherit_id" ref="project.view_task_partner_info_form"/>
             <field name="arch" type="xml">
                 <xpath expr="//button[@name='action_view_tasks']" position="attributes">
-                    <attribute name="invisible">not is_volunteer</attribute>
+                    <attribute name="invisible">1</attribute>
                 </xpath>
             </field>
         </record>

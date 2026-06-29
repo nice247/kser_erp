@@ -90,7 +90,7 @@ class ResPartner(models.Model):
         for rec in self:
             rec.donation_count = len(rec.donation_ids)
 
-    def action_view_tasks(self):
+    def action_view_volunteer_tasks(self):
         self.ensure_one()
         return {
             'name': _('Assigned Tasks'),
