@@ -43,7 +43,7 @@
                     <field name="national_id_number" string="رقم الهوية"/>
                     <field name="phone" string="الهاتف"/>
                     <field name="district" string="المحلية"/>
-                    <field name="family_size" string="حجم الأسرة"/>
+                    <field name="family_size" string="عدد أفراد الأسرة"/>
                     <field name="priority_level" string="مستوى الأولوية"/>
                     <field name="priority_score" string="درجة الأولوية" optional="hide"/>
                     <field name="registration_date" string="تاريخ التسجيل" optional="hide"/>
@@ -90,7 +90,7 @@
                                 <field name="profession" string="المهنة"/>
                                 <field name="marital_status" string="الحالة الاجتماعية"/>
                                 <field name="birthdate" string="تاريخ الميلاد"/>
-                                <field name="family_size" string="حجم الأسرة"/>
+                                <field name="family_size" string="عدد أفراد الأسرة"/>
                                 <field name="district" string="المحلية"/>
                             </group>
                             <group string="الهوية الوطنية">

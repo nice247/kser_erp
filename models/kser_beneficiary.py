@@ -58,7 +58,7 @@ class KserBeneficiary(models.Model):
         string='Marital Status',
     )
     family_size = fields.Integer(
-        string='Family Size',
+        string='Number of Family Members',
         compute='_compute_family_size',
         store=True,
     )
@@ -136,7 +136,7 @@ class KserBeneficiary(models.Model):
         default=lambda self: self.env.uid,
     )
 
-    @api.depends('relationship', 'head_of_family_id', 'member_ids', 'member_ids.relationship')
+    @api.depends('relationship', 'head_of_family_id', 'member_ids', 'member_ids.relationship', 'head_of_family_id.member_ids')
     def _compute_family_size(self):
         for rec in self:
             head = rec if rec.relationship == 'self' else rec.head_of_family_id
