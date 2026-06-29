@@ -48,7 +48,7 @@
                     </sheet>
                     <footer class="oe_edit_only">
                         <button name="action_extract_data" type="object"
-                                string="استخراج البيانات (OCR)" class="btn-primary"
+                                string="استخراج البيانات" class="btn-primary"
                                 invisible="state != 'upload'"/>
                         <button name="action_manual_entry" type="object"
                                 string="إدخال يدوي" class="btn-secondary"
@@ -126,7 +126,7 @@
                     </sheet>
                     <footer class="oe_edit_only">
                         <button name="action_extract_data" type="object"
-                                string="استخراج البيانات (OCR)" class="btn-primary"
+                                string="استخراج البيانات" class="btn-primary"
                                 invisible="state != 'upload'"/>
                         <button name="action_manual_entry" type="object"
                                 string="إدخال يدوي" class="btn-secondary"

@@ -1,4 +1,4 @@
-from odoo.addons.web.controllers.webmanifest import WebManifest
+from odoo.addons.web_pwa_customize.controllers.webmanifest import WebManifest
 from odoo.tools import file_open
 
 

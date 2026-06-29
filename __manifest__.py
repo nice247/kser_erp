@@ -23,6 +23,7 @@
         'board',
         'contacts',
         'spreadsheet_dashboard',
+        'web_pwa_customize',
     ],
     'data': [
         'security/kser_security.xml',
