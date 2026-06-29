@@ -41,6 +41,10 @@
                 <list string="التبرعات النقدية"
                       decoration-success="ocr_status == 'matched'"
                       decoration-danger="ocr_status == 'failed'">
+                    <header>
+                        <button name="%(kser_erp.action_kser_bank_receipt_wizard)d" type="action" 
+                                string="إضافة تبرع بالذكاء الاصطناعي (OCR)" display="always" class="btn-primary"/>
+                    </header>
                     <field name="transaction_number" string="رقم العملية"/>
                     <field name="partner_id" string="المتبرع" optional="show"/>
                     <field name="bank_name" string="اسم البنك"/>
@@ -66,11 +70,15 @@
             <field name="arch" type="xml">
                 <form string="تبرع نقدي">
                     <header>
+                        <button name="%(kser_erp.action_kser_bank_receipt_wizard)d" type="action" 
+                                string="قراءة الإيصال (AI OCR)" class="oe_highlight"
+                                invisible="not id"/>
                         <button name="action_confirm" type="object" string="تأكيد مالياً"
                                 class="oe_highlight" invisible="state != 'draft'"/>
                         <field name="state" widget="statusbar" statusbar_visible="draft,posted"/>
                     </header>
                     <sheet>
+                        <field name="id" invisible="1"/>
                         <div class="oe_button_box" name="button_box">
                             <button name="action_view_payment" type="object"
                                     class="oe_stat_button" icon="fa-money"
@@ -98,7 +106,7 @@
                             </group>
                             <group string="إيصال الدفع">
                                 <field name="receipt_image" string="صورة إيصال البنك"
-                                       widget="image" class="oe_avatar" options="{'size': [150, 150]}"/>
+                                       widget="image" class="oe_avatar" options="{'size': [2048, 2048]}" readonly="1"/>
                             </group>
                             <group string="بيانات الحسابات">
                                 <field name="sender_account_number" string="رقم حساب المرسل"/>
