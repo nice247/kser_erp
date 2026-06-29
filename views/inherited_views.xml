@@ -90,7 +90,7 @@
                     <attribute name="invisible">1</attribute>
                 </xpath>
                 <xpath expr="//sheet//group" position="after">
-                    <group string="بيانات KSER" name="kser_identity_group" invisible="is_company">
+                    <group string="بيانات KSER" name="kser_identity_group">
                         <group string="التصنيف والإشراف">
                             <field name="category_tag" string="تصنيف جهة الاتصال"/>
                             <field name="supervisor_id" string="المشرف الميداني" invisible="is_donor"/>
