@@ -183,10 +183,12 @@ class KserCashDonation(models.Model):
                     'message': _('Connection failed: %s') % str(e)
                 }
             }
+        data = result.get('data', {})
+        self.ocr_confidence = data.get('ocr_confidence', 0.0)
         if not result.get('success'):
             self.ocr_status = 'failed'
             backend_msg = result.get('message', '')
-            errors = result.get('data', {}).get('errors', [])
+            errors = data.get('errors', [])
             detailed_errors = ', '.join(errors) if errors else ''
             error_msg = f"{backend_msg} (Details: {detailed_errors})" if detailed_errors else backend_msg
             return {
@@ -195,7 +197,6 @@ class KserCashDonation(models.Model):
                     'message': error_msg
                 }
             }
-        data = result.get('data', {})
         extracted_date = data.get('date', '')
         donation_date = fields.Date.today()
         if extracted_date:

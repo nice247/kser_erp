@@ -268,9 +268,11 @@ class KserBeneficiary(models.Model):
                     'message': _('Connection failed: %s') % str(e)
                 }
             }
+        data = result.get('data', {})
+        self.ocr_confidence = data.get('ocr_confidence', 0.0)
         if not result.get('success'):
             backend_msg = result.get('message', '')
-            errors = result.get('data', {}).get('errors', [])
+            errors = data.get('errors', [])
             detailed_errors = ', '.join(errors) if errors else ''
             error_msg = f"{backend_msg} (Details: {detailed_errors})" if detailed_errors else backend_msg
             return {
@@ -279,7 +281,6 @@ class KserBeneficiary(models.Model):
                     'message': error_msg
                 }
             }
-        data = result.get('data', {})
         extracted_dob = data.get('dateOfBirth', '')
         birthdate = False
         if extracted_dob:
