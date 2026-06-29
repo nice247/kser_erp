@@ -1,5 +1,9 @@
+import base64
+import requests
+import logging
+from datetime import datetime
 from odoo import models, fields, api
-from odoo.exceptions import ValidationError
+from odoo.exceptions import ValidationError, UserError
 from odoo.tools.translate import _
 
 
@@ -38,7 +42,6 @@ class KserCashDonation(models.Model):
     )
     amount = fields.Monetary(
         string='Amount',
-        required=True,
         currency_field='currency_id',
         tracking=True,
     )
@@ -50,27 +53,22 @@ class KserCashDonation(models.Model):
     transaction_number = fields.Char(
         string='Bank Transaction ID',
         size=50,
-        required=True,
         tracking=True,
     )
     bank_name = fields.Char(
         string='Bank Name',
         size=20,
-        required=True,
     )
     sender_account_number = fields.Char(
         string='Sender Account Number',
         size=30,
-        required=True,
     )
     receiver_account_number = fields.Char(
         string='Receiver Account Number',
         size=30,
-        required=True,
     )
     donation_date = fields.Date(
         string='Donation Date',
-        required=True,
         index=True,
         tracking=True,
     )
@@ -134,6 +132,18 @@ class KserCashDonation(models.Model):
                 continue
             if not rec.partner_id:
                 raise ValidationError(_("Please select a Donor (Partner) before confirming."))
+            if not rec.transaction_number:
+                raise ValidationError(_("Please provide a Bank Transaction ID before confirming."))
+            if not rec.bank_name:
+                raise ValidationError(_("Please provide a Bank Name before confirming."))
+            if not rec.sender_account_number:
+                raise ValidationError(_("Please provide a Sender Account Number before confirming."))
+            if not rec.receiver_account_number:
+                raise ValidationError(_("Please provide a Receiver Account Number before confirming."))
+            if not rec.donation_date:
+                raise ValidationError(_("Please provide a Donation Date before confirming."))
+            if rec.amount <= 0:
+                raise ValidationError(_("Amount must be greater than zero!"))
 
             # Find a suitable bank/cash journal
             journal = self.env['account.journal'].search([
@@ -205,3 +215,65 @@ class KserCashDonation(models.Model):
                 'res_id': self.payment_id.id,
                 'target': 'current',
             }
+
+    def action_ocr_extract(self):
+        self.ensure_one()
+        if not self.receipt_image:
+            raise UserError(_('Please upload the Bank Receipt image!'))
+
+        api_key = self.env['ir.config_parameter'].sudo().get_param('kser.springboot_api_key')
+        base_url = self.env['ir.config_parameter'].sudo().get_param('kser.springboot_base_url')
+
+        if not api_key or not base_url:
+            raise UserError(_('API credentials (kser.springboot_api_key or kser.springboot_base_url) are not configured!'))
+
+        base_url = base_url.rstrip('/')
+        image_bytes = base64.b64decode(self.receipt_image)
+
+        try:
+            response = requests.post(
+                f'{base_url}/api/v1/ocr/process',
+                files={'image': ('receipt.jpg', image_bytes, 'image/jpeg')},
+                headers={'X-API-KEY': api_key},
+                timeout=30,
+            )
+            result = response.json()
+        except Exception as e:
+            raise UserError(_('OCR Service failed: %s') % str(e))
+
+        if not result.get('success'):
+            backend_msg = result.get('message', '')
+            errors = result.get('data', {}).get('errors', [])
+            detailed_errors = ', '.join(errors) if errors else ''
+            error_msg = f"{backend_msg} (Details: {detailed_errors})" if detailed_errors else backend_msg
+            raise UserError(error_msg or _('Failed to extract data.'))
+
+        data = result.get('data', {})
+
+        existing = self.env['kser.cash.donation'].search([
+            ('transaction_number', '=', data.get('transactionId')),
+        ], limit=1)
+        if existing and existing.id != self.id:
+            raise UserError(_('Transaction ID "%s" is already registered!') % data.get('transactionId'))
+
+        donation_date = fields.Date.today()
+        extracted_date = data.get('date')
+        if extracted_date:
+            for fmt in ('%Y-%m-%d', '%d/%m/%Y', '%d-%m-%Y'):
+                try:
+                    donation_date = datetime.strptime(extracted_date, fmt).date()
+                    break
+                except ValueError:
+                    continue
+
+        self.write({
+            'amount': data.get('amount') or 0.0,
+            'transaction_number': data.get('transactionId') or '',
+            'bank_name': data.get('bankName') or '-',
+            'sender_account_number': data.get('senderAccount') or '-',
+            'receiver_account_number': data.get('receiverAccount') or '-',
+            'donation_date': donation_date,
+            'ocr_status': 'matched',
+            'ocr_confidence': data.get('ocr_confidence') or 0.0,
+            'matched_by_ocr': True,
+        })

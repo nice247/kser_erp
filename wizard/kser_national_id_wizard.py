@@ -150,31 +150,38 @@ class KserNationalIdWizard(models.TransientModel):
         if not self.extracted_national_id:
             raise UserError(_('No extracted National ID!'))
 
-        if self.target_type == 'volunteer':
-            existing_partner = self.env['res.partner'].search([
-                ('national_id_number', '=', self.extracted_national_id),
-            ], limit=1)
+        active_id = self.env.context.get('active_id')
 
+        if self.target_type == 'volunteer':
             volunteer_tag = self.env.ref('kser_erp.partner_category_volunteer', raise_if_not_found=False)
 
-            if existing_partner:
-                existing_partner.write({
-                    'name': self.extracted_name or existing_partner.name,
-                    'national_id_image': self.id_image,
-                    'category_tag': volunteer_tag.id if volunteer_tag else False,
-                })
-            else:
-                self.env['res.partner'].create({
-                    'name': self.extracted_name or _('New Volunteer'),
+            if active_id:
+                partner = self.env['res.partner'].browse(active_id)
+                partner.write({
+                    'name': self.extracted_name or partner.name,
                     'national_id_number': self.extracted_national_id,
                     'national_id_image': self.id_image,
-                    'category_tag': volunteer_tag.id if volunteer_tag else False,
+                    'category_tag': volunteer_tag.id if volunteer_tag else partner.category_tag.id,
                 })
-            return {'type': 'ir.actions.act_window_close'}
+            else:
+                existing_partner = self.env['res.partner'].search([
+                    ('national_id_number', '=', self.extracted_national_id),
+                ], limit=1)
 
-        existing = self.env['kser.beneficiary'].search([
-            ('national_id_number', '=', self.extracted_national_id),
-        ], limit=1)
+                if existing_partner:
+                    existing_partner.write({
+                        'name': self.extracted_name or existing_partner.name,
+                        'national_id_image': self.id_image,
+                        'category_tag': volunteer_tag.id if volunteer_tag else False,
+                    })
+                else:
+                    self.env['res.partner'].create({
+                        'name': self.extracted_name or _('New Volunteer'),
+                        'national_id_number': self.extracted_national_id,
+                        'national_id_image': self.id_image,
+                        'category_tag': volunteer_tag.id if volunteer_tag else False,
+                    })
+            return {'type': 'ir.actions.act_window_close'}
 
         birthdate = False
         if self.extracted_dob:
@@ -187,6 +194,30 @@ class KserNationalIdWizard(models.TransientModel):
 
         marital_key = MARITAL_STATUS_MAP.get(self.extracted_marital_status, False)
         beneficiary_tag = self.env.ref('kser_erp.partner_category_beneficiary', raise_if_not_found=False)
+
+        if active_id:
+            beneficiary = self.env['kser.beneficiary'].browse(active_id)
+            partner = beneficiary.partner_id
+            if partner:
+                partner.write({
+                    'name': self.extracted_name or partner.name,
+                    'national_id_number': self.extracted_national_id,
+                    'national_id_image': self.id_image,
+                    'category_tag': beneficiary_tag.id if beneficiary_tag else partner.category_tag.id,
+                })
+            beneficiary.write({
+                'national_id_number': self.extracted_national_id,
+                'national_id_image': self.id_image,
+                'profession': self.extracted_profession or beneficiary.profession,
+                'marital_status': marital_key or beneficiary.marital_status,
+                'birthdate': birthdate or beneficiary.birthdate,
+                'ocr_confidence': self.extracted_confidence,
+            })
+            return {'type': 'ir.actions.act_window_close'}
+
+        existing = self.env['kser.beneficiary'].search([
+            ('national_id_number', '=', self.extracted_national_id),
+        ], limit=1)
 
         if existing:
             partner = existing.partner_id

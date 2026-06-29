@@ -68,8 +68,8 @@
                     <header>
                         <button name="action_confirm" type="object" string="تأكيد مالياً"
                                 class="oe_highlight" invisible="state != 'draft'"/>
-                        <button name="%(kser_erp.action_kser_bank_receipt_wizard)d" string="قراءة الإيصال (OCR)"
-                                type="action" class="btn-secondary" invisible="state != 'draft'"/>
+                        <button name="action_ocr_extract" string="قراءة الإيصال (OCR)"
+                                type="object" class="btn-secondary" invisible="state != 'draft' or not receipt_image"/>
                         <field name="state" widget="statusbar" statusbar_visible="draft,posted"/>
                     </header>
                     <sheet>

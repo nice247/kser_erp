@@ -61,8 +61,8 @@
             <field name="arch" type="xml">
                 <form string="بيانات المستفيد">
                     <header>
-                        <button name="%(kser_erp.action_kser_national_id_wizard)d" string="قراءة بطاقة الهوية (OCR)"
-                                type="action" class="btn-primary" invisible="is_verified"/>
+                        <button name="action_ocr_extract" string="قراءة بطاقة الهوية (OCR)"
+                                type="object" class="btn-primary" invisible="is_verified or not national_id_image"/>
                     </header>
                     <sheet>
                         <div class="oe_button_box" name="button_box">

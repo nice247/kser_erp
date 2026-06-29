@@ -1,4 +1,8 @@
+import base64
+import requests
+import logging
 from odoo import models, fields, api, _
+from odoo.exceptions import UserError, ValidationError
 
 
 class ResPartner(models.Model):
@@ -52,6 +56,8 @@ class ResPartner(models.Model):
         volunteer_tag = self.env.ref('kser_erp.partner_category_volunteer', raise_if_not_found=False)
         for rec in self:
             if volunteer_tag and rec.category_tag == volunteer_tag:
+                if not rec.national_id_number and not rec.national_id_image:
+                    continue
                 if not rec.national_id_image:
                     raise ValidationError(_("يجب رفع صورة الرقم الوطني للمتطوع!"))
                 if not rec.national_id_number or len(rec.national_id_number) != 11 or not rec.national_id_number.isdigit():
@@ -108,3 +114,41 @@ class ResPartner(models.Model):
             'domain': [('partner_id', '=', self.id)],
             'context': {'default_partner_id': self.id},
         }
+
+    def action_ocr_extract(self):
+        self.ensure_one()
+        if not self.national_id_image:
+            raise UserError(_('Please upload the National ID image!'))
+
+        api_key = self.env['ir.config_parameter'].sudo().get_param('kser.springboot_api_key')
+        base_url = self.env['ir.config_parameter'].sudo().get_param('kser.springboot_base_url')
+
+        if not api_key or not base_url:
+            raise UserError(_('API credentials (kser.springboot_api_key or kser.springboot_base_url) are not configured!'))
+
+        base_url = base_url.rstrip('/')
+        image_bytes = base64.b64decode(self.national_id_image)
+
+        try:
+            response = requests.post(
+                f'{base_url}/api/v1/ocr/national-id',
+                files={'image': ('national_id.jpg', image_bytes, 'image/jpeg')},
+                headers={'X-API-KEY': api_key},
+                timeout=30,
+            )
+            result = response.json()
+        except Exception as e:
+            raise UserError(_('OCR Service failed: %s') % str(e))
+
+        if not result.get('success'):
+            backend_msg = result.get('message', '')
+            errors = result.get('data', {}).get('errors', [])
+            detailed_errors = ', '.join(errors) if errors else ''
+            error_msg = f"{backend_msg} (Details: {detailed_errors})" if detailed_errors else backend_msg
+            raise UserError(error_msg or _('Failed to extract data.'))
+
+        data = result.get('data', {})
+        self.write({
+            'name': data.get('name') or self.name,
+            'national_id_number': data.get('nationalIdNumber') or self.national_id_number,
+        })
