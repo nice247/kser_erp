@@ -167,32 +167,57 @@ class KserBeneficiary(models.Model):
     )
     def _compute_priority(self):
         today = fields.Date.today()
+        import re
         for rec in self:
             if rec.relationship != 'self':
                 rec.priority_score = 0
                 rec.priority_level = 'normal'
                 continue
+            
             score = 0
-            all_members = [rec]
-            if rec.id:
+            size = rec.family_size
+            
+            if size == 1:
+                # Single individual logic
+                if rec.health_conditions:
+                    diseases = [d.strip() for d in re.split(r'[,،\-]+', rec.health_conditions) if d.strip()]
+                    score += len(diseases) * 7
+                
+                ms_points = {'married': 5, 'divorced': 7, 'widowed': 10, 'single': 0}
+                score += ms_points.get(rec.marital_status, 0)
+                
+                age = relativedelta(today, rec.birthdate).years if rec.birthdate else 25
+                if age < 18 or age >= 60:
+                    score += 5
+            else:
+                # Family logic (size >= 2)
+                score += 20 if size > 5 else 10
+                
+                # Head details
+                age = relativedelta(today, rec.birthdate).years if rec.birthdate else 25
+                if age < 18 or age >= 60:
+                    score += 5
+                if rec.health_conditions:
+                    score += 5
+                if rec.marital_status in ('divorced', 'widowed'):
+                    score += 5
+                    
+                # Dependants details
                 dependants = self.env['kser.beneficiary'].search([
                     ('head_of_family_id', '=', rec.id),
                     ('relationship', '!=', 'self'),
-                ])
-                all_members.extend(dependants)
-            else:
-                all_members.extend(rec.member_ids)
-            for member in all_members:
-                if member.health_conditions:
-                    score += 30
-                if member.marital_status in ('widowed', 'divorced'):
-                    score += 20
-                if member.birthdate:
-                    age = relativedelta(today, member.birthdate).years
-                    if age >= 60:
-                        score += 15
-            if rec.family_size > 3:
-                score += (rec.family_size - 3) * 5
+                ]) if rec.id else rec.member_ids
+                
+                for dep in dependants:
+                    dep_age = relativedelta(today, dep.birthdate).years if dep.birthdate else 25
+                    has_age_cond = dep_age < 18 or dep_age >= 60
+                    has_disease = bool(dep.health_conditions)
+                    
+                    if has_age_cond and has_disease:
+                        score += 10
+                    elif has_age_cond or has_disease:
+                        score += 7
+
             rec.priority_score = min(score, 100)
             if rec.priority_score >= 80:
                 rec.priority_level = 'urgent'
