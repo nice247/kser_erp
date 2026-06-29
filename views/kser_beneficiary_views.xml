@@ -80,26 +80,28 @@
                             </h1>
                         </div>
 
-                        <group>
-                            <group string="البيانات الأساسية">
-                                <field name="national_id_number" string="رقم الهوية الوطنية"/>
-                                <field name="phone" string="رقم الهاتف"/>
-                                <field name="mobile" string="رقم الجوال"/>
-                                <field name="relationship" string="العلاقة برب الأسرة"/>
-                                <field name="head_of_family_id" string="رب الأسرة المسؤول" invisible="relationship == 'self'"/>
-                                <field name="profession" string="المهنة"/>
-                                <field name="marital_status" string="الحالة الاجتماعية"/>
-                                <field name="birthdate" string="تاريخ الميلاد"/>
-                                <field name="family_size" string="حجم الأسرة"/>
-                                <field name="district" string="المحلية"/>
+                        <group col="3">
+                            <group colspan="2">
+                                <group string="البيانات الأساسية">
+                                    <field name="national_id_number" string="رقم الهوية الوطنية"/>
+                                    <field name="phone" string="رقم الهاتف"/>
+                                    <field name="mobile" string="رقم الجوال"/>
+                                    <field name="relationship" string="العلاقة برب الأسرة"/>
+                                    <field name="head_of_family_id" string="رب الأسرة المسؤول" invisible="relationship == 'self'"/>
+                                    <field name="profession" string="المهنة"/>
+                                    <field name="marital_status" string="الحالة الاجتماعية"/>
+                                    <field name="birthdate" string="تاريخ الميلاد"/>
+                                    <field name="family_size" string="حجم الأسرة"/>
+                                    <field name="district" string="المحلية"/>
+                                </group>
+                                <group string="التسجيل والتحقق">
+                                    <field name="registration_date" string="تاريخ التسجيل"/>
+                                    <field name="registered_by" string="مسجّل بواسطة"/>
+                                    <field name="is_verified" string="تم التحقق" widget="boolean_toggle"/>
+                                    <field name="ocr_confidence" string="دقة التعرف الآلي"/>
+                                </group>
                             </group>
-                            <group string="التسجيل والتحقق">
-                                <field name="registration_date" string="تاريخ التسجيل"/>
-                                <field name="registered_by" string="مسجّل بواسطة"/>
-                                <field name="is_verified" string="تم التحقق" widget="boolean_toggle"/>
-                                <field name="ocr_confidence" string="دقة التعرف الآلي"/>
-                            </group>
-                            <group string="الهوية الوطنية">
+                            <group string="الهوية الوطنية" colspan="1">
                                 <field name="national_id_image" string="صورة الهوية الوطنية"
                                        widget="image" class="oe_avatar" options="{'size': [150, 150]}"/>
                             </group>

@@ -87,25 +87,27 @@
                             </h1>
                         </div>
 
-                        <group>
-                            <group string="بيانات التبرع">
-                                <field name="partner_id" string="المتبرع"/>
-                                <field name="campaign_id" string="الحملة المرتبطة"/>
-                                <field name="amount" string="المبلغ"/>
-                                <field name="currency_id" string="العملة" invisible="1"/>
-                                <field name="donation_date" string="تاريخ التبرع"/>
-                                <field name="bank_name" string="اسم البنك"/>
+                        <group col="3">
+                            <group colspan="2">
+                                <group string="بيانات التبرع">
+                                    <field name="partner_id" string="المتبرع"/>
+                                    <field name="campaign_id" string="الحملة المرتبطة"/>
+                                    <field name="amount" string="المبلغ"/>
+                                    <field name="currency_id" string="العملة" invisible="1"/>
+                                    <field name="donation_date" string="تاريخ التبرع"/>
+                                    <field name="bank_name" string="اسم البنك"/>
+                                </group>
+                                <group string="بيانات الحسابات">
+                                    <field name="sender_account_number" string="رقم حساب المرسل"/>
+                                    <field name="receiver_account_number" string="رقم حساب المستلم"/>
+                                    <field name="payment_id" string="السند المرتبط" readonly="1"
+                                           invisible="not payment_id"/>
+                                    <field name="move_id" string="القيد المرتبط" readonly="1"
+                                           invisible="not move_id"/>
+                                    <field name="created_by" string="رُفع بواسطة"/>
+                                </group>
                             </group>
-                            <group string="بيانات الحسابات">
-                                <field name="sender_account_number" string="رقم حساب المرسل"/>
-                                <field name="receiver_account_number" string="رقم حساب المستلم"/>
-                                <field name="payment_id" string="السند المرتبط" readonly="1"
-                                       invisible="not payment_id"/>
-                                <field name="move_id" string="القيد المرتبط" readonly="1"
-                                       invisible="not move_id"/>
-                                <field name="created_by" string="رُفع بواسطة"/>
-                            </group>
-                            <group string="إيصال الدفع">
+                            <group string="إيصال الدفع" colspan="1">
                                 <field name="receipt_image" string="صورة إيصال البنك"
                                        widget="image" class="oe_avatar" options="{'size': [150, 150]}"/>
                             </group>
