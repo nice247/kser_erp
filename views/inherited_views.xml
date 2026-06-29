@@ -27,9 +27,9 @@
             <field name="arch" type="xml">
                 <list string="المتبرعين" default_order="create_date desc">
                     <field name="name" string="الاسم"/>
+                    <field name="category_tag" string="التصنيف"/>
                     <field name="city" string="المدينة"/>
                     <field name="phone" string="الهاتف"/>
-                    <field name="category_tag" string="التصنيف"/>
                 </list>
             </field>
         </record>
@@ -108,6 +108,24 @@
                 <xpath expr="//field[@name='email']" position="attributes">
                     <attribute name="invisible">is_donor</attribute>
                 </xpath>
+                <xpath expr="//field[@name='street']" position="attributes">
+                    <attribute name="invisible">is_donor</attribute>
+                </xpath>
+                <xpath expr="//field[@name='street2']" position="attributes">
+                    <attribute name="invisible">is_donor</attribute>
+                </xpath>
+                <xpath expr="//field[@name='zip']" position="attributes">
+                    <attribute name="invisible">is_donor</attribute>
+                </xpath>
+                <xpath expr="//field[@name='state_id']" position="attributes">
+                    <attribute name="invisible">is_donor</attribute>
+                </xpath>
+                <xpath expr="//field[@name='country_id']" position="attributes">
+                    <attribute name="invisible">is_donor</attribute>
+                </xpath>
+                <xpath expr="//page[@name='internal_notes']" position="attributes">
+                    <attribute name="invisible">is_donor</attribute>
+                </xpath>
                 <xpath expr="//notebook" position="inside">
                     <page string="سجل التبرعات" invisible="not is_donor">
                         <field name="donation_ids" readonly="1"/>
@@ -124,7 +142,7 @@
                 </xpath>
                 <xpath expr="//sheet//group" position="after">
                     <group string="بيانات KSER" name="kser_identity_group" invisible="is_company">
-                        <group string="التصنيف والإشراف">
+                        <group string="التصنيف">
                             <field name="category_tag" string="تصنيف جهة الاتصال"/>
                             <field name="supervisor_id" string="المشرف الميداني" invisible="is_donor"/>
                         </group>
@@ -250,10 +268,10 @@
             <field name="inherit_id" ref="account.partner_view_buttons"/>
             <field name="arch" type="xml">
                 <xpath expr="//button[@name='action_view_partner_invoices']" position="attributes">
-                    <attribute name="invisible">is_volunteer or is_beneficiary or is_company</attribute>
+                    <attribute name="invisible">is_volunteer or is_beneficiary or is_company or is_donor</attribute>
                 </xpath>
                 <xpath expr="//field[@name='supplier_invoice_count']/.." position="attributes">
-                    <attribute name="invisible">is_volunteer or is_beneficiary or is_company or supplier_invoice_count == 0</attribute>
+                    <attribute name="invisible">is_volunteer or is_beneficiary or is_company or supplier_invoice_count == 0 or is_donor</attribute>
                 </xpath>
             </field>
         </record>
@@ -275,10 +293,10 @@
             <field name="inherit_id" ref="account.view_partner_property_form"/>
             <field name="arch" type="xml">
                 <xpath expr="//page[@name='accounting']" position="attributes">
-                    <attribute name="invisible">is_volunteer or is_beneficiary or (not is_company and parent_id)</attribute>
+                    <attribute name="invisible">is_volunteer or is_beneficiary or (not is_company and parent_id) or is_donor</attribute>
                 </xpath>
                 <xpath expr="//page[@name='accounting_disabled']" position="attributes">
-                    <attribute name="invisible">is_volunteer or is_beneficiary or (is_company or not parent_id)</attribute>
+                    <attribute name="invisible">is_volunteer or is_beneficiary or (is_company or not parent_id) or is_donor</attribute>
                 </xpath>
             </field>
         </record>
