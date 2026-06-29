@@ -185,12 +185,7 @@
                   groups="kser_erp.group_admin_supervisor,kser_erp.group_data_manager,kser_erp.group_field_supervisor,kser_erp.group_system_admin"
                   sequence="5"/>
 
-        <!-- 2. المستفيدين -->
-        <menuitem id="menu_kser_beneficiaries"
-                  name="المستفيدين"
-                  parent="menu_kser_root"
-                  groups="kser_erp.group_admin_supervisor,kser_erp.group_data_manager,kser_erp.group_stock_manager,kser_erp.group_field_supervisor,kser_erp.group_system_admin"
-                  sequence="10"/>
+
 
         <!-- 3. التبرعات -->
         <menuitem id="menu_kser_donations"
@@ -267,12 +262,7 @@
             <field name="groups_id" eval="[(6, 0, [ref('group_admin_supervisor'), ref('group_data_manager'), ref('group_field_supervisor'), ref('group_system_admin')])]"/>
         </record>
 
-        <!-- المستفيدين Sub-Items -->
-        <menuitem id="menu_kser_beneficiary_list"
-                  name="قائمة المستفيدين"
-                  parent="menu_kser_beneficiaries"
-                  action="action_kser_beneficiary"
-                  sequence="1"/>
+
 
         <menuitem id="menu_kser_beneficiary_ocr_wizard"
                   name="استخراج بيانات الهوية للمستفيد (OCR)"
