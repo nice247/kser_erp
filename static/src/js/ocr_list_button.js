@@ -5,6 +5,8 @@ import { listView } from "@web/views/list/list_view";
 import { ListController } from "@web/views/list/list_controller";
 
 export class OcrListController extends ListController {
+    static template = "kser_erp.ListView";
+
     setup() {
         super.setup();
     }
@@ -29,7 +31,6 @@ export class OcrListController extends ListController {
 export const ocrListView = {
     ...listView,
     Controller: OcrListController,
-    buttonTemplate: "kser_erp.ListView.Buttons",
 };
 
 registry.category("views").add("kser_ocr_list", ocrListView);
