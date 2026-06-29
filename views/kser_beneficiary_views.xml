@@ -62,7 +62,7 @@
                 <form string="بيانات المستفيد">
                     <header>
                         <button name="action_ocr_extract" string="قراءة بطاقة الهوية (OCR)"
-                                type="object" class="btn-primary" invisible="is_verified or not national_id_image"/>
+                                type="object" class="btn-primary" invisible="is_verified"/>
                     </header>
                     <sheet>
                         <div class="oe_button_box" name="button_box">

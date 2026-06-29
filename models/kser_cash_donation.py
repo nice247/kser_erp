@@ -219,7 +219,7 @@ class KserCashDonation(models.Model):
     def action_ocr_extract(self):
         self.ensure_one()
         if not self.receipt_image:
-            raise UserError(_('Please upload the Bank Receipt image!'))
+            raise UserError(_('يجب رفع صورة الإيصال البنكي أولاً في علامة التبويب "صورة الإيصال" قبل محاولة قراءة البيانات.'))
 
         api_key = self.env['ir.config_parameter'].sudo().get_param('kser.springboot_api_key')
         base_url = self.env['ir.config_parameter'].sudo().get_param('kser.springboot_base_url')

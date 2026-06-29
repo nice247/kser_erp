@@ -301,7 +301,7 @@ class KserBeneficiary(models.Model):
     def action_ocr_extract(self):
         self.ensure_one()
         if not self.national_id_image:
-            raise UserError(_('Please upload the National ID image!'))
+            raise UserError(_('يجب رفع صورة الهوية الوطنية أولاً في علامة التبويب "صورة الهوية" قبل محاولة قراءة البيانات.'))
 
         api_key = self.env['ir.config_parameter'].sudo().get_param('kser.springboot_api_key')
         base_url = self.env['ir.config_parameter'].sudo().get_param('kser.springboot_base_url')
