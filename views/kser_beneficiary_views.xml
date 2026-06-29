@@ -62,7 +62,8 @@
                 <form string="بيانات المستفيد">
                     <header>
                         <button name="action_ocr_extract" string="قراءة بطاقة الهوية (OCR)"
-                                type="object" class="btn-primary" invisible="is_verified"/>
+                                type="object" class="btn-primary" invisible="is_verified"
+                                context="{'bypass_id_validation': True}"/>
                     </header>
                     <sheet>
                         <div class="oe_button_box" name="button_box">

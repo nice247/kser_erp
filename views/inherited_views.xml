@@ -34,6 +34,20 @@
             </field>
         </record>
 
+        <record id="view_res_partner_tree_donors" model="ir.ui.view">
+            <field name="name">res.partner.list.donors</field>
+            <field name="model">res.partner</field>
+            <field name="arch" type="xml">
+                <list string="المتبرعين" default_order="create_date desc">
+                    <field name="name" string="الاسم"/>
+                    <field name="category_tag" string="التصنيف"/>
+                    <field name="phone" string="الهاتف"/>
+                    <field name="email" string="البريد الإلكتروني"/>
+                    <field name="city" string="المدينة" optional="show"/>
+                </list>
+            </field>
+        </record>
+
         <!-- ============================================================ -->
         <!--       Inherited View: res.partner form — KSER fields         -->
         <!-- ============================================================ -->
@@ -48,7 +62,8 @@
                             string="قراءة بطاقة الهوية (OCR)" 
                             type="object" 
                             class="btn-primary mb-3"
-                            invisible="not is_volunteer"/>
+                            invisible="not is_volunteer"
+                            context="{'bypass_id_validation': True}"/>
                 </xpath>
                 <xpath expr="//div[@name='button_box']" position="inside">
                     <field name="is_volunteer" invisible="1"/>

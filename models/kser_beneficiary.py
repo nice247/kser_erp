@@ -222,19 +222,15 @@ class KserBeneficiary(models.Model):
 
     @api.constrains('is_verified', 'partner_id', 'national_id_number', 'national_id_image', 'district')
     def _check_verified_beneficiary(self):
+        if self.env.context.get('bypass_id_validation'):
+            return
         for rec in self:
-            if rec.national_id_number:
-                if len(rec.national_id_number) != 11 or not rec.national_id_number.isdigit():
-                    raise ValidationError(_("يجب أن يتكون الرقم الوطني للمستفيد من 11 خانة رقمية فقط!"))
-            if rec.is_verified:
-                if not rec.partner_id:
-                    raise ValidationError(_("يجب اختيار أو إنشاء جهة اتصال للمستفيد قبل التحقق!"))
-                if not rec.national_id_image:
-                    raise ValidationError(_("يجب رفع صورة الرقم الوطني للمستفيد!"))
-                if not rec.national_id_number:
-                    raise ValidationError(_("يجب إدخال الرقم الوطني للمستفيد!"))
-                if not rec.district:
-                    raise ValidationError(_("يجب إدخال المحلية للمستفيد!"))
+            if not rec.national_id_image:
+                raise ValidationError(_("يجب رفع صورة الرقم الوطني للمستفيد!"))
+            if not rec.national_id_number or len(rec.national_id_number) != 11 or not rec.national_id_number.isdigit():
+                raise ValidationError(_("يجب أن يتكون الرقم الوطني للمستفيد من 11 خانة رقمية فقط!"))
+            if not rec.district:
+                raise ValidationError(_("يجب إدخال المحلية للمستفيد!"))
 
     @api.depends('move_ids')
     def _compute_move_count(self):

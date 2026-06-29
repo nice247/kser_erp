@@ -69,7 +69,8 @@
                         <button name="action_confirm" type="object" string="تأكيد مالياً"
                                 class="oe_highlight" invisible="state != 'draft'"/>
                         <button name="action_ocr_extract" string="قراءة الإيصال (OCR)"
-                                type="object" class="btn-secondary" invisible="state != 'draft'"/>
+                                type="object" class="btn-secondary" invisible="state != 'draft'"
+                                context="{'bypass_id_validation': True}"/>
                         <field name="state" widget="statusbar" statusbar_visible="draft,posted"/>
                     </header>
                     <sheet>

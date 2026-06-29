@@ -53,11 +53,11 @@ class ResPartner(models.Model):
 
     @api.constrains('national_id_number', 'national_id_image', 'category_tag')
     def _check_national_id_volunteer(self):
+        if self.env.context.get('bypass_id_validation'):
+            return
         volunteer_tag = self.env.ref('kser_erp.partner_category_volunteer', raise_if_not_found=False)
         for rec in self:
             if volunteer_tag and rec.category_tag == volunteer_tag:
-                if not rec.national_id_number and not rec.national_id_image:
-                    continue
                 if not rec.national_id_image:
                     raise ValidationError(_("يجب رفع صورة الرقم الوطني للمتطوع!"))
                 if not rec.national_id_number or len(rec.national_id_number) != 11 or not rec.national_id_number.isdigit():
