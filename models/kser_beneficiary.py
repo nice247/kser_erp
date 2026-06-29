@@ -139,36 +139,61 @@ class KserBeneficiary(models.Model):
     @api.depends('relationship', 'head_of_family_id', 'member_ids', 'member_ids.relationship')
     def _compute_family_size(self):
         for rec in self:
-            if rec.relationship == 'self':
-                rec.family_size = 1 + len(rec.member_ids)
-            else:
-                if rec.head_of_family_id:
-                    rec.family_size = rec.head_of_family_id.family_size
+            head = rec if rec.relationship == 'self' else rec.head_of_family_id
+            if head:
+                if head.id:
+                    count = self.env['kser.beneficiary'].search_count([
+                        ('head_of_family_id', '=', head.id),
+                        ('relationship', '!=', 'self'),
+                    ])
+                    rec.family_size = 1 + count
                 else:
-                    rec.family_size = 1
+                    rec.family_size = 1 + len(head.member_ids)
+            else:
+                rec.family_size = 1
 
-    @api.depends('health_conditions', 'marital_status', 'family_size', 'birthdate')
+    @api.depends(
+        'relationship',
+        'head_of_family_id',
+        'member_ids',
+        'member_ids.relationship',
+        'health_conditions',
+        'marital_status',
+        'family_size',
+        'birthdate',
+        'member_ids.health_conditions',
+        'member_ids.marital_status',
+        'member_ids.birthdate',
+    )
     def _compute_priority(self):
         today = fields.Date.today()
         for rec in self:
+            if rec.relationship != 'self':
+                rec.priority_score = 0
+                rec.priority_level = 'normal'
+                continue
             score = 0
-
-            if rec.health_conditions:
-                score += 30
-
-            if rec.marital_status in ('widowed', 'divorced'):
-                score += 20
-
+            all_members = [rec]
+            if rec.id:
+                dependants = self.env['kser.beneficiary'].search([
+                    ('head_of_family_id', '=', rec.id),
+                    ('relationship', '!=', 'self'),
+                ])
+                all_members.extend(dependants)
+            else:
+                all_members.extend(rec.member_ids)
+            for member in all_members:
+                if member.health_conditions:
+                    score += 30
+                if member.marital_status in ('widowed', 'divorced'):
+                    score += 20
+                if member.birthdate:
+                    age = relativedelta(today, member.birthdate).years
+                    if age >= 60:
+                        score += 15
             if rec.family_size > 3:
                 score += (rec.family_size - 3) * 5
-
-            if rec.birthdate:
-                age = relativedelta(today, rec.birthdate).years
-                if age >= 60:
-                    score += 15
-
             rec.priority_score = min(score, 100)
-
             if rec.priority_score >= 80:
                 rec.priority_level = 'urgent'
             elif rec.priority_score >= 50:
