@@ -95,7 +95,7 @@ class KserNationalIdWizard(models.TransientModel):
 
         try:
             response = requests.post(
-                f'{base_url}/api/v1/ocr/national-id',
+                f'{base_url}/api/v1/vision/national-id',
                 files={'image': ('national_id.jpg', image_bytes, 'image/jpeg')},
                 headers={'X-API-KEY': api_key},
                 timeout=30,

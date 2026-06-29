@@ -63,7 +63,7 @@
                 <form string="بيانات المستفيد">
                     <header>
                         <button name="%(kser_erp.action_kser_national_id_wizard)d" type="action" 
-                                string="قراءة الهوية (AI OCR)" class="oe_highlight"
+                                string="قراءة الهوية (AI)" class="oe_highlight"
                                 invisible="not id"/>
                     </header>
                     <sheet>

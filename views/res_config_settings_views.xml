@@ -13,7 +13,7 @@
                 <xpath expr="//form" position="inside">
                     <app data-string="غرفة الطوارئ" string="غرفة الطوارئ"
                          name="kser_erp">
-                        <block title="إعدادات خادم الذكاء الاصطناعي (AI/OCR)"
+                        <block title="إعدادات خادم الذكاء الاصطناعي (AI)"
                                name="kser_api_settings">
                             <setting string="رابط الخادم"
                                      help="رابط خادم Spring Boot للذكاء الاصطناعي والتعرف الآلي (مثال: https://api.example.com)">

@@ -62,7 +62,7 @@
         </record>
 
         <record id="action_kser_national_id_wizard" model="ir.actions.act_window">
-            <field name="name">معالج استخراج الهوية (OCR)</field>
+            <field name="name">معالج استخراج الهوية (AI)</field>
             <field name="res_model">kser.national.id.wizard</field>
             <field name="view_mode">form</field>
             <field name="target">new</field>
@@ -70,7 +70,7 @@
         </record>
 
         <record id="action_kser_national_id_wizard_volunteer" model="ir.actions.act_window">
-            <field name="name">معالج استخراج الهوية للمتطوع (OCR)</field>
+            <field name="name">معالج استخراج الهوية للمتطوع (AI)</field>
             <field name="res_model">kser.national.id.wizard</field>
             <field name="view_mode">form</field>
             <field name="target">new</field>
@@ -140,7 +140,7 @@
 
         <!-- Action to open Bank Receipt Wizard -->
         <record id="action_kser_bank_receipt_wizard" model="ir.actions.act_window">
-            <field name="name">معالج استخراج الإيصال البنكي (OCR)</field>
+            <field name="name">معالج استخراج الإيصال البنكي (AI)</field>
             <field name="res_model">kser.bank.receipt.wizard</field>
             <field name="view_mode">form</field>
             <field name="target">new</field>

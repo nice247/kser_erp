@@ -235,7 +235,7 @@
         </record>
 
         <record id="menu_kser_volunteer_ocr_wizard" model="ir.ui.menu">
-            <field name="name">إضافة متطوع (OCR)</field>
+            <field name="name">إضافة متطوع (AI)</field>
             <field name="parent_id" ref="menu_kser_partners_volunteers"/>
             <field name="action" ref="action_kser_national_id_wizard_volunteer"/>
             <field name="sequence" eval="3"/>
@@ -259,7 +259,7 @@
                   sequence="1"/>
 
         <menuitem id="menu_kser_beneficiary_ocr_wizard"
-                  name="إضافة مستفيد (OCR)"
+                  name="إضافة مستفيد (AI)"
                   parent="menu_kser_contacts"
                   action="action_kser_national_id_wizard"
                   sequence="4"
@@ -273,7 +273,7 @@
                   sequence="1"/>
 
         <menuitem id="menu_kser_receipt_ocr_wizard"
-                  name="إضافة تبرع (OCR)"
+                  name="إضافة تبرع (AI)"
                   parent="menu_kser_donations"
                   action="action_kser_bank_receipt_wizard"
                   sequence="3"

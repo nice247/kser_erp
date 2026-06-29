@@ -78,7 +78,7 @@ class KserCashDonation(models.Model):
         string='Bank Receipt Image',
         attachment=True,
     )
-    ocr_status = fields.Selection(
+    ai_match_status = fields.Selection(
         [
             ('pending', 'Pending'),
             ('matched', 'Matched'),

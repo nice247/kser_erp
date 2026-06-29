@@ -57,7 +57,7 @@
                 <xpath expr="//sheet" position="before">
                     <header>
                         <button name="%(kser_erp.action_kser_national_id_wizard_volunteer)d" type="action" 
-                                string="قراءة الهوية (AI OCR)" class="oe_highlight" 
+                                string="قراءة الهوية (AI)" class="oe_highlight" 
                                 invisible="not id or not is_volunteer"/>
                     </header>
                 </xpath>

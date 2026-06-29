@@ -24,7 +24,7 @@
         <record id="group_admin_supervisor" model="res.groups">
             <field name="name">المشرف الإداري</field>
             <field name="category_id" ref="module_category_kser"/>
-            <field name="implied_ids" eval="[(4, ref('group_kser_user'))]"/>
+            <field name="implied_ids" eval="[(4, ref('group_kser_user')), (4, ref('account.group_account_manager'))]"/>
         </record>
 
         <!-- مسؤول البيانات: يدير بيانات المستفيدين والمتبرعين -->
@@ -73,7 +73,7 @@
         <record id="rule_partner_own_records" model="ir.rule">
             <field name="name">Volunteers/Donors/Contacts: Own Records Only</field>
             <field name="model_id" ref="base.model_res_partner"/>
-            <field name="groups" eval="[(4, ref('group_stock_manager')), (4, ref('group_field_supervisor'))]"/>
+            <field name="groups" eval="[(4, ref('group_stock_manager'))]"/>
             <field name="domain_force">['|', '|', '|', ('create_uid', '=', user.id), ('id', '=', user.partner_id.id), ('id', '=', user.company_id.partner_id.id), ('user_ids', '!=', False)]</field>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>
@@ -81,10 +81,21 @@
             <field name="perm_unlink" eval="True"/>
         </record>
 
-        <record id="rule_partner_admin_all" model="ir.rule">
-            <field name="name">Contacts: Admin/Supervisor All Records</field>
+        <record id="rule_partner_field_supervisor" model="ir.rule">
+            <field name="name">Volunteers: Field Supervisor Records</field>
             <field name="model_id" ref="base.model_res_partner"/>
-            <field name="groups" eval="[(4, ref('group_admin_supervisor')), (4, ref('group_system_admin'))]"/>
+            <field name="groups" eval="[(4, ref('group_field_supervisor'))]"/>
+            <field name="domain_force">['|', ('is_volunteer', '=', True), ('id', '=', user.partner_id.id)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <record id="rule_partner_system_admin_all" model="ir.rule">
+            <field name="name">Contacts: System Admin All Records</field>
+            <field name="model_id" ref="base.model_res_partner"/>
+            <field name="groups" eval="[(4, ref('group_system_admin'))]"/>
             <field name="domain_force">[(1, '=', 1)]</field>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>
@@ -92,25 +103,25 @@
             <field name="perm_unlink" eval="True"/>
         </record>
 
-        <record id="rule_partner_data_manager_all" model="ir.rule">
-            <field name="name">Contacts: Data Manager Read/Write/Create All</field>
+        <record id="rule_partner_admin_all" model="ir.rule">
+            <field name="name">Contacts: Admin Supervisor All Records</field>
             <field name="model_id" ref="base.model_res_partner"/>
-            <field name="groups" eval="[(4, ref('group_data_manager'))]"/>
+            <field name="groups" eval="[(4, ref('group_admin_supervisor'))]"/>
             <field name="domain_force">[(1, '=', 1)]</field>
             <field name="perm_read" eval="True"/>
-            <field name="perm_write" eval="True"/>
-            <field name="perm_create" eval="True"/>
-            <field name="perm_unlink" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="True"/>
         </record>
 
-        <record id="rule_partner_data_manager_unlink" model="ir.rule">
-            <field name="name">Contacts: Data Manager Unlink Non-Volunteers</field>
+        <record id="rule_partner_data_manager_all" model="ir.rule">
+            <field name="name">Contacts: Data Manager Read/Write/Create Non-Volunteers</field>
             <field name="model_id" ref="base.model_res_partner"/>
             <field name="groups" eval="[(4, ref('group_data_manager'))]"/>
             <field name="domain_force">[('is_volunteer', '=', False)]</field>
-            <field name="perm_read" eval="False"/>
-            <field name="perm_write" eval="False"/>
-            <field name="perm_create" eval="False"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
             <field name="perm_unlink" eval="True"/>
         </record>
 

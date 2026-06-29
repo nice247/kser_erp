@@ -82,7 +82,7 @@ class KserBankReceiptWizard(models.TransientModel):
 
         try:
             response = requests.post(
-                f'{base_url}/api/v1/ocr/process',
+                f'{base_url}/api/v1/vision/process',
                 files={'image': ('receipt.jpg', image_bytes, 'image/jpeg')},
                 headers={'X-API-KEY': api_key},
                 timeout=30,
@@ -163,7 +163,7 @@ class KserBankReceiptWizard(models.TransientModel):
             'receiver_account_number': self.extracted_receiver_account or '-',
             'donation_date': donation_date,
             'receipt_image': self.receipt_image,
-            'ocr_status': 'matched',
+            'ai_match_status': 'matched',
             'matched_by_ocr': True,
             'created_by': self.env.uid,
         })

@@ -15,15 +15,15 @@
                     <field name="campaign_id" string="الحملة"/>
                     <separator/>
                     <filter name="filter_matched" string="تمت المطابقة" domain="[('matched_by_ocr', '=', True)]"/>
-                    <filter name="filter_pending" string="قيد الانتظار" domain="[('ocr_status', '=', 'pending')]"/>
-                    <filter name="filter_failed" string="فشلت المطابقة" domain="[('ocr_status', '=', 'failed')]"/>
+                    <filter name="filter_pending" string="قيد الانتظار" domain="[('ai_match_status', '=', 'pending')]"/>
+                    <filter name="filter_failed" string="فشلت المطابقة" domain="[('ai_match_status', '=', 'failed')]"/>
                     <separator/>
                     <filter name="filter_draft" string="مسودة" domain="[('state', '=', 'draft')]"/>
                     <filter name="filter_posted" string="مؤكد مالياً" domain="[('state', '=', 'posted')]"/>
                     <separator/>
                     <group expand="0" string="تجميع حسب">
                         <filter name="group_bank" string="اسم البنك" context="{'group_by': 'bank_name'}"/>
-                        <filter name="group_status" string="حالة التعرف" context="{'group_by': 'ocr_status'}"/>
+                        <filter name="group_status" string="حالة التعرف" context="{'group_by': 'ai_match_status'}"/>
                         <filter name="group_campaign" string="الحملة" context="{'group_by': 'campaign_id'}"/>
                         <filter name="group_date" string="تاريخ التبرع" context="{'group_by': 'donation_date:month'}"/>
                     </group>
@@ -40,8 +40,8 @@
             <field name="arch" type="xml">
                 <list string="التبرعات النقدية"
                       default_order="create_date desc"
-                      decoration-success="ocr_status == 'matched'"
-                      decoration-danger="ocr_status == 'failed'"
+                      decoration-success="ai_match_status == 'matched'"
+                      decoration-danger="ai_match_status == 'failed'"
                       js_class="kser_ocr_list">
                     <field name="transaction_number" string="رقم العملية"/>
                     <field name="partner_id" string="المتبرع" optional="show"/>
@@ -53,7 +53,7 @@
                            decoration-success="state == 'posted'"/>
                     <field name="donation_date" string="تاريخ التبرع"/>
                     <field name="campaign_id" string="الحملة" optional="hide"/>
-                    <field name="ocr_status" string="حالة التعرف" optional="hide"/>
+                    <field name="ai_match_status" string="حالة التعرف" optional="hide"/>
                     <field name="matched_by_ocr" string="مطابقة آلية" widget="boolean_toggle"/>
                 </list>
             </field>
@@ -69,7 +69,7 @@
                 <form string="تبرع نقدي">
                     <header>
                         <button name="%(kser_erp.action_kser_bank_receipt_wizard)d" type="action" 
-                                string="قراءة الإيصال (AI OCR)" class="oe_highlight"
+                                string="قراءة الإيصال (AI)" class="oe_highlight"
                                 invisible="not id"/>
                         <button name="action_confirm" type="object" string="تأكيد مالياً"
                                 class="oe_highlight" invisible="state != 'draft'"/>
@@ -118,10 +118,10 @@
                         </group>
 
                         <notebook>
-                            <page string="التعرف الآلي (OCR)" name="page_ocr">
+                            <page string="التعرف الآلي (AI)" name="page_ocr">
                                 <group>
                                     <group string="حالة المعالجة">
-                                        <field name="ocr_status" string="حالة التعرف"/>
+                                        <field name="ai_match_status" string="حالة التعرف"/>
 
                                         <field name="matched_by_ocr" string="تمت المطابقة آلياً"
                                                widget="boolean_toggle"/>

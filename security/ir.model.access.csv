@@ -1,14 +1,14 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_kser_beneficiary_admin,kser.beneficiary.admin,model_kser_beneficiary,kser_erp.group_admin_supervisor,1,1,1,0
+access_kser_beneficiary_admin,kser.beneficiary.admin,model_kser_beneficiary,kser_erp.group_admin_supervisor,1,0,0,1
 access_kser_beneficiary_data,kser.beneficiary.data,model_kser_beneficiary,kser_erp.group_data_manager,1,1,1,1
 access_kser_beneficiary_stock,kser.beneficiary.stock,model_kser_beneficiary,kser_erp.group_stock_manager,1,0,0,0
-access_kser_beneficiary_field,kser.beneficiary.field,model_kser_beneficiary,kser_erp.group_field_supervisor,1,1,1,0
+access_kser_beneficiary_field,kser.beneficiary.field,model_kser_beneficiary,kser_erp.group_field_supervisor,1,1,0,0
 access_kser_beneficiary_system,kser.beneficiary.system,model_kser_beneficiary,kser_erp.group_system_admin,1,1,1,1
-access_kser_cash_donation_admin,kser.cash.donation.admin,model_kser_cash_donation,kser_erp.group_admin_supervisor,1,1,0,0
+access_kser_cash_donation_admin,kser.cash.donation.admin,model_kser_cash_donation,kser_erp.group_admin_supervisor,1,0,0,1
 access_kser_cash_donation_data,kser.cash.donation.data,model_kser_cash_donation,kser_erp.group_data_manager,1,1,1,1
 access_kser_cash_donation_stock,kser.cash.donation.stock,model_kser_cash_donation,kser_erp.group_stock_manager,1,0,0,0
 access_kser_cash_donation_system,kser.cash.donation.system,model_kser_cash_donation,kser_erp.group_system_admin,1,1,1,1
-access_kser_audit_log_admin,kser.audit.log.admin,model_kser_audit_log,kser_erp.group_admin_supervisor,1,0,0,0
+access_kser_audit_log_admin,kser.audit.log.admin,model_kser_audit_log,kser_erp.group_admin_supervisor,1,0,0,1
 access_kser_audit_log_system,kser.audit.log.system,model_kser_audit_log,kser_erp.group_system_admin,1,0,1,0
 access_kser_ai_wizard_stock,kser.ai.wizard.stock,model_kser_ai_wizard,kser_erp.group_stock_manager,1,1,1,1
 access_kser_ai_wizard_system,kser.ai.wizard.system,model_kser_ai_wizard,kser_erp.group_system_admin,1,1,1,1
@@ -19,7 +19,7 @@ access_kser_donor_import_system,kser.donor.import.system,model_kser_donor_import
 access_kser_national_id_data,kser.national.id.data,model_kser_national_id_wizard,kser_erp.group_data_manager,1,1,1,1
 access_kser_national_id_field,kser.national.id.field,model_kser_national_id_wizard,kser_erp.group_field_supervisor,1,1,1,1
 access_kser_national_id_system,kser.national.id.system,model_kser_national_id_wizard,kser_erp.group_system_admin,1,1,1,1
-access_kser_national_id_admin,kser.national.id.admin,model_kser_national_id_wizard,kser_erp.group_admin_supervisor,1,1,1,1
+access_kser_national_id_admin,kser.national.id.admin,model_kser_national_id_wizard,kser_erp.group_admin_supervisor,1,0,0,1
 access_kser_bank_receipt_data,kser.bank.receipt.data,model_kser_bank_receipt_wizard,kser_erp.group_data_manager,1,1,1,1
 access_kser_bank_receipt_system,kser.bank.receipt.system,model_kser_bank_receipt_wizard,kser_erp.group_system_admin,1,1,1,1
 access_kser_report_wizard_admin,kser.report.wizard.admin,model_kser_report_wizard,kser_erp.group_admin_supervisor,1,1,1,1
@@ -30,3 +30,4 @@ access_kser_project_field,kser.project.field,model_project_project,kser_erp.grou
 access_kser_project_stock,kser.project.stock,model_project_project,kser_erp.group_stock_manager,1,0,0,0
 access_kser_project_data,kser.project.data,model_project_project,kser_erp.group_data_manager,1,0,0,0
 access_kser_project_user,kser.project.user,model_project_project,kser_erp.group_kser_user,1,0,0,0
+access_kser_project_task_field,kser.project.task.field,project.model_project_task,kser_erp.group_field_supervisor,1,1,1,0
