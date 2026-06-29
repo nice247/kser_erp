@@ -119,6 +119,21 @@
             </field>
         </record>
 
+        <record id="action_kser_beneficiaries_contacts" model="ir.actions.act_window">
+            <field name="name">المستفيدين</field>
+            <field name="res_model">res.partner</field>
+            <field name="view_mode">list,form</field>
+            <field name="view_id" ref="view_res_partner_tree_kser"/>
+            <field name="domain" eval="[('category_tag', '=', ref('partner_category_beneficiary'))]"/>
+            <field name="context" eval="{'default_category_tag': ref('partner_category_beneficiary')}"/>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    لا يوجد مستفيدين مسجلين حالياً
+                </p>
+                <p>اضغط لإضافة مستفيد جديد.</p>
+            </field>
+        </record>
+
         <!-- Projects / Campaigns Action -->
         <record id="action_kser_campaigns" model="ir.actions.act_window">
             <field name="name">الحملات</field>
@@ -241,11 +256,19 @@
             <field name="groups_id" eval="[(6, 0, [ref('group_admin_supervisor'), ref('group_data_manager'), ref('group_system_admin')])]"/>
         </record>
 
+        <record id="menu_kser_beneficiaries_contacts" model="ir.ui.menu">
+            <field name="name">المستفيدين</field>
+            <field name="parent_id" ref="menu_kser_contacts"/>
+            <field name="action" ref="action_kser_beneficiaries_contacts"/>
+            <field name="sequence" eval="4"/>
+            <field name="groups_id" eval="[(6, 0, [ref('group_admin_supervisor'), ref('group_data_manager'), ref('group_stock_manager'), ref('group_field_supervisor'), ref('group_system_admin')])]"/>
+        </record>
+
         <record id="menu_kser_volunteer_ocr_wizard" model="ir.ui.menu">
             <field name="name">استخراج بيانات الهوية للمتطوع (OCR)</field>
             <field name="parent_id" ref="menu_kser_contacts"/>
             <field name="action" ref="action_kser_national_id_wizard_volunteer"/>
-            <field name="sequence" eval="4"/>
+            <field name="sequence" eval="5"/>
             <field name="groups_id" eval="[(6, 0, [ref('group_admin_supervisor'), ref('group_data_manager'), ref('group_field_supervisor'), ref('group_system_admin')])]"/>
         </record>
 
