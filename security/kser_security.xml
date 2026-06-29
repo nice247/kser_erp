@@ -73,7 +73,7 @@
         <record id="rule_partner_own_records" model="ir.rule">
             <field name="name">Volunteers/Donors/Contacts: Own Records Only</field>
             <field name="model_id" ref="base.model_res_partner"/>
-            <field name="groups" eval="[(4, ref('group_data_manager')), (4, ref('group_stock_manager')), (4, ref('group_field_supervisor'))]"/>
+            <field name="groups" eval="[(4, ref('group_stock_manager')), (4, ref('group_field_supervisor'))]"/>
             <field name="domain_force">['|', '|', '|', ('create_uid', '=', user.id), ('id', '=', user.partner_id.id), ('id', '=', user.company_id.partner_id.id), ('user_ids', '!=', False)]</field>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>
@@ -92,11 +92,33 @@
             <field name="perm_unlink" eval="True"/>
         </record>
 
+        <record id="rule_partner_data_manager_all" model="ir.rule">
+            <field name="name">Contacts: Data Manager Read/Write/Create All</field>
+            <field name="model_id" ref="base.model_res_partner"/>
+            <field name="groups" eval="[(4, ref('group_data_manager'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <record id="rule_partner_data_manager_unlink" model="ir.rule">
+            <field name="name">Contacts: Data Manager Unlink Non-Volunteers</field>
+            <field name="model_id" ref="base.model_res_partner"/>
+            <field name="groups" eval="[(4, ref('group_data_manager'))]"/>
+            <field name="domain_force">[('is_volunteer', '=', False)]</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+
         <!-- 2. قواعد Beneficiaries (kser.beneficiary) -->
         <record id="rule_beneficiary_own_records" model="ir.rule">
             <field name="name">Beneficiaries: Own Records Only</field>
             <field name="model_id" ref="kser_erp.model_kser_beneficiary"/>
-            <field name="groups" eval="[(4, ref('group_data_manager')), (4, ref('group_stock_manager')), (4, ref('group_field_supervisor'))]"/>
+            <field name="groups" eval="[(4, ref('group_stock_manager')), (4, ref('group_field_supervisor'))]"/>
             <field name="domain_force">[('create_uid', '=', user.id)]</field>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>
@@ -107,7 +129,7 @@
         <record id="rule_beneficiary_admin_all" model="ir.rule">
             <field name="name">Beneficiaries: Admin/Supervisor All Records</field>
             <field name="model_id" ref="kser_erp.model_kser_beneficiary"/>
-            <field name="groups" eval="[(4, ref('group_admin_supervisor')), (4, ref('group_system_admin'))]"/>
+            <field name="groups" eval="[(4, ref('group_data_manager')), (4, ref('group_admin_supervisor')), (4, ref('group_system_admin'))]"/>
             <field name="domain_force">[(1, '=', 1)]</field>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>
@@ -119,7 +141,7 @@
         <record id="rule_donation_own_records" model="ir.rule">
             <field name="name">Donations: Own Records Only</field>
             <field name="model_id" ref="kser_erp.model_kser_cash_donation"/>
-            <field name="groups" eval="[(4, ref('group_data_manager')), (4, ref('group_stock_manager')), (4, ref('group_field_supervisor'))]"/>
+            <field name="groups" eval="[(4, ref('group_stock_manager')), (4, ref('group_field_supervisor'))]"/>
             <field name="domain_force">[('create_uid', '=', user.id)]</field>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>
@@ -130,7 +152,7 @@
         <record id="rule_donation_admin_all" model="ir.rule">
             <field name="name">Donations: Admin/Supervisor All Records</field>
             <field name="model_id" ref="kser_erp.model_kser_cash_donation"/>
-            <field name="groups" eval="[(4, ref('group_admin_supervisor')), (4, ref('group_system_admin'))]"/>
+            <field name="groups" eval="[(4, ref('group_data_manager')), (4, ref('group_admin_supervisor')), (4, ref('group_system_admin'))]"/>
             <field name="domain_force">[(1, '=', 1)]</field>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>

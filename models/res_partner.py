@@ -25,12 +25,15 @@ class ResPartner(models.Model):
     )
     is_volunteer = fields.Boolean(
         compute='_compute_role_booleans',
+        store=True,
     )
     is_donor = fields.Boolean(
         compute='_compute_role_booleans',
+        store=True,
     )
     is_beneficiary = fields.Boolean(
         compute='_compute_role_booleans',
+        store=True,
     )
 
     @api.depends('category_tag')
