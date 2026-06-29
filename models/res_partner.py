@@ -23,10 +23,7 @@ class ResPartner(models.Model):
         string='National ID Number',
         size=20,
     )
-    ocr_confidence = fields.Float(
-        string='OCR Confidence',
-        readonly=True,
-    )
+
     is_volunteer = fields.Boolean(
         compute='_compute_role_booleans',
         store=True,

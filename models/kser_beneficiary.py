@@ -86,10 +86,7 @@ class KserBeneficiary(models.Model):
         index=True,
         tracking=True,
     )
-    ocr_confidence = fields.Float(
-        string='OCR Confidence',
-        readonly=True,
-    )
+
     priority_score = fields.Integer(
         string='Priority Score',
         compute='_compute_priority',
@@ -249,12 +246,6 @@ class KserBeneficiary(models.Model):
         for rec in self:
             if rec.family_size < 1:
                 raise ValidationError(_('Family size must be greater than zero!'))
-
-    @api.constrains('ocr_confidence')
-    def _check_ocr_confidence(self):
-        for rec in self:
-            if rec.ocr_confidence and not (0 <= rec.ocr_confidence <= 1):
-                raise ValidationError(_('OCR confidence must be between 0 and 1!'))
 
 
     @api.constrains('head_of_family_id', 'relationship')

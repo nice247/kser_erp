@@ -108,7 +108,7 @@
                                 <field name="registration_date" string="تاريخ التسجيل"/>
                                 <field name="registered_by" string="مسجّل بواسطة"/>
                                 <field name="is_verified" string="تم التحقق" widget="boolean_toggle"/>
-                                <field name="ocr_confidence" string="دقة التعرف الآلي"/>
+
                             </group>
                         </group>
 

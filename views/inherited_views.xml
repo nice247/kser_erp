@@ -164,7 +164,7 @@
                             <field name="national_id_number" string="رقم الهوية الوطنية" required="is_volunteer"/>
                             <field name="national_id_image" string="صورة الهوية" widget="image"
                                    class="oe_avatar" options="{'size': [2048, 2048]}" required="is_volunteer" readonly="1"/>
-                            <field name="ocr_confidence" string="دقة التعرف الآلي" invisible="not is_volunteer"/>
+
                         </group>
                     </group>
                 </xpath>

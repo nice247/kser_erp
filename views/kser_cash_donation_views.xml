@@ -122,7 +122,7 @@
                                 <group>
                                     <group string="حالة المعالجة">
                                         <field name="ocr_status" string="حالة التعرف"/>
-                                        <field name="ocr_confidence" string="دقة التعرف"/>
+
                                         <field name="matched_by_ocr" string="تمت المطابقة آلياً"
                                                widget="boolean_toggle"/>
                                     </group>

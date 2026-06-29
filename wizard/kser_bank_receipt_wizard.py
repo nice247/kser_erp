@@ -33,7 +33,7 @@ class KserBankReceiptWizard(models.TransientModel):
     extracted_sender_account = fields.Char(string='Extracted Sender Account')
     extracted_receiver_account = fields.Char(string='Extracted Receiver Account')
     extracted_date = fields.Char(string='Extracted Date')
-    extracted_confidence = fields.Float(string='OCR Confidence', readonly=True)
+
 
     is_manual_entry = fields.Boolean(
         string='Manual Entry',
@@ -119,7 +119,6 @@ class KserBankReceiptWizard(models.TransientModel):
             'extracted_sender_account': data.get('senderAccount', ''),
             'extracted_receiver_account': data.get('receiverAccount', ''),
             'extracted_date': data.get('date', ''),
-            'extracted_confidence': data.get('ocr_confidence', 0.0),
             'state': 'review',
         })
 
@@ -165,7 +164,6 @@ class KserBankReceiptWizard(models.TransientModel):
             'donation_date': donation_date,
             'receipt_image': self.receipt_image,
             'ocr_status': 'matched',
-            'ocr_confidence': self.extracted_confidence,
             'matched_by_ocr': True,
             'created_by': self.env.uid,
         })

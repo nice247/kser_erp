@@ -89,10 +89,7 @@ class KserCashDonation(models.Model):
         index=True,
         tracking=True,
     )
-    ocr_confidence = fields.Float(
-        string='OCR Confidence',
-        readonly=True,
-    )
+
     matched_by_ocr = fields.Boolean(
         string='Matched via OCR?',
         default=False,
@@ -121,11 +118,7 @@ class KserCashDonation(models.Model):
             if rec.amount <= 0:
                 raise ValidationError(_('Amount must be greater than zero!'))
 
-    @api.constrains('ocr_confidence')
-    def _check_ocr_confidence(self):
-        for rec in self:
-            if rec.ocr_confidence and not (0 <= rec.ocr_confidence <= 1):
-                raise ValidationError(_('OCR confidence must be between 0 and 1!'))
+
 
     def _preprocess_image(self, image_base64):
         if not image_base64:

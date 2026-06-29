@@ -31,8 +31,7 @@
                             <group string="بيانات إضافية">
                                 <field name="extracted_dob" string="تاريخ الميلاد"/>
                                 <field name="extracted_gender" string="الجنس"/>
-                                <field name="extracted_confidence" string="دقة التعرف الآلي"
-                                       invisible="is_manual_entry"/>
+
                             </group>
                         </group>
 
@@ -108,8 +107,7 @@
                             <group string="بيانات الحسابات">
                                 <field name="extracted_sender_account" string="حساب المرسل"/>
                                 <field name="extracted_receiver_account" string="حساب المستلم"/>
-                                <field name="extracted_confidence" string="دقة التعرف الآلي"
-                                       invisible="is_manual_entry"/>
+
                                 <field name="campaign_id" string="الحملة المرتبطة"
                                        invisible="not is_manual_entry"/>
                             </group>

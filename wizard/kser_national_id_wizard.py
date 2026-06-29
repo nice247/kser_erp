@@ -46,7 +46,7 @@ class KserNationalIdWizard(models.TransientModel):
     extracted_marital_status = fields.Char(string='Extracted Marital Status')
     extracted_dob = fields.Char(string='Extracted Date of Birth')
     extracted_gender = fields.Char(string='Extracted Gender')
-    extracted_confidence = fields.Float(string='OCR Confidence', readonly=True)
+
 
     is_manual_entry = fields.Boolean(
         string='Manual Entry',
@@ -132,7 +132,6 @@ class KserNationalIdWizard(models.TransientModel):
             'extracted_marital_status': data.get('maritalStatus', ''),
             'extracted_dob': data.get('dateOfBirth', ''),
             'extracted_gender': data.get('gender', ''),
-            'extracted_confidence': data.get('ocr_confidence', 0.0),
             'state': 'review',
         })
 
@@ -162,7 +161,6 @@ class KserNationalIdWizard(models.TransientModel):
                     'name': self.extracted_name or existing_partner.name,
                     'national_id_image': self.id_image,
                     'category_tag': volunteer_tag.id if volunteer_tag else False,
-                    'ocr_confidence': self.extracted_confidence,
                 })
             else:
                 self.env['res.partner'].create({
@@ -170,7 +168,6 @@ class KserNationalIdWizard(models.TransientModel):
                     'national_id_number': self.extracted_national_id,
                     'national_id_image': self.id_image,
                     'category_tag': volunteer_tag.id if volunteer_tag else False,
-                    'ocr_confidence': self.extracted_confidence,
                 })
             return {'type': 'ir.actions.act_window_close'}
 
@@ -202,7 +199,6 @@ class KserNationalIdWizard(models.TransientModel):
                 'profession': self.extracted_profession or existing.profession,
                 'marital_status': marital_key or existing.marital_status,
                 'birthdate': birthdate or existing.birthdate,
-                'ocr_confidence': self.extracted_confidence,
             })
 
             return {'type': 'ir.actions.act_window_close'}
@@ -221,7 +217,6 @@ class KserNationalIdWizard(models.TransientModel):
             'profession': self.extracted_profession or False,
             'marital_status': marital_key,
             'birthdate': birthdate,
-            'ocr_confidence': self.extracted_confidence,
             'district': '-',
             'registered_by': self.env.uid,
         })
