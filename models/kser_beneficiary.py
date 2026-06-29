@@ -157,71 +157,89 @@ class KserBeneficiary(models.Model):
         'head_of_family_id',
         'member_ids',
         'member_ids.relationship',
-        'health_conditions',
-        'marital_status',
-        'family_size',
-        'birthdate',
-        'member_ids.health_conditions',
-        'member_ids.marital_status',
-        'member_ids.birthdate',
+    )
+    @api.depends(
+        'family_size', 'health_conditions', 'marital_status', 'birthdate', 'relationship',
+        'member_ids', 'member_ids.birthdate', 'member_ids.health_conditions'
     )
     def _compute_priority(self):
         today = fields.Date.today()
-        import re
+        
         for rec in self:
-            if rec.relationship != 'self':
-                rec.priority_score = 0
-                rec.priority_level = 'normal'
-                continue
-            
             score = 0
-            size = rec.family_size
+            # تحديد ما إذا كان المستفيد هو المتقدم الرئيسي (رب أسرة / فرد مستقل) أم تابع
+            is_head = (rec.relationship == 'self')
             
-            if size == 1:
-                # Single individual logic
-                if rec.health_conditions:
-                    diseases = [d.strip() for d in re.split(r'[,،\-]+', rec.health_conditions) if d.strip()]
-                    score += len(diseases) * 7
+            # ==========================================
+            # 1. التقييم الشخصي (مشترك لرب الأسرة والتابع)
+            # ==========================================
+            
+            # أ. نقاط الحالة الصحية (15 نقطة لمجرد وجود حالة صحية)
+            if rec.health_conditions and rec.health_conditions.strip():
+                score += 15
                 
-                ms_points = {'married': 5, 'divorced': 7, 'widowed': 10, 'single': 0}
+            # ب. نقاط العمر الفردية (10 نقاط للفئات الهشة)
+            if rec.birthdate:
+                age = relativedelta(today, rec.birthdate).years
+                if age < 18 or age >= 60:
+                    score += 10
+            
+            # ==========================================
+            # 2. التقييم العائلي (يُضاف لرب الأسرة فقط)
+            # ==========================================
+            if is_head:
+                size = rec.family_size or 1
+                
+                # أ. نقاط حجم العائلة
+                if size == 1:
+                    score += 10  # الفرد المستقل بالكامل يعتبر حالة ضعف
+                elif 2 <= size <= 5:
+                    score += 10
+                else:
+                    score += 20  # العائلات الكبيرة
+                    
+                # ب. نقاط الحالة الاجتماعية (مع ضبط التناقض)
+                ms_points = {
+                    'widowed': 10, 
+                    'divorced': 7, 
+                    'married': 5 if size > 1 else 0, 
+                    'single': 0
+                }
                 score += ms_points.get(rec.marital_status, 0)
                 
-                age = relativedelta(today, rec.birthdate).years if rec.birthdate else 25
-                if age < 18 or age >= 60:
-                    score += 5
-            else:
-                # Family logic (size >= 2)
-                score += 20 if size > 5 else 10
-                
-                # Head details
-                age = relativedelta(today, rec.birthdate).years if rec.birthdate else 25
-                if age < 18 or age >= 60:
-                    score += 5
-                if rec.health_conditions:
-                    score += 5
-                if rec.marital_status in ('divorced', 'widowed'):
-                    score += 5
+                # ج. نقاط ضعف التابعين (تُجمع وتُضاف لرب الأسرة)
+                if size > 1:
+                    # جلب التابعين سواء من الذاكرة (قبل الحفظ) أو من قاعدة البيانات
+                    dependants = rec.member_ids if rec.member_ids else self.env['kser.beneficiary'].search([
+                        ('head_of_family_id', '=', rec.id),
+                        ('relationship', '!=', 'self'),
+                    ])
                     
-                # Dependants details
-                dependants = self.env['kser.beneficiary'].search([
-                    ('head_of_family_id', '=', rec.id),
-                    ('relationship', '!=', 'self'),
-                ]) if rec.id else rec.member_ids
-                
-                for dep in dependants:
-                    dep_age = relativedelta(today, dep.birthdate).years if dep.birthdate else 25
-                    has_age_cond = dep_age < 18 or dep_age >= 60
-                    has_disease = bool(dep.health_conditions)
-                    
-                    if has_age_cond and has_disease:
-                        score += 10
-                    elif has_age_cond or has_disease:
-                        score += 7
-
+                    for dep in dependants:
+                        has_disease = bool(dep.health_conditions and dep.health_conditions.strip())
+                        has_age_cond = False
+                        
+                        if dep.birthdate:
+                            dep_age = relativedelta(today, dep.birthdate).years
+                            if dep_age < 18 or dep_age >= 60:
+                                has_age_cond = True
+                                
+                        if has_age_cond and has_disease:
+                            score += 15  # تابع في حالة حرجة جداً
+                        elif has_age_cond or has_disease:
+                            score += 10  # تابع مريض أو في عمر هش
+                            
+            # ==========================================
+            # 3. النتيجة النهائية وتصنيف المستوى
+            # ==========================================
+            
+            # وضع سقف أعلى للنقاط (100 نقطة كحد أقصى)
             rec.priority_score = min(score, 100)
-            if rec.priority_score >= 80:
+            
+            # تصنيف المستوى بناءً على العتبات المنطقية الجديدة
+            if rec.priority_score >= 70:
                 rec.priority_level = 'urgent'
-            elif rec.priority_score >= 50:
+            elif rec.priority_score >= 40:
                 rec.priority_level = 'medium'
             else:
                 rec.priority_level = 'normal'

@@ -3,16 +3,16 @@
 // ============================================================
 // KSER Service Worker Extension
 // Appended to Odoo's core service worker via controller override.
-// Provides offline-first background sync for beneficiary creation.
+// Provides offline-first background sync and intelligent caching.
 // ============================================================
 
 const KSER_DB_NAME = "KSER_Offline_DB";
 const KSER_DB_VERSION = 1;
 const KSER_STORE_NAME = "Pending_Beneficiaries";
 const KSER_SYNC_TAG = "kser-sync";
-const KSER_TARGET_PATH = "/web/dataset/call_kw/kser.beneficiary/create";
+const ODOO_ASSETS_CACHE = "kser-assets-cache-v1";
 
-// --- Inline IndexedDB helpers (Service Workers cannot use importScripts for ES modules) ---
+// --- IndexedDB Helpers ---
 
 function ksOpenDatabase() {
     return new Promise((resolve, reject) => {
@@ -76,51 +76,103 @@ async function ksDeleteRequest(id) {
     });
 }
 
-// --- Fetch Event Listener: Intercept beneficiary creation calls ---
+// --- Fetch Event Listener (Caching & RPC Interception) ---
 
 self.addEventListener("fetch", (event) => {
     const url = new URL(event.request.url);
-    const isTarget = event.request.method === "POST" && (
-        url.pathname === "/web/dataset/call_kw/kser.beneficiary/create" ||
-        url.pathname === "/web/dataset/call_kw/kser.beneficiary/web_save" ||
-        url.pathname === "/web/dataset/call_kw/kser.beneficiary/write"
+
+    // 1. معالجة طلبات الملفات الثابتة (JS, CSS, Images, Views) - Cache as you fetch
+    if (event.request.method === "GET" && (url.pathname.startsWith('/web/assets') || url.pathname.startsWith('/web/static') || url.pathname.startsWith('/web/image'))) {
+        event.respondWith(
+            caches.match(event.request).then((cachedResponse) => {
+                if (cachedResponse) {
+                    return cachedResponse; // إرجاع من الكاش إذا وجد
+                }
+                return fetch(event.request).then((networkResponse) => {
+                    // إذا كان الطلب ناجحاً، احفظه في الكاش للاستخدام وقت انقطاع النت
+                    if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
+                        const responseToCache = networkResponse.clone();
+                        caches.open(ODOO_ASSETS_CACHE).then((cache) => {
+                            cache.put(event.request, responseToCache);
+                        });
+                    }
+                    return networkResponse;
+                }).catch(() => {
+                    // فشل الاتصال ولم نجد الملف في الكاش
+                    return new Response("Asset offline", { status: 503 });
+                });
+            })
+        );
+        return;
+    }
+
+    // 2. معالجة طلبات Odoo RPC (POST)
+    const isRpc = event.request.method === "POST" && (
+        url.pathname.startsWith("/web/dataset/call_kw/") ||
+        url.pathname.startsWith("/web/dataset/search_read") ||
+        url.pathname.startsWith("/web/action/")
     );
 
-    if (isTarget) {
+    if (isRpc) {
         event.respondWith(
             (async () => {
                 try {
                     const response = await fetch(event.request.clone());
                     return response;
                 } catch (networkError) {
+                    // === وضع الأوفلاين (Offline Mode) ===
                     const clonedRequest = event.request.clone();
-                    const body = await clonedRequest.text();
+                    const bodyText = await clonedRequest.text();
 
-                    const headersObj = {};
-                    for (const [key, value] of clonedRequest.headers.entries()) {
-                        headersObj[key] = value;
-                    }
-
-                    await ksSavePendingRequest(
-                        clonedRequest.url,
-                        headersObj,
-                        body
-                    );
-
-                    if (self.registration && self.registration.sync) {
-                        await self.registration.sync.register(KSER_SYNC_TAG);
-                    }
-
+                    let parsedBody = {};
                     let reqId = null;
+                    let rpcMethod = "";
+                    let modelName = "";
+
                     try {
-                        const parsed = JSON.parse(body);
-                        reqId = parsed.id;
+                        parsedBody = JSON.parse(bodyText);
+                        reqId = parsedBody.id || null;
+                        rpcMethod = parsedBody.params ? parsedBody.params.method : "";
+                        modelName = parsedBody.params ? parsedBody.params.model : "";
                     } catch (e) {}
+
+                    let mockResult = true;
+
+                    const isSaveAction = rpcMethod === "create" || rpcMethod === "write" || rpcMethod === "web_save";
+
+                    // إذا كان الطلب هو حفظ مستفيد جديد
+                    if (isSaveAction && modelName === "kser.beneficiary") {
+                        const headersObj = {};
+                        for (const [key, value] of clonedRequest.headers.entries()) {
+                            headersObj[key] = value;
+                        }
+
+                        await ksSavePendingRequest(clonedRequest.url, headersObj, bodyText);
+
+                        if (self.registration && self.registration.sync) {
+                            await self.registration.sync.register(KSER_SYNC_TAG);
+                        }
+
+                        mockResult = [{ id: Math.floor(Math.random() * 100000) }];
+                    }
+                    // إذا كان طلب واجهة عادي (بحث، تغيير حقل) نعطيه استجابة وهمية لمنع الانهيار
+                    else {
+                        if (rpcMethod === "onchange") {
+                            mockResult = { value: {} };
+                        } else if (rpcMethod === "web_search_read" || rpcMethod === "search_read" || url.pathname.includes("search_read")) {
+                            mockResult = { records: [], length: 0 };
+                        } else if (rpcMethod === "default_get") {
+                            mockResult = {};
+                        } else if (rpcMethod === "load_views") {
+                            // إذا حاول تحميل شاشة لم تُخزن مسبقاً
+                            mockResult = { fields_views: {}, fields: {} };
+                        }
+                    }
 
                     const mockResponse = {
                         jsonrpc: "2.0",
                         id: reqId,
-                        result: true,
+                        result: mockResult,
                     };
 
                     return new Response(JSON.stringify(mockResponse), {
@@ -133,7 +185,7 @@ self.addEventListener("fetch", (event) => {
     }
 });
 
-// --- Sync Event Listener: Replay pending requests when back online ---
+// --- Sync Event Listener (Replay offline requests) ---
 
 self.addEventListener("sync", (event) => {
     if (event.tag === KSER_SYNC_TAG) {
@@ -150,10 +202,13 @@ self.addEventListener("sync", (event) => {
                         });
 
                         if (response.ok) {
-                            await ksDeleteRequest(record.id);
+                            const respJson = await response.json();
+                            if (!respJson.error) {
+                                await ksDeleteRequest(record.id);
+                            }
                         }
                     } catch (syncError) {
-                        // Network still unavailable; leave the record for the next sync attempt.
+                        // لا يزال غير متصل، اتركها للمحاولة القادمة
                     }
                 }
             })()
