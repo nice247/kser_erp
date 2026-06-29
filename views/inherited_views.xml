@@ -21,6 +21,19 @@
             </field>
         </record>
 
+        <record id="view_res_partner_tree_partners" model="ir.ui.view">
+            <field name="name">res.partner.list.partners</field>
+            <field name="model">res.partner</field>
+            <field name="arch" type="xml">
+                <list string="الشركاء" default_order="create_date desc">
+                    <field name="name" string="الاسم"/>
+                    <field name="phone" string="الهاتف"/>
+                    <field name="email" string="البريد الإلكتروني"/>
+                    <field name="city" string="المدينة" optional="show"/>
+                </list>
+            </field>
+        </record>
+
         <!-- ============================================================ -->
         <!--       Inherited View: res.partner form — KSER fields         -->
         <!-- ============================================================ -->
@@ -217,10 +230,21 @@
             <field name="inherit_id" ref="account.partner_view_buttons"/>
             <field name="arch" type="xml">
                 <xpath expr="//button[@name='action_view_partner_invoices']" position="attributes">
-                    <attribute name="invisible">is_volunteer or is_beneficiary</attribute>
+                    <attribute name="invisible">is_volunteer or is_beneficiary or is_company</attribute>
                 </xpath>
                 <xpath expr="//field[@name='supplier_invoice_count']/.." position="attributes">
-                    <attribute name="invisible">is_volunteer or is_beneficiary or supplier_invoice_count == 0</attribute>
+                    <attribute name="invisible">is_volunteer or is_beneficiary or is_company or supplier_invoice_count == 0</attribute>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="view_task_partner_info_form_inherit_kser" model="ir.ui.view">
+            <field name="name">res.partner.task.buttons.inherit.kser</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="project.view_task_partner_info_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//button[@name='action_view_tasks']" position="attributes">
+                    <attribute name="invisible">not is_volunteer</attribute>
                 </xpath>
             </field>
         </record>

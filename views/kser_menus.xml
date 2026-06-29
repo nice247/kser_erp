@@ -124,7 +124,7 @@
             <field name="name">الشركاء</field>
             <field name="res_model">res.partner</field>
             <field name="view_mode">list,form</field>
-            <field name="view_id" ref="view_res_partner_tree_kser"/>
+            <field name="view_id" ref="view_res_partner_tree_partners"/>
             <field name="domain" eval="[('is_company', '=', True)]"/>
             <field name="context" eval="{'default_is_company': True}"/>
             <field name="help" type="html">
@@ -261,7 +261,7 @@
                   name="استخراج بيانات الهوية للمستفيد (OCR)"
                   parent="menu_kser_contacts"
                   action="action_kser_national_id_wizard"
-                  sequence="2"/>
+                  sequence="4"/>
 
         <!-- التبرعات Sub-Items -->
         <menuitem id="menu_kser_donation_list"
@@ -310,13 +310,13 @@
                   parent="menu_kser_contacts"
                   action="action_kser_stock_picking"
                   groups="kser_erp.group_stock_manager,kser_erp.group_system_admin"
-                  sequence="3"/>
+                  sequence="2"/>
 
         <menuitem id="menu_kser_ai_wizard"
                   name="التوزيع الذكي (AI)"
                   parent="menu_kser_contacts"
                   action="action_kser_ai_wizard"
-                  sequence="4"/>
+                  sequence="3"/>
 
         <!-- الضبط Sub-Items -->
         <menuitem id="menu_kser_settings_params"
