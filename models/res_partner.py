@@ -111,3 +111,79 @@ class ResPartner(models.Model):
             'domain': [('partner_id', '=', self.id)],
             'context': {'default_partner_id': self.id},
         }
+
+    def _preprocess_image(self, image_base64):
+        if not image_base64:
+            return False
+        import base64
+        import io
+        from PIL import Image, ImageOps
+        try:
+            image_data = base64.b64decode(image_base64)
+            img = Image.open(io.BytesIO(image_data))
+            img = ImageOps.exif_transpose(img)
+            if img.mode in ('RGBA', 'LA') or (img.mode == 'P' and 'transparency' in img.info):
+                img = img.convert('RGB')
+            elif img.mode != 'RGB':
+                img = img.convert('RGB')
+            output = io.BytesIO()
+            img.save(output, format='JPEG', quality=95)
+            return base64.b64encode(output.getvalue()).decode('utf-8')
+        except Exception:
+            return image_base64
+
+    @api.onchange('national_id_image')
+    def _onchange_national_id_image(self):
+        if not self.national_id_image:
+            return
+        cleaned_image = self._preprocess_image(self.national_id_image)
+        if cleaned_image:
+            self.national_id_image = cleaned_image
+        api_key = self.env['ir.config_parameter'].sudo().get_param('kser.springboot_api_key')
+        base_url = self.env['ir.config_parameter'].sudo().get_param('kser.springboot_base_url')
+        if not api_key or not base_url:
+            return {
+                'warning': {
+                    'title': _('Configuration Error'),
+                    'message': _('Spring Boot API credentials are not configured!')
+                }
+            }
+        base_url = base_url.rstrip('/')
+        import base64
+        image_bytes = base64.b64decode(self.national_id_image)
+        try:
+            import requests
+            response = requests.post(
+                f'{base_url}/api/v1/ocr/national-id',
+                files={'image': ('national_id.jpg', image_bytes, 'image/jpeg')},
+                headers={'X-API-KEY': api_key},
+                timeout=30,
+            )
+            result = response.json()
+        except Exception as e:
+            return {
+                'warning': {
+                    'title': _('OCR Connection Error'),
+                    'message': _('Connection failed: %s') % str(e)
+                }
+            }
+        data = result.get('data', {})
+        if not result.get('success'):
+            backend_msg = result.get('message', '')
+            errors = data.get('errors', [])
+            detailed_errors = ', '.join(errors) if errors else ''
+            error_msg = f"{backend_msg} (Details: {detailed_errors})" if detailed_errors else backend_msg
+            return {
+                'warning': {
+                    'title': _('OCR Extraction Failed'),
+                    'message': error_msg
+                }
+            }
+        
+        extracted_id = data.get('nationalIdNumber', '')
+        if extracted_id:
+            self.national_id_number = extracted_id
+        extracted_name = data.get('fullName', '')
+        if extracted_name:
+            self.name = extracted_name
+
