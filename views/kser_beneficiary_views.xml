@@ -60,6 +60,10 @@
             <field name="model">kser.beneficiary</field>
             <field name="arch" type="xml">
                 <form string="بيانات المستفيد">
+                    <header>
+                        <button name="%(kser_erp.action_kser_national_id_wizard)d" string="قراءة بطاقة الهوية (OCR)"
+                                type="action" class="btn-primary" invisible="is_verified"/>
+                    </header>
                     <sheet>
                         <div class="oe_button_box" name="button_box">
                             <button name="action_view_moves" type="object"
