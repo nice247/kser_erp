@@ -108,7 +108,7 @@
             <field name="name">المتبرعين</field>
             <field name="res_model">res.partner</field>
             <field name="view_mode">list,form</field>
-            <field name="view_id" ref="view_res_partner_tree_kser"/>
+            <field name="view_id" ref="view_res_partner_tree_donors"/>
             <field name="domain" eval="[('category_tag', '=', ref('partner_category_donor'))]"/>
             <field name="context" eval="{'default_category_tag': ref('partner_category_donor')}"/>
             <field name="help" type="html">

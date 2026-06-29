@@ -21,6 +21,18 @@
             </field>
         </record>
 
+        <record id="view_res_partner_tree_donors" model="ir.ui.view">
+            <field name="name">res.partner.list.donors</field>
+            <field name="model">res.partner</field>
+            <field name="arch" type="xml">
+                <list string="المتبرعين" default_order="create_date desc">
+                    <field name="name" string="الاسم"/>
+                    <field name="city" string="المدينة"/>
+                    <field name="phone" string="الهاتف"/>
+                    <field name="category_tag" string="التصنيف"/>
+                </list>
+            </field>
+        </record>
         <record id="view_res_partner_tree_partners" model="ir.ui.view">
             <field name="name">res.partner.list.partners</field>
             <field name="model">res.partner</field>
@@ -92,6 +104,14 @@
                 </xpath>
                 <xpath expr="//field[@name='category_id']" position="attributes">
                     <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='email']" position="attributes">
+                    <attribute name="invisible">is_donor</attribute>
+                </xpath>
+                <xpath expr="//notebook" position="inside">
+                    <page string="سجل التبرعات" invisible="not is_donor">
+                        <field name="donation_ids" readonly="1"/>
+                    </page>
                 </xpath>
                 <xpath expr="//span[@name='address_name']" position="attributes">
                     <attribute name="invisible">1</attribute>
