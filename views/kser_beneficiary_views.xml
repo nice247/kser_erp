@@ -38,11 +38,8 @@
             <field name="arch" type="xml">
                 <list string="قائمة المستفيدين"
                       decoration-danger="priority_level == 'urgent'"
-                      decoration-warning="priority_level == 'medium'">
-                    <header>
-                        <button name="%(kser_erp.action_kser_national_id_wizard)d" type="action" 
-                                string="إضافة مستفيد بالذكاء الاصطناعي (OCR)" display="always" class="btn-primary"/>
-                    </header>
+                      decoration-warning="priority_level == 'medium'"
+                      js_class="kser_ocr_list">
                     <field name="partner_id" string="اسم المستفيد"/>
                     <field name="national_id_number" string="رقم الهوية"/>
                     <field name="phone" string="الهاتف"/>

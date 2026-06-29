@@ -47,6 +47,8 @@
             'kser_erp/static/src/scss/kser_theme.scss',
             'kser_erp/static/src/js/kser_indexeddb.js',
             'kser_erp/static/src/js/pull_to_refresh.js',
+            'kser_erp/static/src/js/ocr_list_button.js',
+            'kser_erp/static/src/xml/ocr_list_button.xml',
         ],
     },
 

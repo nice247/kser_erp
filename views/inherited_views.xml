@@ -9,11 +9,7 @@
             <field name="name">res.partner.list.kser</field>
             <field name="model">res.partner</field>
             <field name="arch" type="xml">
-                <list string="جهات الاتصال" default_order="create_date desc">
-                    <header>
-                        <button name="%(kser_erp.action_kser_national_id_wizard_volunteer)d" type="action" 
-                                string="إضافة متطوع بالذكاء الاصطناعي (OCR)" display="always" class="btn-primary"/>
-                    </header>
+                <list string="جهات الاتصال" default_order="create_date desc" js_class="kser_ocr_list">
                     <field name="name" string="الاسم"/>
                     <field name="category_tag" string="التصنيف"/>
                     <field name="national_id_number" string="الرقم الوطني"/>
