@@ -39,6 +39,7 @@
             <field name="model">kser.cash.donation</field>
             <field name="arch" type="xml">
                 <list string="التبرعات النقدية"
+                      default_order="create_date desc"
                       decoration-success="ocr_status == 'matched'"
                       decoration-danger="ocr_status == 'failed'"
                       js_class="kser_ocr_list">

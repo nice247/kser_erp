@@ -35,7 +35,7 @@
             <field name="name">kser.audit.log.list</field>
             <field name="model">kser.audit.log</field>
             <field name="arch" type="xml">
-                <list string="سجل التدقيق" create="0" edit="0" delete="0"
+                <list string="سجل التدقيق" create="0" edit="0" delete="0" default_order="create_date desc"
                       decoration-info="action_type == 'create'"
                       decoration-warning="action_type == 'update'"
                       decoration-danger="action_type == 'delete'"

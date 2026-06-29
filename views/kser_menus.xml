@@ -177,7 +177,7 @@
                   parent="menu_kser_root"
                   action="action_kser_emergency_dashboard"
                   sequence="1"
-                  active="False"/>
+                  active="True"/>
 
         <!-- 1. التوزيع والمستفيدين -->
         <menuitem id="menu_kser_contacts"

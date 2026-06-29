@@ -46,7 +46,7 @@ msgstr "الحالة الاجتماعية"
 
 #. module: kser_erp
 msgid "Single"
-msgstr "أعزب"
+msgstr "غير متزوج"
 
 #. module: kser_erp
 msgid "Married"

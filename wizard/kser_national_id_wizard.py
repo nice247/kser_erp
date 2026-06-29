@@ -12,7 +12,7 @@ from odoo.tools.translate import _
 _logger = logging.getLogger(__name__)
 
 MARITAL_STATUS_MAP = {
-    'أعزب': 'single',
+    'غير متزوج': 'single',
     'متزوج': 'married',
     'متزوجة': 'married',
     'أرمل': 'widowed',
