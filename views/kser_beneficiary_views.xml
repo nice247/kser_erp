@@ -36,9 +36,13 @@
             <field name="name">kser.beneficiary.list</field>
             <field name="model">kser.beneficiary</field>
             <field name="arch" type="xml">
-                <list string="المستفيدين"
+                <list string="قائمة المستفيدين"
                       decoration-danger="priority_level == 'urgent'"
                       decoration-warning="priority_level == 'medium'">
+                    <header>
+                        <button name="%(kser_erp.action_kser_national_id_wizard)d" type="action" 
+                                string="إضافة مستفيد بالذكاء الاصطناعي (OCR)" display="always" class="btn-primary"/>
+                    </header>
                     <field name="partner_id" string="اسم المستفيد"/>
                     <field name="national_id_number" string="رقم الهوية"/>
                     <field name="phone" string="الهاتف"/>
@@ -62,9 +66,11 @@
                 <form string="بيانات المستفيد">
                     <header>
                         <button name="%(kser_erp.action_kser_national_id_wizard)d" type="action" 
-                                string="قراءة الهوية (AI OCR)" class="oe_highlight"/>
+                                string="قراءة الهوية (AI OCR)" class="oe_highlight"
+                                invisible="not id"/>
                     </header>
                     <sheet>
+                        <field name="id" invisible="1"/>
                         <div class="oe_button_box" name="button_box">
                             <button name="action_view_moves" type="object"
                                     class="oe_stat_button" icon="fa-truck">
