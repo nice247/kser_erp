@@ -88,10 +88,6 @@
                         </div>
 
                         <group>
-                            <group string="إيصال الدفع">
-                                <field name="receipt_image" string="صورة إيصال البنك"
-                                       widget="image" class="oe_avatar" options="{'size': [150, 150]}"/>
-                            </group>
                             <group string="بيانات التبرع">
                                 <field name="partner_id" string="المتبرع"/>
                                 <field name="campaign_id" string="الحملة المرتبطة"/>
@@ -108,6 +104,10 @@
                                 <field name="move_id" string="القيد المرتبط" readonly="1"
                                        invisible="not move_id"/>
                                 <field name="created_by" string="رُفع بواسطة"/>
+                            </group>
+                            <group string="إيصال الدفع">
+                                <field name="receipt_image" string="صورة إيصال البنك"
+                                       widget="image" class="oe_avatar" options="{'size': [150, 150]}"/>
                             </group>
                         </group>
 

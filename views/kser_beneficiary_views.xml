@@ -81,10 +81,6 @@
                         </div>
 
                         <group>
-                            <group string="الهوية الوطنية">
-                                <field name="national_id_image" string="صورة الهوية الوطنية"
-                                       widget="image" class="oe_avatar" options="{'size': [150, 150]}"/>
-                            </group>
                             <group string="البيانات الأساسية">
                                 <field name="national_id_number" string="رقم الهوية الوطنية"/>
                                 <field name="phone" string="رقم الهاتف"/>
@@ -102,6 +98,10 @@
                                 <field name="registered_by" string="مسجّل بواسطة"/>
                                 <field name="is_verified" string="تم التحقق" widget="boolean_toggle"/>
                                 <field name="ocr_confidence" string="دقة التعرف الآلي"/>
+                            </group>
+                            <group string="الهوية الوطنية">
+                                <field name="national_id_image" string="صورة الهوية الوطنية"
+                                       widget="image" class="oe_avatar" options="{'size': [150, 150]}"/>
                             </group>
                         </group>
 

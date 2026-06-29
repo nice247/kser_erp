@@ -294,8 +294,22 @@ class KserBeneficiary(models.Model):
         self.marital_status = marital_key
         self.birthdate = birthdate
         self.ocr_confidence = data.get('ocr_confidence', 0.0)
-        if self.partner_id:
-            self.partner_id.name = data.get('name', self.partner_id.name)
+        beneficiary_tag = self.env.ref('kser_erp.partner_category_beneficiary', raise_if_not_found=False)
+        extracted_name = data.get('name') or 'مستفيد جديد (OCR)'
+        if not self.partner_id:
+            new_partner = self.env['res.partner'].create({
+                'name': extracted_name,
+                'category_tag': beneficiary_tag.id if beneficiary_tag else False,
+                'national_id_number': extracted_id,
+                'national_id_image': self.national_id_image,
+            })
+            self.partner_id = new_partner.id
+        else:
+            self.partner_id.name = data.get('name') or self.partner_id.name
+            if not self.partner_id.national_id_number:
+                self.partner_id.national_id_number = extracted_id
+            if not self.partner_id.national_id_image:
+                self.partner_id.national_id_image = self.national_id_image
 
     @api.constrains('head_of_family_id', 'relationship')
     def _check_family_relationship(self):
