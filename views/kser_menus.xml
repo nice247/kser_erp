@@ -240,6 +240,7 @@
             <field name="action" ref="action_kser_national_id_wizard_volunteer"/>
             <field name="sequence" eval="3"/>
             <field name="groups_id" eval="[(6, 0, [ref('group_admin_supervisor'), ref('group_data_manager'), ref('group_field_supervisor'), ref('group_system_admin')])]"/>
+            <field name="active" eval="True"/>
         </record>
 
         <record id="menu_kser_donors" model="ir.ui.menu">
@@ -261,7 +262,8 @@
                   name="إضافة مستفيد (OCR)"
                   parent="menu_kser_contacts"
                   action="action_kser_national_id_wizard"
-                  sequence="4"/>
+                  sequence="4"
+                  active="True"/>
 
         <!-- التبرعات Sub-Items -->
         <menuitem id="menu_kser_donation_list"
@@ -274,7 +276,8 @@
                   name="إضافة تبرع (OCR)"
                   parent="menu_kser_donations"
                   action="action_kser_bank_receipt_wizard"
-                  sequence="3"/>
+                  sequence="3"
+                  active="True"/>
 
         <menuitem id="menu_kser_donor_import_wizard"
                   name="استيراد كشوفات المتبرعين"
