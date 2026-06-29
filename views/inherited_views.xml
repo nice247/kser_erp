@@ -108,6 +108,9 @@
                 <xpath expr="//field[@name='email']" position="attributes">
                     <attribute name="invisible">is_donor</attribute>
                 </xpath>
+                <xpath expr="//field[@name='mobile']" position="attributes">
+                    <attribute name="invisible">is_donor</attribute>
+                </xpath>
                 <xpath expr="//field[@name='street']" position="attributes">
                     <attribute name="invisible">is_donor</attribute>
                 </xpath>
@@ -122,6 +125,9 @@
                 </xpath>
                 <xpath expr="//field[@name='country_id']" position="attributes">
                     <attribute name="invisible">is_donor</attribute>
+                </xpath>
+                <xpath expr="//div[hasclass('o_address_format')]" position="before">
+                    <field name="category_tag" string="التصنيف" invisible="not is_donor"/>
                 </xpath>
                 <xpath expr="//page[@name='internal_notes']" position="attributes">
                     <attribute name="invisible">is_donor</attribute>
@@ -141,7 +147,7 @@
                     <attribute name="invisible">1</attribute>
                 </xpath>
                 <xpath expr="//sheet//group" position="after">
-                    <group string="بيانات KSER" name="kser_identity_group" invisible="is_company">
+                    <group string="بيانات KSER" name="kser_identity_group" invisible="is_company or is_donor">
                         <group string="التصنيف">
                             <field name="category_tag" string="تصنيف جهة الاتصال"/>
                             <field name="supervisor_id" string="المشرف الميداني" invisible="is_donor"/>
