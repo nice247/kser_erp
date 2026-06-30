@@ -15,7 +15,7 @@
                         <group invisible="state != 'upload'" string="رفع صورة الهوية">
                             <group>
                                 <field name="id_image" string="صورة الهوية الوطنية"
-                                       filename="id_image_filename" widget="binary"/>
+                                       filename="id_image_filename" widget="binary" required="1"/>
                                 <field name="id_image_filename" invisible="1"/>
                             </group>
                         </group>
@@ -23,7 +23,8 @@
                         <!-- Stage 2: Review / Manual entry -->
                         <group >
                             <group string="البيانات الشخصية">
-                                <field name="extracted_name" string="الاسم"/>
+                                <field name="extracted_name" string="الاسم الكامل"/>
+                                <field name="extracted_mother_name" string="اسم الوالدة"/>
                                 <field name="extracted_national_id" string="رقم الهوية" required="state == 'review'"/>
                                 <field name="extracted_profession" string="المهنة"/>
                                 <field name="extracted_marital_status" string="الحالة الاجتماعية"/>
@@ -37,8 +38,8 @@
 
                         <!-- Attach image in review state (for manual entry) -->
                         <group invisible="state != 'review' or not is_manual_entry">
-                            <field name="id_image" string="إرفاق صورة الهوية (اختياري)"
-                                   filename="id_image_filename" widget="binary"/>
+                            <field name="id_image" string="إرفاق صورة الهوية "
+                                   filename="id_image_filename" widget="binary" required="1"/>
                         </group>
 
                         <field name="target_type" invisible="1"/>
@@ -90,7 +91,7 @@
                         <group invisible="state != 'upload'" string="رفع صورة الإيصال">
                             <group>
                                 <field name="receipt_image" string="صورة الإيصال البنكي"
-                                       filename="receipt_image_filename" widget="binary"/>
+                                       filename="receipt_image_filename" widget="binary" required="1"/>
                                 <field name="receipt_image_filename" invisible="1"/>
                                 <field name="campaign_id" string="الحملة المرتبطة"/>
                             </group>
@@ -115,8 +116,8 @@
 
                         <!-- Attach image in review state (for manual entry) -->
                         <group invisible="state != 'review' or not is_manual_entry">
-                            <field name="receipt_image" string="إرفاق صورة الإيصال (اختياري)"
-                                   filename="receipt_image_filename" widget="binary"/>
+                            <field name="receipt_image" string="إرفاق صورة الإيصال"
+                                   filename="receipt_image_filename" widget="binary" required="1"/>
                         </group>
 
                         <field name="state" invisible="1"/>

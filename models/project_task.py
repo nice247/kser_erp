@@ -29,7 +29,7 @@ class ProjectTask(models.Model):
     def _check_completion_rate(self):
         for rec in self:
             if rec.completion_rate and not (0 <= rec.completion_rate <= 100):
-                raise ValidationError(_('Completion rate must be between 0 and 100!'))
+                raise ValidationError(_('يجب أن تكون نسبة الإنجاز بين 0 و 100!'))
 
     @api.constrains('volunteer_id')
     def _check_volunteer_assignment(self):

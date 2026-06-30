@@ -40,12 +40,13 @@ class KserNationalIdWizard(models.TransientModel):
         string='File Name',
     )
 
-    extracted_name = fields.Char(string='Extracted Name')
-    extracted_national_id = fields.Char(string='Extracted National ID')
-    extracted_profession = fields.Char(string='Extracted Profession')
-    extracted_marital_status = fields.Char(string='Extracted Marital Status')
-    extracted_dob = fields.Char(string='Extracted Date of Birth')
-    extracted_gender = fields.Char(string='Extracted Gender')
+    extracted_name = fields.Char(string='الاسم الكامل')
+    extracted_national_id = fields.Char(string='رقم الهوية الوطنية')
+    extracted_profession = fields.Char(string='المهنة')
+    extracted_marital_status = fields.Char(string='الحالة الاجتماعية')
+    extracted_dob = fields.Char(string='تاريخ الميلاد')
+    extracted_gender = fields.Char(string='الجنس')
+    extracted_mother_name = fields.Char(string='اسم الوالدة')
 
 
     is_manual_entry = fields.Boolean(
@@ -81,13 +82,13 @@ class KserNationalIdWizard(models.TransientModel):
         self.ensure_one()
 
         if not self.id_image:
-            raise UserError(_('Please upload the National ID image!'))
+            raise UserError(_('يرجى رفع صورة الرقم الوطني!'))
 
         api_key = self.env['ir.config_parameter'].sudo().get_param('kser.springboot_api_key')
         base_url = self.env['ir.config_parameter'].sudo().get_param('kser.springboot_base_url')
 
         if not api_key or not base_url:
-            raise UserError(_('API credentials (kser.springboot_api_key or kser.springboot_base_url) are not configured!'))
+            raise UserError(_('بيانات الاتصال بالنظام غير مهيأة. يرجى مراجعة مسؤول النظام.'))
 
         base_url = base_url.rstrip('/')
 
@@ -102,26 +103,19 @@ class KserNationalIdWizard(models.TransientModel):
             )
         except requests.exceptions.RequestException as e:
             _logger.error('National ID OCR request failed: %s', str(e))
-            raise UserError(_('Connection failed: %s') % str(e))
+            raise UserError(_('فشل الاتصال بالخادم. يرجى المحاولة مرة أخرى أو الاتصال بمسؤول النظام.'))
 
         try:
             result = response.json()
         except Exception:
-            raise UserError(_('Invalid response from server: %s') % response.text)
+            raise UserError(_('تلقى النظام استجابة غير صالحة من الخادم. يرجى الاتصال بمسؤول النظام.'))
 
         if not result.get('success'):
             backend_msg = result.get('message', '')
             errors = result.get('data', {}).get('errors', [])
             detailed_errors = ', '.join(errors) if errors else ''
-            
-            if backend_msg and detailed_errors:
-                error_msg = f"{backend_msg} \n(التفاصيل: {detailed_errors})"
-            elif backend_msg:
-                error_msg = backend_msg
-            else:
-                error_msg = detailed_errors or "حدث خطأ غير معروف أثناء المعالجة."
-                
-            raise UserError(f"فشلت عملية استخراج البيانات:\n{error_msg}")
+            _logger.error('OCR process failed: %s (Details: %s)', backend_msg, detailed_errors)
+            raise UserError(_("فشلت عملية استخراج البيانات. يرجى التأكد من وضوح صورة الهوية الوطنية والمحاولة مرة أخرى، أو إدخال البيانات يدوياً."))
 
         data = result.get('data', {})
 
@@ -132,6 +126,7 @@ class KserNationalIdWizard(models.TransientModel):
             'extracted_marital_status': data.get('maritalStatus', ''),
             'extracted_dob': data.get('dateOfBirth', ''),
             'extracted_gender': data.get('gender', ''),
+            'extracted_mother_name': data.get('motherName', ''),
             'state': 'review',
         })
 
@@ -147,7 +142,7 @@ class KserNationalIdWizard(models.TransientModel):
         self.ensure_one()
 
         if not self.extracted_national_id:
-            raise UserError(_('No extracted National ID!'))
+            raise UserError(_('لم يتم استخراج رقم الهوية الوطنية من الصورة!'))
 
         if self.target_type == 'volunteer':
             existing_partner = self.env['res.partner'].search([
@@ -199,6 +194,7 @@ class KserNationalIdWizard(models.TransientModel):
                 'profession': self.extracted_profession or existing.profession,
                 'marital_status': marital_key or existing.marital_status,
                 'birthdate': birthdate or existing.birthdate,
+                'extracted_mother_name': self.extracted_mother_name,
             })
 
             return {'type': 'ir.actions.act_window_close'}
@@ -219,6 +215,7 @@ class KserNationalIdWizard(models.TransientModel):
             'birthdate': birthdate,
             'district': '-',
             'registered_by': self.env.uid,
+            'extracted_mother_name': self.extracted_mother_name,
         })
 
         return {'type': 'ir.actions.act_window_close'}

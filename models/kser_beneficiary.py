@@ -11,8 +11,8 @@ class KserBeneficiary(models.Model):
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _rec_name = 'partner_id'
     _sql_constraints = [
-        ('partner_id_unique', 'UNIQUE(partner_id)', 'This contact is already linked to another beneficiary!'),
-        ('national_id_unique', 'UNIQUE(national_id_number)', 'This National ID is already registered!'),
+        ('partner_id_unique', 'UNIQUE(partner_id)', 'جهة الاتصال هذه مرتبطة بالفعل بمستفيد آخر!'),
+        ('national_id_unique', 'UNIQUE(national_id_number)', 'الرقم الوطني هذا مسجل بالفعل!'),
     ]
 
     partner_id = fields.Many2one(
@@ -44,16 +44,20 @@ class KserBeneficiary(models.Model):
         attachment=True,
         required=True,
     )
+    extracted_mother_name = fields.Char(
+        string='اسم الوالدة',
+        tracking=True,
+    )
     profession = fields.Char(
         string='Profession',
         size=100,
     )
     marital_status = fields.Selection(
         [
-            ('single', 'Single'),
-            ('married', 'Married'),
-            ('widowed', 'Widowed'),
-            ('divorced', 'Divorced'),
+            ('single', 'غير متزوج'),
+            ('married', 'متزوج'),
+            ('widowed', 'أرمل'),
+            ('divorced', 'مطلق'),
         ],
         string='Marital Status',
     )
@@ -111,11 +115,15 @@ class KserBeneficiary(models.Model):
     relationship = fields.Selection(
         [
             ('self', 'رب الأسرة (نفسه)'),
+            ('father', 'أب'),
+            ('mother', 'أم'),
+            ('sibling', 'أخ/أخت'),
+            ('grandfather', 'جد'),
+            ('grandmother', 'جدة'),
+            ('paternal_uncle_aunt', 'عم/عمة'),
+            ('maternal_uncle_aunt', 'خال/خالة'),
             ('spouse', 'زوج/زوجة'),
             ('child', 'ابن/ابنة'),
-            ('parent', 'أب/أم'),
-            ('sibling', 'أخ/أخت'),
-            ('relative', 'قريب آخر'),
         ],
         string='Relationship to Head of Family',
         default='self',
@@ -126,6 +134,16 @@ class KserBeneficiary(models.Model):
         'head_of_family_id',
         string='Family Members',
         domain=[('relationship', '!=', 'self')],
+    )
+    family_member_ids = fields.Many2many(
+        'kser.beneficiary',
+        string='Family Members',
+        compute='_compute_family_member_ids',
+        inverse='_inverse_family_member_ids',
+    )
+    family_member_count = fields.Integer(
+        compute='_compute_family_member_count',
+        string='Family Member Count',
     )
     registered_by = fields.Many2one(
         'res.users',
@@ -149,91 +167,149 @@ class KserBeneficiary(models.Model):
             else:
                 rec.family_size = 1
 
+    @api.depends('member_ids', 'member_ids.head_of_family_id')
+    def _compute_family_member_ids(self):
+        for rec in self:
+            if rec.relationship == 'self':
+                rec.family_member_ids = rec.member_ids
+            else:
+                rec.family_member_ids = self.env['kser.beneficiary']
+
+    def _inverse_family_member_ids(self):
+        for rec in self:
+            if rec.relationship != 'self':
+                continue
+            current_members = rec.family_member_ids
+            existing_members = rec.member_ids
+            
+            added = current_members - existing_members
+            for member in added:
+                member.write({
+                    'head_of_family_id': rec.id,
+                    'relationship': rec._determine_auto_relationship(member),
+                })
+            
+            removed = existing_members - current_members
+            for member in removed:
+                member.write({
+                    'head_of_family_id': member.id,
+                    'relationship': 'self',
+                })
+
+    @api.depends('member_ids')
+    def _compute_family_member_count(self):
+        for rec in self:
+            rec.family_member_count = len(rec.member_ids)
+
+    def action_view_family_members(self):
+        self.ensure_one()
+        head = self.head_of_family_id or self
+        return {
+            'name': _('Family Members'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'kser.beneficiary',
+            'view_mode': 'list,form',
+            'domain': [('head_of_family_id', '=', head.id), ('relationship', '!=', 'self')],
+            'context': {'default_head_of_family_id': head.id},
+        }
+
     @api.depends(
-        'relationship',
-        'head_of_family_id',
-        'member_ids',
-        'member_ids.relationship',
-    )
-    @api.depends(
-        'family_size', 'health_conditions', 'marital_status', 'birthdate', 'relationship',
-        'member_ids', 'member_ids.birthdate', 'member_ids.health_conditions'
+        'relationship', 'head_of_family_id', 'member_ids',
+        'member_ids.relationship', 'family_size', 'health_conditions',
+        'marital_status', 'birthdate', 'member_ids.birthdate',
+        'member_ids.health_conditions',
     )
     def _compute_priority(self):
         today = fields.Date.today()
-        
+
+        # ===== ثوابت النقاط =====
+        AGE_VULNERABLE = 10  # عمر < 18 أو >= 60 (للمتقدم الرئيسي نفسه)
+        HEALTH_BASE = 8  # وجود حالة صحية واحدة موثقة
+        HEALTH_PER_EXTRA = 4  # نقاط إضافية لكل حالة صحية زائدة
+        HEALTH_MAX = 20  # سقف نقاط الصحة للفرد الواحد
+
+        MARITAL_POINTS = {
+            'widowed': 12,
+            'divorced': 8,
+            'married': 0,
+            'single': 0,
+        }
+
+        DEPENDANT_CRITICAL = 18  # تابع: هشاشة عمرية + مرض معاً
+        DEPENDANT_PARTIAL = 12  # تابع: هشاشة عمرية أو مرض فقط
+        HIGH_VULNERABILITY_RATIO = 10  # إذا نصف الأسرة فأكثر في حالة ضعف
+
         for rec in self:
             score = 0
-            # تحديد ما إذا كان المستفيد هو المتقدم الرئيسي (رب أسرة / فرد مستقل) أم تابع
             is_head = (rec.relationship == 'self')
-            
-            # ==========================================
-            # 1. التقييم الشخصي (مشترك لرب الأسرة والتابع)
-            # ==========================================
-            
-            # أ. نقاط الحالة الصحية (15 نقطة لمجرد وجود حالة صحية)
-            if rec.health_conditions and rec.health_conditions.strip():
-                score += 15
-                
-            # ب. نقاط العمر الفردية (10 نقاط للفئات الهشة)
+
+            # ===========================================
+            # 1. التقييم الشخصي لرب الأسرة / الفرد المستقل
+            # ===========================================
             if rec.birthdate:
                 age = relativedelta(today, rec.birthdate).years
                 if age < 18 or age >= 60:
-                    score += 10
-            
-            # ==========================================
-            # 2. التقييم العائلي (يُضاف لرب الأسرة فقط)
-            # ==========================================
+                    score += AGE_VULNERABLE
+
+            score += rec._health_score(
+                rec.health_conditions, HEALTH_BASE, HEALTH_PER_EXTRA, HEALTH_MAX
+            )
+
+            # ===========================================
+            # 2. التقييم العائلي (رب الأسرة فقط)
+            # ===========================================
             if is_head:
                 size = rec.family_size or 1
-                
-                # أ. نقاط حجم العائلة
+
+                # أ. حجم الأسرة
                 if size == 1:
-                    score += 10  # الفرد المستقل بالكامل يعتبر حالة ضعف
-                elif 2 <= size <= 5:
+                    score += 5
+                elif 2 <= size <= 4:
                     score += 10
+                elif 5 <= size <= 7:
+                    score += 16
                 else:
-                    score += 20  # العائلات الكبيرة
-                    
-                # ب. نقاط الحالة الاجتماعية (مع ضبط التناقض)
-                ms_points = {
-                    'widowed': 10, 
-                    'divorced': 7, 
-                    'married': 5 if size > 1 else 0, 
-                    'single': 0
-                }
-                score += ms_points.get(rec.marital_status, 0)
-                
-                # ج. نقاط ضعف التابعين (تُجمع وتُضاف لرب الأسرة)
-                if size > 1:
-                    # جلب التابعين سواء من الذاكرة (قبل الحفظ) أو من قاعدة البيانات
-                    dependants = rec.member_ids if rec.member_ids else self.env['kser.beneficiary'].search([
-                        ('head_of_family_id', '=', rec.id),
-                        ('relationship', '!=', 'self'),
-                    ])
-                    
-                    for dep in dependants:
-                        has_disease = bool(dep.health_conditions and dep.health_conditions.strip())
-                        has_age_cond = False
-                        
-                        if dep.birthdate:
-                            dep_age = relativedelta(today, dep.birthdate).years
-                            if dep_age < 18 or dep_age >= 60:
-                                has_age_cond = True
-                                
-                        if has_age_cond and has_disease:
-                            score += 15  # تابع في حالة حرجة جداً
-                        elif has_age_cond or has_disease:
-                            score += 10  # تابع مريض أو في عمر هش
-                            
-            # ==========================================
-            # 3. النتيجة النهائية وتصنيف المستوى
-            # ==========================================
-            
-            # وضع سقف أعلى للنقاط (100 نقطة كحد أقصى)
+                    score += 22
+
+                # ب. الحالة الاجتماعية لرب الأسرة
+                score += MARITAL_POINTS.get(rec.marital_status, 0)
+
+                # ج. تقييم كل تابع + عدّ الحالات الضعيفة لحساب نسبة الإعالة
+                dependants = rec.member_ids.filtered(
+                    lambda m: m.relationship != 'self'
+                ) if rec.member_ids else self.env['kser.beneficiary'].search([
+                    ('head_of_family_id', '=', rec.id),
+                    ('relationship', '!=', 'self'),
+                ])
+
+                vulnerable_count = 0
+
+                for dep in dependants:
+                    dep_age_vulnerable = False
+                    if dep.birthdate:
+                        dep_age = relativedelta(today, dep.birthdate).years
+                        dep_age_vulnerable = dep_age < 18 or dep_age >= 60
+
+                    dep_health_score = rec._health_score(
+                        dep.health_conditions, HEALTH_BASE, HEALTH_PER_EXTRA, HEALTH_MAX
+                    )
+                    dep_has_health = dep_health_score > 0
+
+                    if dep_age_vulnerable and dep_has_health:
+                        score += DEPENDANT_CRITICAL
+                        vulnerable_count += 1
+                    elif dep_age_vulnerable or dep_has_health:
+                        score += DEPENDANT_PARTIAL
+                        vulnerable_count += 1
+
+                # د. نسبة الإعالة: نصف الأسرة فأكثر في حالة ضعف
+                if size > 1 and (vulnerable_count / size) >= 0.5:
+                    score += HIGH_VULNERABILITY_RATIO
+
+            # ===========================================
+            # 3. النتيجة النهائية (سقف 100 مضمون هنا)
+            # ===========================================
             rec.priority_score = min(score, 100)
-            
-            # تصنيف المستوى بناءً على العتبات المنطقية الجديدة
             if rec.priority_score >= 70:
                 rec.priority_level = 'urgent'
             elif rec.priority_score >= 40:
@@ -241,11 +317,18 @@ class KserBeneficiary(models.Model):
             else:
                 rec.priority_level = 'normal'
 
+    def _health_score(self, health_conditions, base, per_extra, max_score):
+        if not health_conditions or not health_conditions.strip():
+            return 0
+        conditions_count = len([c for c in health_conditions.split(',') if c.strip()])
+        score = base + (max(conditions_count - 1, 0) * per_extra)
+        return min(score, max_score)
+
     @api.constrains('family_size')
     def _check_family_size(self):
         for rec in self:
             if rec.family_size < 1:
-                raise ValidationError(_('Family size must be greater than zero!'))
+                raise ValidationError(_('يجب أن يكون عدد أفراد الأسرة أكبر من صفر!'))
 
 
     @api.constrains('head_of_family_id', 'relationship')
@@ -257,6 +340,104 @@ class KserBeneficiary(models.Model):
             else:
                 if rec.relationship != 'self':
                     raise ValidationError(_("يجب أن تكون العلاقة 'رب الأسرة (نفسه)' إذا كان الشخص هو رب الأسرة!"))
+
+    @api.constrains('head_of_family_id', 'relationship', 'extracted_mother_name')
+    def _check_ai_relationship_validation(self):
+        for rec in self:
+            if rec.relationship == 'self' or not rec.head_of_family_id:
+                continue
+            if not rec.partner_id.name or not rec.head_of_family_id.partner_id.name:
+                continue
+
+            head_name = rec.head_of_family_id.partner_id.name.strip().split()
+            dep_name = rec.partner_id.name.strip().split()
+
+            if len(head_name) < 2 or len(dep_name) < 2:
+                continue
+
+            rel = rec.relationship
+            if rel in ('spouse', 'maternal_uncle_aunt'):
+                continue
+
+            error_msg = _("فشل الحفظ: بيانات الاسم لا تتطابق مع علاقة القرابة المحددة. يرجى تسجيل المستفيد كرب أسرة مستقل.")
+
+            def match_parts(list1, list2):
+                min_len = min(len(list1), len(list2))
+                if min_len == 0: return False
+                return " ".join(list1[:min_len]) == " ".join(list2[:min_len])
+
+            if rel == 'father':
+                if not match_parts(dep_name, head_name[1:]):
+                    raise ValidationError(error_msg)
+            elif rel == 'mother':
+                head_mother = rec.head_of_family_id.extracted_mother_name
+                name_matched = False
+                if head_mother:
+                    name_matched = match_parts(dep_name, head_mother.strip().split())
+                if not name_matched:
+                    if rec.birthdate and rec.head_of_family_id.birthdate:
+                        age_diff = relativedelta(rec.head_of_family_id.birthdate, rec.birthdate).years
+                        if age_diff < 15:
+                            raise ValidationError(_("فشل الحفظ: يجب أن تكون الأم أكبر سنّاً من رب الأسرة بـ 15 عاماً على الأقل."))
+                    else:
+                        raise ValidationError(error_msg)
+            elif rel == 'sibling':
+                if not match_parts(dep_name[1:], head_name[1:]):
+                    raise ValidationError(error_msg)
+            elif rel == 'grandfather':
+                if not match_parts(dep_name, head_name[2:]):
+                    raise ValidationError(error_msg)
+            elif rel == 'grandmother':
+                if rec.birthdate and rec.head_of_family_id.birthdate:
+                    age_diff = relativedelta(rec.head_of_family_id.birthdate, rec.birthdate).years
+                    if age_diff < 30:
+                        raise ValidationError(_("فشل الحفظ: فرق السن بين الجدة ورب الأسرة يجب ألا يقل عن 30 عاماً."))
+            elif rel == 'paternal_uncle_aunt':
+                if not match_parts(dep_name[1:], head_name[2:]):
+                    raise ValidationError(error_msg)
+            elif rel == 'child':
+                if not match_parts(dep_name[1:], head_name):
+                    raise ValidationError(error_msg)
+
+    def _determine_auto_relationship(self, dep):
+        self.ensure_one()
+        head = self
+        head_name = head.partner_id.name.strip().split() if head.partner_id.name else []
+        dep_name = dep.partner_id.name.strip().split() if dep.partner_id.name else []
+        
+        def match_parts(list1, list2):
+            min_len = min(len(list1), len(list2))
+            if min_len == 0: return False
+            return " ".join(list1[:min_len]) == " ".join(list2[:min_len])
+            
+        if dep_name and head_name:
+            if match_parts(dep_name[1:], head_name):
+                return 'child'
+            if match_parts(dep_name, head_name[1:]):
+                return 'father'
+            if len(dep_name) > 1 and len(head_name) > 1 and match_parts(dep_name[1:], head_name[1:]):
+                return 'sibling'
+            if head.extracted_mother_name:
+                head_mother = head.extracted_mother_name.strip().split()
+                if match_parts(dep_name, head_mother):
+                    return 'mother'
+            if match_parts(dep_name, head_name[2:]):
+                return 'grandfather'
+            if len(dep_name) > 1 and match_parts(dep_name[1:], head_name[2:]):
+                return 'paternal_uncle_aunt'
+                
+        if dep.birthdate and head.birthdate:
+            age_diff = relativedelta(head.birthdate, dep.birthdate).years
+            if 18 <= age_diff <= 45:
+                return 'mother'
+            if age_diff > 45:
+                return 'grandfather'
+            if -45 <= age_diff <= -18:
+                return 'child'
+            if -15 <= age_diff <= 15:
+                return 'spouse'
+                
+        return 'spouse'
 
     @api.onchange('head_of_family_id')
     def _onchange_head_of_family_id(self):
@@ -352,3 +533,6 @@ class KserBeneficiary(models.Model):
                     'details': f"تم تعديل بيانات المستفيد (الرقم الوطني: {rec.national_id_number}). الحقول المعدلة: {list(vals.keys())}",
                 })
         return res
+
+    def unlink(self):
+        raise ValidationError(_("يُمنع حذف سجلات المستفيدين بشكل مطلق للحفاظ على سلامة البيانات والتدقيق. إذا لزم الأمر، يمكنك أرشفة السجل أو إيقافه بدلاً من الحذف."))

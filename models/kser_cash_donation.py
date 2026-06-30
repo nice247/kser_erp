@@ -9,7 +9,7 @@ class KserCashDonation(models.Model):
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _rec_name = 'transaction_number'
     _sql_constraints = [
-        ('transaction_number_unique', 'UNIQUE(transaction_number)', 'This Bank Transaction ID is already registered!'),
+        ('transaction_number_unique', 'UNIQUE(transaction_number)', 'رقم المعاملة البنكية هذا مسجل بالفعل!'),
     ]
 
     state = fields.Selection(
@@ -116,7 +116,7 @@ class KserCashDonation(models.Model):
     def _check_amount(self):
         for rec in self:
             if rec.amount <= 0:
-                raise ValidationError(_('Amount must be greater than zero!'))
+                raise ValidationError(_('يجب أن يكون المبلغ أكبر من صفر!'))
 
 
 
@@ -148,7 +148,7 @@ class KserCashDonation(models.Model):
             if rec.state != 'draft':
                 continue
             if not rec.partner_id:
-                raise ValidationError(_("Please select a Donor (Partner) before confirming."))
+                raise ValidationError(_("يرجى اختيار المتبرع (جهة الاتصال) قبل التأكيد."))
 
             # Find a suitable bank/cash journal
             journal = self.env['account.journal'].search([
@@ -157,7 +157,7 @@ class KserCashDonation(models.Model):
             ], limit=1)
             
             if not journal:
-                raise ValidationError(_("No Bank or Cash journal found for this company."))
+                raise ValidationError(_("لم يتم العثور على دفتر يومية بنك أو نقدية لهذه الشركة."))
 
             payment_vals = {
                 'payment_type': 'inbound',

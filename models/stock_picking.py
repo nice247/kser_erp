@@ -29,7 +29,7 @@ class StockPicking(models.Model):
     def button_validate(self):
         for rec in self:
             if rec.project_id and rec.project_id.state != 'approved':
-                raise UserError(_("Cannot validate transfer. The campaign '%s' budget is not approved!") % rec.project_id.name)
+                raise UserError(_("لا يمكن تأكيد التحويل. ميزانية الحملة '%s' غير معتمدة!") % rec.project_id.name)
         res = super().button_validate()
         for rec in self:
             if rec.state == 'done':

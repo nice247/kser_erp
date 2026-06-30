@@ -35,7 +35,7 @@ class KserAiWizard(models.TransientModel):
 
         # Check if campaign budget is approved
         if self.campaign_id.state != 'approved':
-            raise UserError(_("Cannot run AI match. The campaign budget is not approved yet!"))
+            raise UserError(_("لا يمكن تشغيل المطابقة الذكية. ميزانية الحملة غير معتمدة بعد!"))
 
         quants = self.env['stock.quant'].search([
             ('quantity', '>', 0),
@@ -47,6 +47,9 @@ class KserAiWizard(models.TransientModel):
             inventory.append({
                 'id': quant.product_id.id,
                 'itemName': quant.product_id.name,
+                'activeIngredient': quant.product_id.active_ingredient or '',
+                'medicalIndications': quant.product_id.medical_indications or '',
+                'contraindications': quant.product_id.contraindications or '',
                 'quantity': int(quant.quantity),
             })
 
@@ -60,6 +63,8 @@ class KserAiWizard(models.TransientModel):
                 'id': ben.id,
                 'name': ben.partner_id.name,
                 'chronicDisease': ben.health_conditions,
+                'birthdate': str(ben.birthdate) if ben.birthdate else '',
+                'dateOfBirth': str(ben.birthdate) if ben.birthdate else '',
             })
 
         payload = {
@@ -71,7 +76,7 @@ class KserAiWizard(models.TransientModel):
         base_url = self.env['ir.config_parameter'].sudo().get_param('kser.springboot_base_url')
 
         if not api_key or not base_url:
-            raise UserError(_('API credentials (kser.springboot_api_key or kser.springboot_base_url) are not configured!'))
+            raise UserError(_('بيانات الاتصال بالنظام غير مهيأة. يرجى مراجعة مسؤول النظام.'))
 
         base_url = base_url.rstrip('/')
 
@@ -87,31 +92,40 @@ class KserAiWizard(models.TransientModel):
             )
         except requests.exceptions.RequestException as e:
             _logger.error('AI matching API request failed: %s', str(e))
-            raise UserError(_('Connection failed: %s') % str(e))
+            raise UserError(_('فشل الاتصال بالخادم. يرجى المحاولة مرة أخرى أو الاتصال بمسؤول النظام.'))
 
         try:
             result = response.json()
         except Exception:
-            raise UserError(_('Invalid response from server: %s') % response.text)
+            raise UserError(_('تلقى النظام استجابة غير صالحة من الخادم. يرجى الاتصال بمسؤول النظام.'))
 
         # Clear old lines
         self.line_ids.unlink()
 
         recommendations = result.get('recommendations', [])
         if not recommendations:
-            raise UserError(_("No smart recommendations returned from AI server. Inventory and needs might already match."))
+            raise UserError(_("لم يتم إرجاع أي توصيات ذكية من الخادم. قد يكون المخزون والاحتياجات متطابقين بالفعل."))
 
         for rec in recommendations:
-            product_id = rec.get('inventoryItemId')
-            matched_ben_ids = rec.get('matchedBeneficiaryIds', [])
+            product_id = rec.get('inventoryItemId') or rec.get('productId')
+            matched_ben_ids = rec.get('matchedBeneficiaryIds') or rec.get('beneficiaryIds') or rec.get('matchedBeneficiaryIdList') or []
+            if isinstance(matched_ben_ids, int):
+                matched_ben_ids = [matched_ben_ids]
             priority_str = rec.get('priority', 'طبيعي')
-            rationale = rec.get('rationale', '')
+            rationale = rec.get('rationale') or rec.get('reason') or rec.get('explanation') or ''
 
-            # Map priority
             priority_map = {
                 'عاجل': 'urgent',
                 'متوسط': 'medium',
-                'طبيعي': 'normal'
+                'طبيعي': 'normal',
+                'urgent': 'urgent',
+                'medium': 'medium',
+                'normal': 'normal',
+                'HIGH': 'urgent',
+                'MEDIUM': 'medium',
+                'LOW': 'normal',
+                'high': 'urgent',
+                'low': 'normal',
             }
             priority = priority_map.get(priority_str, 'normal')
 
@@ -147,7 +161,7 @@ class KserAiWizard(models.TransientModel):
         self.ensure_one()
         approved_lines = self.line_ids.filtered(lambda l: l.approved)
         if not approved_lines:
-            raise UserError(_("No suggestions approved for distribution."))
+            raise UserError(_("لا توجد اقتراحات معتمدة للتوزيع."))
 
         # Find delivery picking type
         picking_type = self.env['stock.picking.type'].search([
@@ -156,13 +170,13 @@ class KserAiWizard(models.TransientModel):
         ], limit=1)
 
         if not picking_type:
-            raise UserError(_("No Outgoing Delivery Picking Type found."))
+            raise UserError(_("لم يتم العثور على نوع عملية التوزيع (شحنات صادرة)."))
 
         source_location = picking_type.default_location_src_id
         dest_location = picking_type.default_location_dest_id or self.env.ref('stock.stock_location_customers')
 
         if not source_location:
-            raise UserError(_("Outgoing Picking Type does not have a default source location configured."))
+            raise UserError(_("لم يتم تهيئة موقع المصدر الافتراضي لنوع عملية التوزيع."))
 
         pickings_created = self.env['stock.picking']
 

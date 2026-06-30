@@ -18,6 +18,7 @@
         'mail',
         'project',
         'stock',
+        'product',
         'account',
         'web',
         'board',

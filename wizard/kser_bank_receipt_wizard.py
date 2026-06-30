@@ -68,13 +68,13 @@ class KserBankReceiptWizard(models.TransientModel):
         self.ensure_one()
 
         if not self.receipt_image:
-            raise UserError(_('Please upload the bank receipt image!'))
+            raise UserError(_('يرجى رفع صورة الإيصال البنكي!'))
 
         api_key = self.env['ir.config_parameter'].sudo().get_param('kser.springboot_api_key')
         base_url = self.env['ir.config_parameter'].sudo().get_param('kser.springboot_base_url')
 
         if not api_key or not base_url:
-            raise UserError(_('API credentials (kser.springboot_api_key or kser.springboot_base_url) are not configured!'))
+            raise UserError(_('بيانات الاتصال بالنظام غير مهيأة. يرجى مراجعة مسؤول النظام.'))
 
         base_url = base_url.rstrip('/')
 
@@ -89,26 +89,19 @@ class KserBankReceiptWizard(models.TransientModel):
             )
         except requests.exceptions.RequestException as e:
             _logger.error('Bank receipt OCR request failed: %s', str(e))
-            raise UserError(_('Connection failed: %s') % str(e))
+            raise UserError(_('فشل الاتصال بالخادم. يرجى المحاولة مرة أخرى أو الاتصال بمسؤول النظام.'))
 
         try:
             result = response.json()
         except Exception:
-            raise UserError(_('Invalid response from server: %s') % response.text)
+            raise UserError(_('تلقى النظام استجابة غير صالحة من الخادم. يرجى الاتصال بمسؤول النظام.'))
 
         if not result.get('success'):
             backend_msg = result.get('message', '')
             errors = result.get('data', {}).get('errors', [])
             detailed_errors = ', '.join(errors) if errors else ''
-            
-            if backend_msg and detailed_errors:
-                error_msg = f"{backend_msg} \n(التفاصيل: {detailed_errors})"
-            elif backend_msg:
-                error_msg = backend_msg
-            else:
-                error_msg = detailed_errors or "حدث خطأ غير معروف أثناء المعالجة."
-                
-            raise UserError(f"فشلت عملية استخراج البيانات:\n{error_msg}")
+            _logger.error('OCR process failed: %s (Details: %s)', backend_msg, detailed_errors)
+            raise UserError(_("فشلت عملية استخراج البيانات. يرجى التأكد من وضوح صورة الإيصال البنكي والمحاولة مرة أخرى، أو إدخال البيانات يدوياً."))
 
         data = result.get('data', {})
 
@@ -134,7 +127,7 @@ class KserBankReceiptWizard(models.TransientModel):
         self.ensure_one()
 
         if not self.extracted_transaction_id:
-            raise UserError(_('No extracted transaction ID!'))
+            raise UserError(_('لم يتم استخراج رقم المعاملة من الصورة!'))
 
         existing = self.env['kser.cash.donation'].search([
             ('transaction_number', '=', self.extracted_transaction_id),
@@ -142,7 +135,7 @@ class KserBankReceiptWizard(models.TransientModel):
 
         if existing:
             raise UserError(
-                _('Transaction ID "%s" is already registered!') % self.extracted_transaction_id
+                _('رقم المعاملة "%s" مسجل بالفعل!') % self.extracted_transaction_id
             )
 
         donation_date = fields.Date.today()

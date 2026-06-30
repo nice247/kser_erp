@@ -61,19 +61,22 @@
             <field name="model">kser.beneficiary</field>
             <field name="arch" type="xml">
                 <form string="بيانات المستفيد">
-                    <header>
-                        <button name="%(kser_erp.action_kser_national_id_wizard)d" type="action" 
-                                string="قراءة الهوية (AI)" class="oe_highlight"
-                                invisible="not id"/>
-                    </header>
                     <sheet>
                         <field name="id" invisible="1"/>
-                        <div class="oe_button_box" name="button_box">
+                        <div class="oe_button_box" name="button_box" style="gap: 10px;">
                             <button name="action_view_moves" type="object"
                                     class="oe_stat_button" icon="fa-truck">
                                 <div class="o_stat_info">
                                     <field name="move_count" class="o_stat_value"/>
                                     <span class="o_stat_text">المساعدات المستلمة</span>
+                                </div>
+                            </button>
+                            <button name="action_view_family_members" type="object"
+                                    class="oe_stat_button" icon="fa-users"
+                                    invisible="relationship != 'self'">
+                                <div class="o_stat_info">
+                                    <field name="family_member_count" class="o_stat_value"/>
+                                    <span class="o_stat_text">أفراد الأسرة</span>
                                 </div>
                             </button>
                         </div>
@@ -83,12 +86,13 @@
                                 invisible="is_verified"/>
                         <div class="oe_title">
                             <h1>
-                                <field name="partner_id" string="اسم المستفيد" placeholder="اختر جهة اتصال..."/>
+                                <field name="partner_id" string="اسم المستفيد" placeholder="ادخل الاسم هنا..."/>
                             </h1>
                         </div>
 
                         <group>
-                            <group string="البيانات الأساسية">
+                            <!-- Right Column: Personal & Relationship Data -->
+                            <group string="البيانات الأساسية والتحقق">
                                 <field name="national_id_number" string="رقم الهوية الوطنية"/>
                                 <field name="phone" string="رقم الهاتف"/>
                                 <field name="mobile" string="رقم الجوال"/>
@@ -100,27 +104,30 @@
                                 <field name="family_size" string="عدد أفراد الأسرة"/>
                                 <field name="district" string="المحلية"/>
                             </group>
-                            <group string="الهوية الوطنية">
-                                <field name="national_id_image" string="صورة الهوية الوطنية"
-                                       widget="image" class="oe_avatar" options="{'size': [2048, 2048]}" readonly="1"/>
-                            </group>
-                            <group string="التسجيل والتحقق">
-                                <field name="registration_date" string="تاريخ التسجيل"/>
-                                <field name="registered_by" string="مسجّل بواسطة"/>
-                                <field name="is_verified" string="تم التحقق" widget="boolean_toggle"/>
-
+                            <!-- Left Column: National ID Image & Registration Data -->
+                            <group>
+                                <group string="الهوية الوطنية" colspan="2">
+                                    <field name="national_id_image" string="صورة الهوية الوطنية"
+                                           widget="image" class="oe_avatar" options="{'size': [2048, 2048]}" readonly="1"/>
+                                    <field name="extracted_mother_name" string="اسم الوالدة"/>
+                                </group>
+                                <group string="بيانات التسجيل" colspan="2">
+                                    <field name="registration_date" string="تاريخ التسجيل"/>
+                                    <field name="registered_by" string="مسجّل بواسطة"/>
+                                    <field name="is_verified" string="تم التحقق" widget="boolean_toggle"/>
+                                </group>
                             </group>
                         </group>
 
                         <notebook>
                             <page string="أفراد الأسرة" name="family_members" invisible="relationship != 'self'">
-                                <field name="member_ids">
+                                <field name="family_member_ids" domain="[('relationship', '=', 'self'), ('id', '!=', id)]">
                                     <list editable="bottom">
-                                        <field name="partner_id" string="اسم المستفيد"/>
-                                        <field name="national_id_number" string="رقم الهوية الوطنية"/>
-                                        <field name="phone" string="رقم الهاتف"/>
+                                        <field name="partner_id" string="اسم المستفيد" readonly="1"/>
+                                        <field name="national_id_number" string="رقم الهوية الوطنية" readonly="1"/>
+                                        <field name="phone" string="رقم الهاتف" readonly="1"/>
                                         <field name="relationship" string="العلاقة برب الأسرة"/>
-                                        <field name="is_verified" string="تم التحقق" widget="boolean_toggle"/>
+                                        <field name="is_verified" string="تم التحقق" readonly="1"/>
                                     </list>
                                 </field>
                             </page>

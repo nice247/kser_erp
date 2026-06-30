@@ -316,6 +316,29 @@
             </field>
         </record>
 
+        <record id="product_template_form_view_inherit_kser" model="ir.ui.view">
+            <field name="name">product.template.form.inherit.kser</field>
+            <field name="model">product.template</field>
+            <field name="inherit_id" ref="product.product_template_form_view"/>
+            <field name="arch" type="xml">
+                <xpath expr="//notebook" position="inside">
+                    <page string="البيانات الطبية" name="medical_info" invisible="not is_therapeutic">
+                        <group>
+                            <group>
+                                <field name="is_therapeutic" invisible="1"/>
+                                <field name="category_path_names" invisible="1"/>
+                                <field name="active_ingredient" string="المادة الفعالة"/>
+                            </group>
+                            <group>
+                                <field name="medical_indications" string="دواعي الاستعمال"/>
+                                <field name="contraindications" string="موانع الاستعمال"/>
+                            </group>
+                        </group>
+                    </page>
+                </xpath>
+            </field>
+        </record>
+
         <template id="webclient_bootstrap_inherit" inherit_id="web.webclient_bootstrap">
             <xpath expr="//meta[@name='theme-color']" position="attributes">
                 <attribute name="content">#0c3246</attribute>

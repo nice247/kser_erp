@@ -42,7 +42,7 @@ class KserDonorImportWizard(models.TransientModel):
         ], limit=1)
 
         if not journal:
-            raise UserError(_('No bank journal defined in the system!'))
+            raise UserError(_('لم يتم تعريف دفتر يومية للبنك في النظام!'))
 
         created_payments = self.env['account.payment']
 
@@ -54,7 +54,7 @@ class KserDonorImportWizard(models.TransientModel):
 
             if not foreign_currency:
                 raise UserError(
-                    _('Currency "%s" not found in the system!') % row['currency_code']
+                    _('العملة "%s" غير موجودة في النظام!') % row['currency_code']
                 )
 
             if foreign_currency == base_currency:
@@ -106,13 +106,13 @@ class KserDonorImportWizard(models.TransientModel):
 
     def _parse_excel_file(self):
         if not self.file:
-            raise UserError(_('Please upload an Excel file first!'))
+            raise UserError(_('يرجى رفع ملف إكسل أولاً!'))
 
         try:
             import openpyxl
             from io import BytesIO
         except ImportError:
-            raise UserError(_('openpyxl library is not installed!'))
+            raise UserError(_('مكتبة قراءة ملفات إكسل غير مثبتة في النظام. يرجى الاتصال بمطور أو مسؤول النظام.'))
 
         file_content = base64.b64decode(self.file)
         workbook = openpyxl.load_workbook(BytesIO(file_content), read_only=True)

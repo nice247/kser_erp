@@ -5,7 +5,7 @@ class ResPartner(models.Model):
     _inherit = 'res.partner'
     _sql_constraints = [
         ('kser_national_id_unique', 'UNIQUE(national_id_number)',
-         'This National ID is already registered to another volunteer!'),
+         'الرقم الوطني هذا مسجل بالفعل لمتطوع آخر!'),
     ]
 
     category_tag = fields.Many2one(

@@ -56,7 +56,7 @@ class KserAuditLog(models.Model):
         """)
 
     def write(self, vals):
-        raise UserError(_('Audit log is read-only and cannot be modified!'))
+        raise UserError(_('سجل التدقيق للقراءة فقط ولا يمكن تعديله!'))
 
     def unlink(self):
-        raise UserError(_('Audit log is read-only and cannot be deleted!'))
+        raise UserError(_('سجل التدقيق للقراءة فقط ولا يمكن حذفه!'))
