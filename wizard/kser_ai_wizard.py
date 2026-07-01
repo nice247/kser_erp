@@ -9,12 +9,16 @@ _logger = logging.getLogger(__name__)
 
 class KserAiWizard(models.TransientModel):
     _name = 'kser.ai.wizard'
-    _description = 'Smart Suggestions Wizard'
+    _description = 'Stock Gap Analysis Wizard'
 
+    name = fields.Char(
+        string='Name',
+        default='فحص حالة المخزون (AI)',
+    )
     campaign_id = fields.Many2one(
         'project.project',
         string='Campaign',
-        required=True,
+        required=False,
     )
     state = fields.Selection(
         [
@@ -24,18 +28,47 @@ class KserAiWizard(models.TransientModel):
         string='Status',
         default='draft',
     )
-    line_ids = fields.One2many(
-        'kser.ai.suggestion.line',
-        'wizard_id',
-        string='Suggestions',
+    urgency_report = fields.Text(
+        string='Urgency Report',
     )
+    summary = fields.Text(
+        string='Summary',
+    )
+    uncovered_case_ids = fields.One2many(
+        'kser.ai.uncovered.case',
+        'wizard_id',
+        string='Uncovered Cases',
+    )
+
+    @api.model
+    def action_open_wizard(self):
+        wizard = self.search([], limit=1, order='id desc')
+        if not wizard:
+            wizard = self.create({'state': 'draft'})
+        else:
+            wizard.write({
+                'state': 'draft',
+                'summary': '',
+                'urgency_report': '',
+            })
+            wizard.uncovered_case_ids.unlink()
+
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('فحص حالة المخزون (AI)'),
+            'res_model': 'kser.ai.wizard',
+            'res_id': wizard.id,
+            'view_mode': 'form',
+            'target': 'current',
+        }
 
     def action_get_ai_suggestions(self):
         self.ensure_one()
 
-        # Check if campaign budget is approved
-        if self.campaign_id.state != 'approved':
-            raise UserError(_("لا يمكن تشغيل المطابقة الذكية. ميزانية الحملة غير معتمدة بعد!"))
+        if not (self.env.user.has_group('kser_erp.group_admin_supervisor') or 
+                self.env.user.has_group('kser_erp.group_clinic_manager') or 
+                self.env.user.has_group('kser_erp.group_system_admin')):
+            raise UserError(_("عذراً، هذا الإجراء مخصص للمشرف الإداري العام أو مدير العيادة فقط."))
 
         quants = self.env['stock.quant'].search([
             ('quantity', '>', 0),
@@ -61,10 +94,7 @@ class KserAiWizard(models.TransientModel):
         for ben in beneficiary_records:
             beneficiaries.append({
                 'id': ben.id,
-                'name': ben.partner_id.name,
-                'chronicDisease': ben.health_conditions,
-                'birthdate': str(ben.birthdate) if ben.birthdate else '',
-                'dateOfBirth': str(ben.birthdate) if ben.birthdate else '',
+                'health_conditions': ben.health_conditions,
             })
 
         payload = {
@@ -99,163 +129,68 @@ class KserAiWizard(models.TransientModel):
         except Exception:
             raise UserError(_('تلقى النظام استجابة غير صالحة من الخادم. يرجى الاتصال بمسؤول النظام.'))
 
-        # Clear old lines
-        self.line_ids.unlink()
+        self.uncovered_case_ids.unlink()
 
-        recommendations = result.get('recommendations', [])
-        if not recommendations:
-            raise UserError(_("لم يتم إرجاع أي توصيات ذكية من الخادم. قد يكون المخزون والاحتياجات متطابقين بالفعل."))
+        urgency_report = result.get('urgency_report') or result.get('urgencyReport') or ''
+        summary_text = result.get('summary') or ''
 
-        for rec in recommendations:
-            product_id = rec.get('inventoryItemId') or rec.get('productId')
-            matched_ben_ids = rec.get('matchedBeneficiaryIds') or rec.get('beneficiaryIds') or rec.get('matchedBeneficiaryIdList') or []
-            if isinstance(matched_ben_ids, int):
-                matched_ben_ids = [matched_ben_ids]
-            priority_str = rec.get('priority', 'طبيعي')
-            rationale = rec.get('rationale') or rec.get('reason') or rec.get('explanation') or ''
+        uncovered_cases_data = result.get('uncovered_cases') or result.get('uncoveredCases') or []
+        for case in uncovered_cases_data:
+            ben_id = case.get('beneficiary_id') or case.get('beneficiaryId')
+            h_cond = case.get('health_conditions') or case.get('healthConditions') or ''
+            med = case.get('needed_medicine') or case.get('neededMedicine') or ''
+            just = case.get('justification') or case.get('reason') or ''
+            if ben_id:
+                ben = self.env['kser.beneficiary'].browse(ben_id)
+                if ben.exists():
+                    self.env['kser.ai.uncovered.case'].create({
+                        'wizard_id': self.id,
+                        'beneficiary_id': ben.id,
+                        'health_conditions': h_cond,
+                        'needed_medicine': med,
+                        'justification': just,
+                    })
 
-            priority_map = {
-                'عاجل': 'urgent',
-                'متوسط': 'medium',
-                'طبيعي': 'normal',
-                'urgent': 'urgent',
-                'medium': 'medium',
-                'normal': 'normal',
-                'HIGH': 'urgent',
-                'MEDIUM': 'medium',
-                'LOW': 'normal',
-                'high': 'urgent',
-                'low': 'normal',
-            }
-            priority = priority_map.get(priority_str, 'normal')
-
-            product = self.env['product.product'].browse(product_id)
-            if not product.exists():
-                continue
-
-            bens = self.env['kser.beneficiary'].browse(matched_ben_ids)
-            valid_ben_ids = bens.filtered(lambda b: b.exists()).ids
-
-            if not valid_ben_ids:
-                continue
-
-            self.env['kser.ai.suggestion.line'].create({
-                'wizard_id': self.id,
-                'product_id': product.id,
-                'beneficiary_ids': [(6, 0, valid_ben_ids)],
-                'priority': priority,
-                'rationale': rationale,
-            })
-
-        self.state = 'result'
+        self.write({
+            'summary': summary_text,
+            'urgency_report': urgency_report,
+            'state': 'result',
+        })
 
         return {
             'type': 'ir.actions.act_window',
-            'res_model': self._name,
+            'res_model': 'kser.ai.wizard',
             'res_id': self.id,
             'view_mode': 'form',
-            'target': 'new',
-        }
-
-    def action_apply(self):
-        self.ensure_one()
-        approved_lines = self.line_ids.filtered(lambda l: l.approved)
-        if not approved_lines:
-            raise UserError(_("لا توجد اقتراحات معتمدة للتوزيع."))
-
-        # Find delivery picking type
-        picking_type = self.env['stock.picking.type'].search([
-            ('code', '=', 'outgoing'),
-            ('company_id', '=', self.env.company.id)
-        ], limit=1)
-
-        if not picking_type:
-            raise UserError(_("لم يتم العثور على نوع عملية التوزيع (شحنات صادرة)."))
-
-        source_location = picking_type.default_location_src_id
-        dest_location = picking_type.default_location_dest_id or self.env.ref('stock.stock_location_customers')
-
-        if not source_location:
-            raise UserError(_("لم يتم تهيئة موقع المصدر الافتراضي لنوع عملية التوزيع."))
-
-        pickings_created = self.env['stock.picking']
-
-        for line in approved_lines:
-            move_vals = []
-            for ben in line.beneficiary_ids:
-                move_vals.append((0, 0, {
-                    'name': line.product_id.name,
-                    'product_id': line.product_id.id,
-                    'product_uom_qty': 1.0,
-                    'product_uom': line.product_id.uom_id.id,
-                    'beneficiary_id': ben.id,
-                    'location_id': source_location.id,
-                    'location_dest_id': dest_location.id,
-                }))
-
-            picking = self.env['stock.picking'].create({
-                'picking_type_id': picking_type.id,
-                'location_id': source_location.id,
-                'location_dest_id': dest_location.id,
-                'project_id': self.campaign_id.id,
-                'distribution_type': 'individual',
-                'ai_suggestion': True,
-                'move_ids': move_vals,
-            })
-            
-            # Confirm picking to move to 'waiting' or 'assigned' state
-            picking.action_confirm()
-            pickings_created |= picking
-
-            # Log audit
-            self.env['kser.audit.log'].sudo().create({
-                'action_type': 'create',
-                'target_model': 'stock.picking',
-                'target_id': picking.id,
-                'details': f"تم تطبيق اقتراح الذكاء الاصطناعي. تم إنشاء إذن التوزيع {picking.name} للحملة: {self.campaign_id.name}، الصنف: {line.product_id.name}، عدد المستفيدين: {len(line.beneficiary_ids)}",
-            })
-
-        # Return list action of created pickings
-        return {
-            'name': _('Created Distributions'),
-            'type': 'ir.actions.act_window',
-            'res_model': 'stock.picking',
-            'view_mode': 'list,form',
-            'domain': [('id', 'in', pickings_created.ids)],
             'target': 'current',
         }
 
 
-class KserAiSuggestionLine(models.TransientModel):
-    _name = 'kser.ai.suggestion.line'
-    _description = 'AI suggestion line'
+class KserAiUncoveredCase(models.TransientModel):
+    _name = 'kser.ai.uncovered.case'
+    _description = 'AI Uncovered Case'
 
     wizard_id = fields.Many2one(
         'kser.ai.wizard',
         string='Wizard',
         ondelete='cascade',
     )
-    product_id = fields.Many2one(
-        'product.product',
-        string='Product',
+    beneficiary_id = fields.Many2one(
+        'kser.beneficiary',
+        string='Beneficiary',
         required=True,
     )
-    beneficiary_ids = fields.Many2many(
-        'kser.beneficiary',
-        string='Beneficiaries',
+    national_id_number = fields.Char(
+        related='beneficiary_id.national_id_number',
+        string='National ID Number',
+        readonly=True,
     )
-    priority = fields.Selection(
-        [
-            ('normal', 'Normal'),
-            ('medium', 'Medium'),
-            ('urgent', 'Urgent'),
-        ],
-        string='Priority',
+    health_conditions = fields.Text(
+        string='Health Conditions',
     )
-    rationale = fields.Text(
-        string='Rationale',
+    needed_medicine = fields.Char(
+        string='Needed Medicine',
     )
-    approved = fields.Boolean(
-        string='Approved?',
-        default=True,
+    justification = fields.Text(
+        string='Justification',
     )

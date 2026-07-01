@@ -17,12 +17,13 @@
                     <filter name="filter_verified" string="تم التحقق" domain="[('is_verified', '=', True)]"/>
                     <filter name="filter_not_verified" string="لم يتم التحقق" domain="[('is_verified', '=', False)]"/>
                     <separator/>
-                    <filter name="filter_urgent" string="أولوية عاجلة" domain="[('priority_level', '=', 'urgent')]"/>
-                    <filter name="filter_medium" string="أولوية متوسطة" domain="[('priority_level', '=', 'medium')]"/>
+                    <filter name="filter_disabled" string="ذوو احتياجات خاصة" domain="[('is_disabled', '=', True)]"/>
+                    <filter name="filter_child" string="أطفال" domain="[('is_child', '=', True)]"/>
                     <separator/>
                     <group expand="0" string="تجميع حسب">
                         <filter name="group_district" string="المحلية" context="{'group_by': 'district'}"/>
-                        <filter name="group_priority" string="مستوى الأولوية" context="{'group_by': 'priority_level'}"/>
+                        <filter name="group_disabled" string="ذوو احتياجات خاصة" context="{'group_by': 'is_disabled'}"/>
+                        <filter name="group_child" string="طفل" context="{'group_by': 'is_child'}"/>
                         <filter name="group_marital" string="الحالة الاجتماعية" context="{'group_by': 'marital_status'}"/>
                     </group>
                 </search>
@@ -37,16 +38,13 @@
             <field name="model">kser.beneficiary</field>
             <field name="arch" type="xml">
                 <list string="قائمة المستفيدين"
-                      decoration-danger="priority_level == 'urgent'"
-                      decoration-warning="priority_level == 'medium'"
                       js_class="kser_ocr_list">
                     <field name="partner_id" string="اسم المستفيد"/>
                     <field name="national_id_number" string="رقم الهوية"/>
                     <field name="phone" string="الهاتف"/>
                     <field name="district" string="المحلية"/>
                     <field name="family_size" string="عدد أفراد الأسرة"/>
-                    <field name="priority_level" string="مستوى الأولوية"/>
-                    <field name="priority_score" string="درجة الأولوية" optional="hide"/>
+                    <field name="is_disabled" string="احتياجات خاصة"/>
                     <field name="registration_date" string="تاريخ التسجيل" optional="hide"/>
                     <field name="is_verified" string="تم التحقق" widget="boolean_toggle"/>
                 </list>
@@ -93,22 +91,29 @@
                         <group>
                             <!-- Right Column: Personal & Relationship Data -->
                             <group string="البيانات الأساسية والتحقق">
-                                <field name="national_id_number" string="رقم الهوية الوطنية"/>
+                                <field name="is_child" string="طفل"/>
+                                <field name="is_disabled" string="ذوو احتياجات خاصة"/>
+                                <field name="national_id_number" string="رقم الهوية الوطنية" invisible="is_child"/>
                                 <field name="phone" string="رقم الهاتف"/>
                                 <field name="mobile" string="رقم الجوال"/>
+                                <label for="whatsapp_number" string="رقم الواتساب" invisible="relationship != 'self'"/>
+                                <div class="o_row" invisible="relationship != 'self'">
+                                    <field name="whatsapp_number" placeholder="مثال: 0912345678"/>
+                                    <button name="action_open_whatsapp" type="object" class="btn-success" icon="fa-whatsapp" title="مراسلة عبر واتساب" invisible="not whatsapp_number"/>
+                                </div>
                                 <field name="relationship" string="العلاقة برب الأسرة"/>
                                 <field name="head_of_family_id" string="رب الأسرة المسؤول" invisible="relationship == 'self'"/>
-                                <field name="profession" string="المهنة"/>
-                                <field name="marital_status" string="الحالة الاجتماعية"/>
+                                <field name="profession" string="المهنة" invisible="is_child"/>
+                                <field name="marital_status" string="الحالة الاجتماعية" invisible="is_child"/>
                                 <field name="birthdate" string="تاريخ الميلاد"/>
-                                <field name="family_size" string="عدد أفراد الأسرة"/>
+                                <field name="family_size" string="عدد أفراد الأسرة" invisible="is_child"/>
                                 <field name="district" string="المحلية"/>
                             </group>
                             <!-- Left Column: National ID Image & Registration Data -->
                             <group>
-                                <group string="الهوية الوطنية" colspan="2">
+                                <group string="الهوية الوطنية" colspan="2" invisible="is_child">
                                     <field name="national_id_image" string="صورة الهوية الوطنية"
-                                           widget="image" class="oe_avatar" options="{'size': [2048, 2048]}" readonly="1"/>
+                                            widget="image" class="oe_avatar" options="{'size': [2048, 2048]}" readonly="1"/>
                                     <field name="extracted_mother_name" string="اسم الوالدة"/>
                                 </group>
                                 <group string="بيانات التسجيل" colspan="2">
@@ -131,12 +136,8 @@
                                     </list>
                                 </field>
                             </page>
-                            <page string="الأولوية والحالة الصحية" name="page_priority">
+                            <page string="الحالة الصحية" name="page_health">
                                 <group>
-                                    <group string="الأولوية">
-                                        <field name="priority_score" string="درجة الأولوية"/>
-                                        <field name="priority_level" string="مستوى الأولوية"/>
-                                    </group>
                                     <group string="الحالة الصحية">
                                         <field name="health_conditions" string="الأمراض المزمنة"/>
                                     </group>
@@ -157,7 +158,7 @@
             <field name="model">kser.beneficiary</field>
             <field name="arch" type="xml">
                 <graph string="المستفيدين" type="pie" sample="1">
-                    <field name="priority_level"/>
+                    <field name="district"/>
                 </graph>
             </field>
         </record>

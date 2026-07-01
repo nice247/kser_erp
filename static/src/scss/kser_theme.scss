@@ -176,15 +176,19 @@ body {
 
 .kser-ptr-container {
     position: fixed;
-    top: -50px;
+    top: -100px;
     left: 0;
     right: 0;
-    height: 50px;
-    display: none;
+    height: 80px;
+    display: none !important;
     align-items: center;
     justify-content: center;
     z-index: 1050;
     pointer-events: none;
+}
+
+.kser-ptr-container.kser-ptr-visible {
+    display: flex !important;
 }
 
 .kser-ptr-card {
@@ -248,4 +252,16 @@ body {
         stroke-dasharray: 90, 150;
         stroke-dashoffset: -124;
     }
+}
+
+.o_burger_menu {
+    max-height: 100vh !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+.o_burger_menu_content {
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    flex: 1 1 auto !important;
 }

@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="view_kser_child_followup_search" model="ir.ui.view">
+            <field name="name">kser.child.followup.search</field>
+            <field name="model">kser.child.followup</field>
+            <field name="arch" type="xml">
+                <search string="بحث المتابعات">
+                    <field name="beneficiary_id" string="الطفل"/>
+                    <field name="measured_by" string="تم القياس بواسطة"/>
+                    <filter name="filter_severe" string="سوء تغذية حاد" domain="[('nutrition_status', '=', 'severe')]"/>
+                    <filter name="filter_moderate" string="سوء تغذية متوسط" domain="[('nutrition_status', '=', 'moderate')]"/>
+                    <filter name="filter_normal" string="طبيعي / متعافي" domain="[('nutrition_status', '=', 'normal')]"/>
+                    <separator/>
+                    <filter name="filter_this_week" string="زيارات هذا الأسبوع" domain="[('next_visit_date', '&gt;=', context_today().strftime('%Y-%m-%d')), ('next_visit_date', '&lt;=', (context_today() + datetime.timedelta(days=7)).strftime('%Y-%m-%d'))]"/>
+                    <group expand="0" string="تجميع حسب">
+                        <filter name="group_child" string="الطفل" context="{'group_by': 'beneficiary_id'}"/>
+                        <filter name="group_status" string="الحالة الغذائية" context="{'group_by': 'nutrition_status'}"/>
+                        <filter name="group_date" string="التاريخ" context="{'group_by': 'followup_date'}"/>
+                        <filter name="group_next_visit" string="تاريخ الزيارة القادمة" context="{'group_by': 'next_visit_date'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="view_kser_child_followup_tree" model="ir.ui.view">
+            <field name="name">kser.child.followup.list</field>
+            <field name="model">kser.child.followup</field>
+            <field name="arch" type="xml">
+                <list string="متابعة الأطفال" default_order="followup_date desc">
+                    <field name="beneficiary_id" string="الطفل"/>
+                    <field name="followup_date" string="التاريخ"/>
+                    <field name="weight" string="الوزن (كجم)"/>
+                    <field name="height" string="الطول (سم)"/>
+                    <field name="nutrition_status" string="الحالة الغذائية" widget="badge"
+                           decoration-danger="nutrition_status == 'severe'"
+                           decoration-warning="nutrition_status == 'moderate'"
+                           decoration-success="nutrition_status == 'normal'"/>
+                    <field name="next_visit_date" string="موعد الزيارة القادمة"/>
+                    <field name="visit_location" string="مكان الزيارة"/>
+                    <field name="measured_by" string="تم القياس بواسطة"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="view_kser_child_followup_form" model="ir.ui.view">
+            <field name="name">kser.child.followup.form</field>
+            <field name="model">kser.child.followup</field>
+            <field name="arch" type="xml">
+                <form string="متابعة الأطفال">
+                    <sheet>
+                        <group>
+                            <group string="بيانات القياس">
+                                <field name="beneficiary_id" string="الطفل"/>
+                                <field name="followup_date" string="التاريخ"/>
+                                <field name="weight" string="الوزن (كجم)"/>
+                                <field name="height" string="الطول (سم)"/>
+                            </group>
+                            <group string="التقييم الطبي">
+                                <field name="nutrition_status" string="الحالة الغذائية"/>
+                                <field name="measured_by" string="تم القياس بواسطة"/>
+                                <field name="next_visit_date" string="موعد الزيارة القادمة"/>
+                                <field name="visit_location" string="مكان الزيارة"/>
+                            </group>
+                        </group>
+                        <group string="ملاحظات المتابعة">
+                            <field name="notes" string="ملاحظات المتابعة الطبية" placeholder="ادخل تفاصيل المتابعة وصحة الطفل هنا..."/>
+                        </group>
+                    </sheet>
+                    <chatter/>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_kser_child_followup" model="ir.actions.act_window">
+            <field name="name">متابعة سوء التغذية للأطفال</field>
+            <field name="res_model">kser.child.followup</field>
+            <field name="view_mode">list,form</field>
+            <field name="search_view_id" ref="view_kser_child_followup_search"/>
+        </record>
+
+        <record id="action_kser_child_followup_schedule" model="ir.actions.act_window">
+            <field name="name">جدول زيارات المتابعة</field>
+            <field name="res_model">kser.child.followup</field>
+            <field name="view_mode">list,form</field>
+            <field name="context">{'search_default_filter_this_week': 1}</field>
+            <field name="search_view_id" ref="view_kser_child_followup_search"/>
+        </record>
+
+    </data>
+</odoo>

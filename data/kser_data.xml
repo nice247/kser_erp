@@ -17,6 +17,22 @@
             <field name="name">متبرع</field>
         </record>
 
+        <record id="seq_kser_prescription" model="ir.sequence">
+            <field name="name">رقم الروشتة</field>
+            <field name="code">kser.prescription</field>
+            <field name="prefix">RX-</field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_kser_clinic_visit" model="ir.sequence">
+            <field name="name">رقم زيارة العيادة</field>
+            <field name="code">kser.clinic.visit</field>
+            <field name="prefix">VS-</field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
         <function model="ir.config_parameter" name="set_param">
             <value>pwa.manifest.theme_color</value>
             <value>#0c3246</value>

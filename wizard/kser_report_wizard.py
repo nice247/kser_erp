@@ -11,6 +11,7 @@ class KserReportWizard(models.TransientModel):
         ('volunteers', 'تقرير إنجاز المتطوعين الميدانيين'),
         ('performance', 'تقرير أداء الغرفة وحجم المساعدات'),
         ('budget', 'تقرير الميزانية التشغيلية'),
+        ('clinic', 'تقرير أداء العيادة'),
     ], string='نوع التقرير', required=True, default='volunteers')
 
     date_from = fields.Date(
@@ -44,6 +45,7 @@ class KserReportWizard(models.TransientModel):
             'volunteers': 'kser_erp.report_kser_volunteers_achievement',
             'performance': 'kser_erp.report_kser_room_performance',
             'budget': 'kser_erp.report_kser_operational_budget',
+            'clinic': 'kser_erp.report_kser_clinic_performance',
         }
 
         report_ref = report_map.get(self.report_type)

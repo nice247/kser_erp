@@ -650,7 +650,7 @@
             <field name="report_type">qweb-pdf</field>
             <field name="report_name">kser_erp.report_volunteer_template</field>
             <field name="report_file">kser_erp.report_volunteer_template</field>
-            <field name="print_report_name">'تقرير_إنجاز_المتطوعين_الميدانيين_%s' % (object.create_date.strftime('%Y-%m-%d'))</field>
+            <field name="print_report_name">'تقرير_إنجاز_المتطوعين_الميدانيين_%s' % (object.create_date.strftime('%Y-%m-%d_%H-%M-%S'))</field>
             <field name="binding_type">report</field>
             <field name="paperformat_id" ref="kser_erp.paperformat_kser"/>
         </record>
@@ -662,7 +662,7 @@
             <field name="report_type">qweb-pdf</field>
             <field name="report_name">kser_erp.report_performance_template</field>
             <field name="report_file">kser_erp.report_performance_template</field>
-            <field name="print_report_name">'تقرير_أداء_الغرفة_وحجم_المساعدات_%s' % (object.create_date.strftime('%Y-%m-%d'))</field>
+            <field name="print_report_name">'تقرير_أداء_الغرفة_وحجم_المساعدات_%s' % (object.create_date.strftime('%Y-%m-%d_%H-%M-%S'))</field>
             <field name="binding_type">report</field>
             <field name="paperformat_id" ref="kser_erp.paperformat_kser"/>
         </record>
@@ -674,7 +674,144 @@
             <field name="report_type">qweb-pdf</field>
             <field name="report_name">kser_erp.report_budget_template</field>
             <field name="report_file">kser_erp.report_budget_template</field>
-            <field name="print_report_name">'تقرير_الميزانية_التشغيلية_%s' % (object.create_date.strftime('%Y-%m-%d'))</field>
+            <field name="print_report_name">'تقرير_الميزانية_التشغيلية_%s' % (object.create_date.strftime('%Y-%m-%d_%H-%M-%S'))</field>
+            <field name="binding_type">report</field>
+            <field name="paperformat_id" ref="kser_erp.paperformat_kser"/>
+        </record>
+
+        <!-- Report 4: تقرير أداء العيادة الربعي -->
+        <template id="report_clinic_template">
+            <t t-call="web.basic_layout">
+                <t t-call="kser_erp.kser_report_shared_styles"/>
+                <div class="page kser-page">
+
+                    <table class="kser-header-table">
+                        <tr>
+                            <td style="width: 25%; text-align: right; vertical-align: middle;">
+                                <img t-if="company.logo" t-att-src="image_data_uri(company.logo)"
+                                     style="height: 80px; width: auto;" alt="Logo"/>
+                            </td>
+                            <td style="width: 50%; text-align: center; vertical-align: middle;">
+                                <div class="kser-title">تقرير أداء العيادة</div>
+                            </td>
+                            <td style="width: 25%;"></td>
+                        </tr>
+                    </table>
+
+                    <div class="kser-subtitle-box">
+                        <div>الفترة: <t t-esc="date_from"/> إلى <t t-esc="date_to"/></div>
+                        <div>المحلية: جبل أولياء</div>
+                    </div>
+
+                    <div class="kser-section-title">
+                        <span class="green-sq"></span>
+                        أولاً: ملخص حركة العيادة
+                    </div>
+
+                    <table class="kser-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 60%;">البيان</th>
+                                <th style="width: 40%;">العدد</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="text-align: right; font-weight: 600;">عدد المرضى المستقبلين (جدد)</td>
+                                <td><t t-esc="new_patients_count"/></td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: right; font-weight: 600;">عدد الزيارات (مراجعين)</td>
+                                <td><t t-esc="visits_count"/></td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: right; font-weight: 600;">عدد الروشتات المكتوبة</td>
+                                <td><t t-esc="prescriptions_count"/></td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: right; font-weight: 600;">عدد الأدوية المصروفة</td>
+                                <td><t t-esc="dispensed_medicines_count"/></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="kser-section-title">
+                        <span class="green-sq"></span>
+                        ثانياً: أكثر 5 أدوية صرفاً
+                    </div>
+
+                    <table class="kser-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 15%;">مسلسل</th>
+                                <th style="width: 55%;">الدواء</th>
+                                <th style="width: 30%;">الكمية المصروفة</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-set="idx" t-value="0"/>
+                            <t t-foreach="top_medicines" t-as="med">
+                                <t t-set="idx" t-value="idx + 1"/>
+                                <tr>
+                                    <td><t t-esc="idx"/></td>
+                                    <td style="text-align: right;"><t t-esc="med['name']"/></td>
+                                    <td><t t-esc="med['qty']"/></td>
+                                </tr>
+                            </t>
+                            <tr t-if="not top_medicines">
+                                <td colspan="3">لا توجد بيانات متاحة</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="kser-section-title">
+                        <span class="green-sq"></span>
+                        ثالثاً: متابعة حالات سوء التغذية
+                    </div>
+
+                    <table class="kser-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 50%;">عدد الأطفال تحت المتابعة</th>
+                                <th style="width: 50%;">متوسط تطور الوزن (كجم)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><t t-esc="malnourished_children_count"/></td>
+                                <td><t t-esc="'{:,.2f}'.format(avg_weight_evolution)"/></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="kser-notes-section">
+                        <div class="section-label">ملاحظات العيادة والتوصيات:</div>
+                        <div class="kser-dotted-line">...............................................................................</div>
+                        <div class="kser-dotted-line">...............................................................................</div>
+                        <div class="kser-dotted-line">...............................................................................</div>
+                    </div>
+
+                    <div class="kser-bottom-bar">
+                        <table>
+                            <tr>
+                                <td style="width: 33%;">إعداد: ........................</td>
+                                <td style="width: 34%;">تحريراً في: ___ / ___ / 2026</td>
+                                <td style="width: 33%;">اعتماد: ........................</td>
+                            </tr>
+                        </table>
+                    </div>
+
+                </div>
+            </t>
+        </template>
+
+        <record id="report_kser_clinic_performance" model="ir.actions.report">
+            <field name="name">تقرير أداء العيادة</field>
+            <field name="model">kser.prescription</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">kser_erp.report_clinic_template</field>
+            <field name="report_file">kser_erp.report_clinic_template</field>
+            <field name="print_report_name">'تقرير_أداء_العيادة_%s' % (object.create_date.strftime('%Y-%m-%d_%H-%M-%S'))</field>
             <field name="binding_type">report</field>
             <field name="paperformat_id" ref="kser_erp.paperformat_kser"/>
         </record>

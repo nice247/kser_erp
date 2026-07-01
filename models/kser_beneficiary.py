@@ -26,7 +26,6 @@ class KserBeneficiary(models.Model):
     national_id_number = fields.Char(
         string='National ID Number',
         size=20,
-        required=True,
         tracking=True,
     )
     phone = fields.Char(
@@ -39,10 +38,14 @@ class KserBeneficiary(models.Model):
         string='Mobile',
         readonly=False,
     )
+    whatsapp_number = fields.Char(
+        related='partner_id.whatsapp_number',
+        string='WhatsApp Number',
+        readonly=False,
+    )
     national_id_image = fields.Binary(
         string='ID Image',
         attachment=True,
-        required=True,
     )
     extracted_mother_name = fields.Char(
         string='اسم الوالدة',
@@ -91,20 +94,16 @@ class KserBeneficiary(models.Model):
         tracking=True,
     )
 
-    priority_score = fields.Integer(
-        string='Priority Score',
-        compute='_compute_priority',
-        store=True,
+    is_disabled = fields.Boolean(
+        string='Disabled / Special Needs',
+        default=False,
+        tracking=True,
     )
-    priority_level = fields.Selection(
-        [
-            ('normal', 'Normal'),
-            ('medium', 'Medium'),
-            ('urgent', 'Urgent'),
-        ],
-        string='Priority Level',
-        compute='_compute_priority',
+    is_child = fields.Boolean(
+        string='Is Child',
+        compute='_compute_is_child',
         store=True,
+        tracking=True,
     )
     head_of_family_id = fields.Many2one(
         'kser.beneficiary',
@@ -213,116 +212,7 @@ class KserBeneficiary(models.Model):
             'context': {'default_head_of_family_id': head.id},
         }
 
-    @api.depends(
-        'relationship', 'head_of_family_id', 'member_ids',
-        'member_ids.relationship', 'family_size', 'health_conditions',
-        'marital_status', 'birthdate', 'member_ids.birthdate',
-        'member_ids.health_conditions',
-    )
-    def _compute_priority(self):
-        today = fields.Date.today()
 
-        # ===== ثوابت النقاط =====
-        AGE_VULNERABLE = 10  # عمر < 18 أو >= 60 (للمتقدم الرئيسي نفسه)
-        HEALTH_BASE = 8  # وجود حالة صحية واحدة موثقة
-        HEALTH_PER_EXTRA = 4  # نقاط إضافية لكل حالة صحية زائدة
-        HEALTH_MAX = 20  # سقف نقاط الصحة للفرد الواحد
-
-        MARITAL_POINTS = {
-            'widowed': 12,
-            'divorced': 8,
-            'married': 0,
-            'single': 0,
-        }
-
-        DEPENDANT_CRITICAL = 18  # تابع: هشاشة عمرية + مرض معاً
-        DEPENDANT_PARTIAL = 12  # تابع: هشاشة عمرية أو مرض فقط
-        HIGH_VULNERABILITY_RATIO = 10  # إذا نصف الأسرة فأكثر في حالة ضعف
-
-        for rec in self:
-            score = 0
-            is_head = (rec.relationship == 'self')
-
-            # ===========================================
-            # 1. التقييم الشخصي لرب الأسرة / الفرد المستقل
-            # ===========================================
-            if rec.birthdate:
-                age = relativedelta(today, rec.birthdate).years
-                if age < 18 or age >= 60:
-                    score += AGE_VULNERABLE
-
-            score += rec._health_score(
-                rec.health_conditions, HEALTH_BASE, HEALTH_PER_EXTRA, HEALTH_MAX
-            )
-
-            # ===========================================
-            # 2. التقييم العائلي (رب الأسرة فقط)
-            # ===========================================
-            if is_head:
-                size = rec.family_size or 1
-
-                # أ. حجم الأسرة
-                if size == 1:
-                    score += 5
-                elif 2 <= size <= 4:
-                    score += 10
-                elif 5 <= size <= 7:
-                    score += 16
-                else:
-                    score += 22
-
-                # ب. الحالة الاجتماعية لرب الأسرة
-                score += MARITAL_POINTS.get(rec.marital_status, 0)
-
-                # ج. تقييم كل تابع + عدّ الحالات الضعيفة لحساب نسبة الإعالة
-                dependants = rec.member_ids.filtered(
-                    lambda m: m.relationship != 'self'
-                ) if rec.member_ids else self.env['kser.beneficiary'].search([
-                    ('head_of_family_id', '=', rec.id),
-                    ('relationship', '!=', 'self'),
-                ])
-
-                vulnerable_count = 0
-
-                for dep in dependants:
-                    dep_age_vulnerable = False
-                    if dep.birthdate:
-                        dep_age = relativedelta(today, dep.birthdate).years
-                        dep_age_vulnerable = dep_age < 18 or dep_age >= 60
-
-                    dep_health_score = rec._health_score(
-                        dep.health_conditions, HEALTH_BASE, HEALTH_PER_EXTRA, HEALTH_MAX
-                    )
-                    dep_has_health = dep_health_score > 0
-
-                    if dep_age_vulnerable and dep_has_health:
-                        score += DEPENDANT_CRITICAL
-                        vulnerable_count += 1
-                    elif dep_age_vulnerable or dep_has_health:
-                        score += DEPENDANT_PARTIAL
-                        vulnerable_count += 1
-
-                # د. نسبة الإعالة: نصف الأسرة فأكثر في حالة ضعف
-                if size > 1 and (vulnerable_count / size) >= 0.5:
-                    score += HIGH_VULNERABILITY_RATIO
-
-            # ===========================================
-            # 3. النتيجة النهائية (سقف 100 مضمون هنا)
-            # ===========================================
-            rec.priority_score = min(score, 100)
-            if rec.priority_score >= 70:
-                rec.priority_level = 'urgent'
-            elif rec.priority_score >= 40:
-                rec.priority_level = 'medium'
-            else:
-                rec.priority_level = 'normal'
-
-    def _health_score(self, health_conditions, base, per_extra, max_score):
-        if not health_conditions or not health_conditions.strip():
-            return 0
-        conditions_count = len([c for c in health_conditions.split(',') if c.strip()])
-        score = base + (max(conditions_count - 1, 0) * per_extra)
-        return min(score, max_score)
 
     @api.constrains('family_size')
     def _check_family_size(self):
@@ -462,9 +352,22 @@ class KserBeneficiary(models.Model):
         string='Relief Count',
     )
 
-    @api.constrains('national_id_number', 'national_id_image')
+    @api.depends('birthdate')
+    def _compute_is_child(self):
+        for rec in self:
+            if rec.birthdate:
+                today = fields.Date.today()
+                birthdate = rec.birthdate
+                age = today.year - birthdate.year - ((today.month, today.day) < (birthdate.month, birthdate.day))
+                rec.is_child = (age < 7)
+            else:
+                rec.is_child = False
+
+    @api.constrains('national_id_number', 'national_id_image', 'is_child', 'birthdate')
     def _check_national_id_beneficiary(self):
         for rec in self:
+            if rec.is_child:
+                continue
             if not rec.national_id_image:
                 raise ValidationError(_("يجب رفع صورة الرقم الوطني للمستفيد!"))
             if not rec.national_id_number or len(rec.national_id_number) != 11 or not rec.national_id_number.isdigit():
@@ -536,3 +439,7 @@ class KserBeneficiary(models.Model):
 
     def unlink(self):
         raise ValidationError(_("يُمنع حذف سجلات المستفيدين بشكل مطلق للحفاظ على سلامة البيانات والتدقيق. إذا لزم الأمر، يمكنك أرشفة السجل أو إيقافه بدلاً من الحذف."))
+
+    def action_open_whatsapp(self):
+        self.ensure_one()
+        return self.partner_id.action_open_whatsapp()

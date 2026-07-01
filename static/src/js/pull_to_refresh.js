@@ -7,6 +7,7 @@
     let maxPull = 120;
     let ptrElement = null;
     let spinnerElement = null;
+    let safetyTimeout = null;
 
     function isScrollAtTop(target) {
         let el = target;
@@ -47,6 +48,10 @@
         window.addEventListener('touchstart', function (e) {
             if (e.touches.length !== 1) return;
             const target = e.target;
+            if (target.closest && (target.closest('.o_burger_menu') || target.closest('.modal') || target.closest('.dropdown-menu'))) {
+                startY = 0;
+                return;
+            }
             if (!isScrollAtTop(target)) return;
 
             startY = e.touches[0].pageY;
@@ -64,7 +69,21 @@
                     isPulling = true;
                     createPtrElement();
                     ptrElement.classList.remove('kser-ptr-refreshing', 'kser-ptr-returning');
-                    ptrElement.style.display = 'flex';
+                    ptrElement.classList.add('kser-ptr-visible');
+                    
+                    if (safetyTimeout) clearTimeout(safetyTimeout);
+                    safetyTimeout = setTimeout(function () {
+                        if (isPulling && ptrElement && !ptrElement.classList.contains('kser-ptr-refreshing')) {
+                            ptrElement.classList.add('kser-ptr-returning');
+                            ptrElement.style.transform = 'translateY(0)';
+                            setTimeout(function () {
+                                if (ptrElement) {
+                                    ptrElement.classList.remove('kser-ptr-visible');
+                                    isPulling = false;
+                                }
+                            }, 300);
+                        }
+                    }, 3000);
                 }
 
                 const pullDistance = Math.min(diff * 0.45, maxPull);
@@ -86,6 +105,10 @@
         }, { passive: false });
 
         window.addEventListener('touchend', function (e) {
+            if (safetyTimeout) {
+                clearTimeout(safetyTimeout);
+                safetyTimeout = null;
+            }
             if (!isPulling || !ptrElement) return;
 
             const style = window.getComputedStyle(ptrElement);
@@ -105,7 +128,7 @@
                 ptrElement.style.transform = 'translateY(0)';
                 setTimeout(function () {
                     if (ptrElement) {
-                        ptrElement.style.display = 'none';
+                        ptrElement.classList.remove('kser-ptr-visible');
                         isPulling = false;
                     }
                 }, 300);

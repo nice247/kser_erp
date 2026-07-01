@@ -20,6 +20,7 @@ class ProductTemplate(models.Model):
     is_therapeutic = fields.Boolean(
         string='Is Therapeutic',
         compute='_compute_is_therapeutic',
+        store=True,
     )
 
     @api.depends('categ_id', 'categ_id.name', 'categ_id.parent_id')
@@ -33,9 +34,14 @@ class ProductTemplate(models.Model):
                 category = category.parent_id
             template.category_path_names = " / ".join(names)
 
-    @api.depends('category_path_names')
+    @api.depends('categ_id')
     def _compute_is_therapeutic(self):
         for template in self:
-            path = template.category_path_names or ''
-            categories = [n.strip() for n in path.split('/') if n.strip()]
-            template.is_therapeutic = 'علاجي' in categories
+            is_therapeutic = False
+            category = template.categ_id
+            while category:
+                if category.name and 'علاجي' in category.name:
+                    is_therapeutic = True
+                    break
+                category = category.parent_id
+            template.is_therapeutic = is_therapeutic

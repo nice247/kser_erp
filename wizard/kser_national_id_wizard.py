@@ -53,6 +53,18 @@ class KserNationalIdWizard(models.TransientModel):
         string='Manual Entry',
         default=False,
     )
+    is_child = fields.Boolean(
+        string='Is Child',
+        default=False,
+    )
+    is_disabled = fields.Boolean(
+        string='Disabled / Special Needs',
+        default=False,
+    )
+    head_of_family_id = fields.Many2one(
+        'kser.beneficiary',
+        string='Head of Family',
+    )
 
     state = fields.Selection(
         [
@@ -141,7 +153,7 @@ class KserNationalIdWizard(models.TransientModel):
     def action_confirm_and_save(self):
         self.ensure_one()
 
-        if not self.extracted_national_id:
+        if not self.is_child and not self.extracted_national_id:
             raise UserError(_('لم يتم استخراج رقم الهوية الوطنية من الصورة!'))
 
         if self.target_type == 'volunteer':
@@ -166,10 +178,6 @@ class KserNationalIdWizard(models.TransientModel):
                 })
             return {'type': 'ir.actions.act_window_close'}
 
-        existing = self.env['kser.beneficiary'].search([
-            ('national_id_number', '=', self.extracted_national_id),
-        ], limit=1)
-
         birthdate = False
         if self.extracted_dob:
             for fmt in ('%d/%m/%Y', '%Y-%m-%d', '%d-%m-%Y'):
@@ -179,8 +187,30 @@ class KserNationalIdWizard(models.TransientModel):
                 except ValueError:
                     continue
 
+        if self.is_child and not birthdate:
+            raise UserError(_("يجب إدخال تاريخ ميلاد الطفل لتحديد عمره!"))
+
+        is_older_child = False
+        if birthdate:
+            today = fields.Date.today()
+            age = today.year - birthdate.year - ((today.month, today.day) < (birthdate.month, birthdate.day))
+            if age >= 7:
+                is_older_child = True
+
+        if is_older_child and not self.is_manual_entry and not self.id_image:
+            raise UserError(_("الطفل الذي يبلغ عمره 7 سنوات أو أكثر يجب رفع صورة الرقم الوطني له!"))
+
+        existing = False
+        if not self.is_child or is_older_child:
+            if self.extracted_national_id:
+                existing = self.env['kser.beneficiary'].search([
+                    ('national_id_number', '=', self.extracted_national_id),
+                ], limit=1)
+
         marital_key = MARITAL_STATUS_MAP.get(self.extracted_marital_status, False)
         beneficiary_tag = self.env.ref('kser_erp.partner_category_beneficiary', raise_if_not_found=False)
+
+        is_id_required = (not self.is_child) or is_older_child
 
         if existing:
             partner = existing.partner_id
@@ -195,6 +225,7 @@ class KserNationalIdWizard(models.TransientModel):
                 'marital_status': marital_key or existing.marital_status,
                 'birthdate': birthdate or existing.birthdate,
                 'extracted_mother_name': self.extracted_mother_name,
+                'is_disabled': self.is_disabled,
             })
 
             return {'type': 'ir.actions.act_window_close'}
@@ -202,20 +233,24 @@ class KserNationalIdWizard(models.TransientModel):
         partner = self.env['res.partner'].create({
             'name': self.extracted_name or _('New Beneficiary'),
             'category_tag': beneficiary_tag.id if beneficiary_tag else False,
-            'national_id_number': self.extracted_national_id,
-            'national_id_image': self.id_image,
+            'national_id_number': self.extracted_national_id if is_id_required else False,
+            'national_id_image': self.id_image if is_id_required else False,
         })
 
         self.env['kser.beneficiary'].create({
             'partner_id': partner.id,
-            'national_id_number': self.extracted_national_id,
-            'national_id_image': self.id_image,
+            'national_id_number': self.extracted_national_id if is_id_required else False,
+            'national_id_image': self.id_image if is_id_required else False,
             'profession': self.extracted_profession or False,
             'marital_status': marital_key,
             'birthdate': birthdate,
             'district': '-',
             'registered_by': self.env.uid,
             'extracted_mother_name': self.extracted_mother_name,
+            'is_child': self.is_child,
+            'head_of_family_id': self.head_of_family_id.id if self.is_child else False,
+            'relationship': 'child' if self.is_child else 'self',
+            'is_disabled': self.is_disabled,
         })
 
         return {'type': 'ir.actions.act_window_close'}

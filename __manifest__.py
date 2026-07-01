@@ -37,7 +37,10 @@
         'views/inherited_views.xml',
         'wizard/kser_wizards_views.xml',
         'views/res_config_settings_views.xml',
+        'views/kser_clinic_visit_views.xml',
         'views/kser_dashboard_views.xml',
+        'views/kser_prescription_views.xml',
+        'views/kser_child_followup_views.xml',
         'views/kser_menus.xml',
     ],
     'assets': {

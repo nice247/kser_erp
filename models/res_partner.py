@@ -1,4 +1,5 @@
 from odoo import models, fields, api, _
+from odoo.exceptions import UserError, ValidationError
 
 
 class ResPartner(models.Model):
@@ -111,4 +112,23 @@ class ResPartner(models.Model):
             'view_mode': 'list,form',
             'domain': [('partner_id', '=', self.id)],
             'context': {'default_partner_id': self.id},
+        }
+
+    whatsapp_number = fields.Char(
+        string='WhatsApp Number',
+    )
+
+    def action_open_whatsapp(self):
+        self.ensure_one()
+        if not self.whatsapp_number:
+            raise UserError(_("لا يوجد رقم واتساب مسجل لهذا السجل!"))
+        num = self.whatsapp_number.strip()
+        if num.startswith('0'):
+            num = '249' + num[1:]
+        num = ''.join(c for c in num if c.isdigit())
+        url = f"https://wa.me/{num}"
+        return {
+            'type': 'ir.actions.act_url',
+            'url': url,
+            'target': 'new',
         }

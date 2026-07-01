@@ -30,10 +30,68 @@
 
         <!-- 4. Beneficiaries Pie Chart Action -->
         <record id="action_beneficiaries_dashboard_pie" model="ir.actions.act_window">
-            <field name="name">توزيع المستفيدين حسب الأولوية</field>
+            <field name="name">توزيع المستفيدين حسب المحلية</field>
             <field name="res_model">kser.beneficiary</field>
             <field name="view_mode">graph</field>
             <field name="view_id" ref="kser_erp.view_kser_beneficiary_graph"/>
+        </record>
+
+        <record id="action_visits_dashboard_graph" model="ir.actions.act_window">
+            <field name="name">حالة زيارات العيادة اليومية</field>
+            <field name="res_model">kser.clinic.visit</field>
+            <field name="view_mode">graph</field>
+            <field name="view_id" ref="kser_erp.view_kser_clinic_visit_graph"/>
+            <field name="domain">[('visit_date', '=', context_today())]</field>
+        </record>
+
+        <record id="view_prescription_tree_kser_dashboard" model="ir.ui.view">
+            <field name="name">kser.prescription.tree.kser.dashboard</field>
+            <field name="model">kser.prescription</field>
+            <field name="arch" type="xml">
+                <list string="الروشتات الأخيرة" default_order="create_date desc">
+                    <field name="name" string="رقم الروشتة"/>
+                    <field name="beneficiary_id" string="المستفيد"/>
+                    <field name="prescription_date" string="التاريخ"/>
+                    <field name="state" string="الحالة"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="action_prescriptions_dashboard_list" model="ir.actions.act_window">
+            <field name="name">آخر الروشتات الطبية الصادرة</field>
+            <field name="res_model">kser.prescription</field>
+            <field name="view_mode">list</field>
+            <field name="view_id" ref="view_prescription_tree_kser_dashboard"/>
+            <field name="limit">5</field>
+        </record>
+
+        <record id="view_child_followup_tree_kser_dashboard" model="ir.ui.view">
+            <field name="name">kser.child.followup.tree.kser.dashboard</field>
+            <field name="model">kser.child.followup</field>
+            <field name="arch" type="xml">
+                <list string="متابعات سوء التغذية الأخيرة" default_order="create_date desc">
+                    <field name="beneficiary_id" string="الطفل"/>
+                    <field name="followup_date" string="التاريخ"/>
+                    <field name="nutrition_status" string="الحالة"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="action_followups_dashboard_list" model="ir.actions.act_window">
+            <field name="name">آخر متابعات سوء التغذية للأطفال</field>
+            <field name="res_model">kser.child.followup</field>
+            <field name="view_mode">list</field>
+            <field name="view_id" ref="view_child_followup_tree_kser_dashboard"/>
+            <field name="limit">5</field>
+        </record>
+
+        <record id="action_prescriptions_pending_dispense_list" model="ir.actions.act_window">
+            <field name="name">روشتات في انتظار الصرف</field>
+            <field name="res_model">kser.prescription</field>
+            <field name="view_mode">list</field>
+            <field name="view_id" ref="view_prescription_tree_kser_dashboard"/>
+            <field name="domain">[('state', '=', 'prescribed')]</field>
+            <field name="limit">5</field>
         </record>
 
         <!-- 5. Active Tasks List Action -->
@@ -88,8 +146,11 @@
                     <board style="1-1">
                         <column>
                             <action name="%(action_beneficiaries_dashboard_pie)d" 
-                                    string="توزيع المستفيدين حسب الأولوية"
+                                    string="توزيع المستفيدين حسب المحلية"
                                     groups="kser_erp.group_admin_supervisor,kser_erp.group_data_manager,kser_erp.group_stock_manager,kser_erp.group_field_supervisor,kser_erp.group_system_admin"/>
+                            <action name="%(action_visits_dashboard_graph)d" 
+                                    string="حالة زيارات العيادة اليومية"
+                                    groups="kser_erp.group_admin_supervisor,kser_erp.group_clinic_manager,kser_erp.group_doctor,kser_erp.group_pharmacist,kser_erp.group_system_admin"/>
                             <action name="%(action_campaigns_dashboard_kanban)d" 
                                     string="الحملات الإغاثية (النشطة والقادمة)"
                                     groups="kser_erp.group_admin_supervisor,kser_erp.group_field_supervisor,kser_erp.group_system_admin"/>
@@ -100,7 +161,16 @@
                         <column>
                             <action name="%(action_inventory_dashboard_graph)d" 
                                     string="حالة مخزون الأدوية والإغاثة"
-                                    groups="kser_erp.group_stock_manager,kser_erp.group_system_admin"/>
+                                    groups="kser_erp.group_stock_manager,kser_erp.group_pharmacist,kser_erp.group_system_admin"/>
+                            <action name="%(action_prescriptions_pending_dispense_list)d" 
+                                    string="روشتات في انتظار الصرف"
+                                    groups="kser_erp.group_pharmacist,kser_erp.group_clinic_manager,kser_erp.group_admin_supervisor,kser_erp.group_system_admin"/>
+                            <action name="%(action_prescriptions_dashboard_list)d" 
+                                    string="آخر الروشتات الطبية الصادرة"
+                                    groups="kser_erp.group_admin_supervisor,kser_erp.group_clinic_manager,kser_erp.group_doctor,kser_erp.group_pharmacist,kser_erp.group_system_admin"/>
+                            <action name="%(action_followups_dashboard_list)d" 
+                                    string="آخر متابعات سوء التغذية للأطفال"
+                                    groups="kser_erp.group_admin_supervisor,kser_erp.group_clinic_manager,kser_erp.group_doctor,kser_erp.group_system_admin"/>
                             <action name="%(action_donations_dashboard_list)d" 
                                     string="أحدث التبرعات المستلمة"
                                     groups="kser_erp.group_admin_supervisor,kser_erp.group_data_manager,kser_erp.group_system_admin"/>

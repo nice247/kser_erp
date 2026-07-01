@@ -25,6 +25,16 @@ class StockPicking(models.Model):
         default=False,
         index=True,
     )
+    prescriber_id = fields.Many2one(
+        'res.users',
+        string='Prescriber Doctor',
+        tracking=True,
+    )
+    national_id_number = fields.Char(
+        string='National ID Number',
+        related='partner_id.national_id_number',
+        readonly=True,
+    )
 
     def button_validate(self):
         for rec in self:

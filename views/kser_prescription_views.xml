@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="view_kser_prescription_search" model="ir.ui.view">
+            <field name="name">kser.prescription.search</field>
+            <field name="model">kser.prescription</field>
+            <field name="arch" type="xml">
+                <search string="بحث الروشتات">
+                    <field name="name" string="رقم الروشتة"/>
+                    <field name="beneficiary_id" string="المستفيد"/>
+                    <field name="doctor_id" string="الطبيب"/>
+                    <filter name="filter_draft" string="مرفوضة / غير منصرفة" domain="[('state', '=', 'draft')]"/>
+                    <filter name="filter_dispensed" string="تم الصرف" domain="[('state', '=', 'dispensed')]"/>
+                    <group expand="0" string="تجميع حسب">
+                        <filter name="group_doctor" string="الطبيب" context="{'group_by': 'doctor_id'}"/>
+                        <filter name="group_beneficiary" string="المستفيد" context="{'group_by': 'beneficiary_id'}"/>
+                        <filter name="group_state" string="الحالة" context="{'group_by': 'state'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="view_kser_prescription_tree" model="ir.ui.view">
+            <field name="name">kser.prescription.list</field>
+            <field name="model">kser.prescription</field>
+            <field name="arch" type="xml">
+                <list string="الروشتات الطبية" default_order="prescription_date desc">
+                    <field name="name" string="رقم الروشتة"/>
+                    <field name="beneficiary_id" string="المستفيد"/>
+                    <field name="doctor_id" string="الطبيب"/>
+                    <field name="prescription_date" string="التاريخ"/>
+                    <field name="state" string="الحالة" widget="badge"
+                           decoration-success="state == 'dispensed'"
+                           decoration-info="state == 'draft'"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="view_kser_prescription_form" model="ir.ui.view">
+            <field name="name">kser.prescription.form</field>
+            <field name="model">kser.prescription</field>
+            <field name="arch" type="xml">
+                <form string="الروشتة الطبية">
+                    <header>
+                        <button name="action_dispense" type="object" string="صرف الروشتة"
+                                class="btn-primary" invisible="state == 'dispensed'"
+                                groups="kser_erp.group_pharmacist,kser_erp.group_admin_supervisor"/>
+                        <field name="state" widget="statusbar" statusbar_visible="draft,dispensed"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                            <h1>
+                                <field name="name"/>
+                            </h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="beneficiary_id" string="المستفيد"/>
+                                <field name="doctor_id" string="الطبيب كاتب الروشتة"/>
+                            </group>
+                            <group>
+                                <field name="prescription_date" string="التاريخ"/>
+                                <field name="picking_id" string="إذن الصرف المرتبط" invisible="not picking_id"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="الأدوية الموصوفة" name="prescription_lines">
+                                <field name="line_ids">
+                                    <list editable="bottom">
+                                        <field name="product_id" string="الصنف (الدواء)" domain="[('active_ingredient', '!=', False)]"/>
+                                        <field name="qty" string="الكمية"/>
+                                        <field name="instructions" string="طريقة الاستخدام والإرشادات"/>
+                                    </list>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                    <chatter/>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_kser_prescription" model="ir.actions.act_window">
+            <field name="name">الروشتات الطبية</field>
+            <field name="res_model">kser.prescription</field>
+            <field name="view_mode">list,form</field>
+            <field name="search_view_id" ref="view_kser_prescription_search"/>
+        </record>
+
+    </data>
+</odoo>
