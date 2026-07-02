@@ -54,3 +54,8 @@ access_kser_clinic_visit_system,kser.clinic.visit.system,model_kser_clinic_visit
 access_kser_clinic_visit_receptionist,kser.clinic.visit.receptionist,model_kser_clinic_visit,kser_erp.group_receptionist,1,1,1,0
 access_kser_clinic_visit_doctor,kser.clinic.visit.doctor,model_kser_clinic_visit,kser_erp.group_doctor,1,1,0,0
 access_kser_clinic_visit_pharmacist,kser.clinic.visit.pharmacist,model_kser_clinic_visit,kser_erp.group_pharmacist,1,0,0,0
+access_kser_beneficiary_clinic_manager,kser.beneficiary.clinic_manager,model_kser_beneficiary,kser_erp.group_clinic_manager,1,0,0,0
+access_kser_clinic_visit_clinic_manager,kser.clinic.visit.clinic_manager,model_kser_clinic_visit,kser_erp.group_clinic_manager,1,0,0,0
+access_kser_prescription_clinic_manager,kser.prescription.clinic_manager,model_kser_prescription,kser_erp.group_clinic_manager,1,0,0,0
+access_kser_prescription_line_clinic_manager,kser.prescription.line.clinic_manager,model_kser_prescription_line,kser_erp.group_clinic_manager,1,0,0,0
+access_kser_child_followup_clinic_manager,kser.child.followup.clinic_manager,model_kser_child_followup,kser_erp.group_clinic_manager,1,0,0,0

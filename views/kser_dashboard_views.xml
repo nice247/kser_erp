@@ -44,6 +44,23 @@
             <field name="domain">[('visit_date', '=', context_today())]</field>
         </record>
 
+        <record id="view_kser_clinic_visit_frequency_graph" model="ir.ui.view">
+            <field name="name">kser.clinic.visit.frequency.graph</field>
+            <field name="model">kser.clinic.visit</field>
+            <field name="arch" type="xml">
+                <graph string="تردد زيارات المرضى" type="bar" sample="1">
+                    <field name="visit_date" interval="day"/>
+                </graph>
+            </field>
+        </record>
+
+        <record id="action_visits_frequency_graph" model="ir.actions.act_window">
+            <field name="name">معدل تردد زيارات المرضى</field>
+            <field name="res_model">kser.clinic.visit</field>
+            <field name="view_mode">graph</field>
+            <field name="view_id" ref="view_kser_clinic_visit_frequency_graph"/>
+        </record>
+
         <record id="view_prescription_tree_kser_dashboard" model="ir.ui.view">
             <field name="name">kser.prescription.tree.kser.dashboard</field>
             <field name="model">kser.prescription</field>
@@ -149,8 +166,11 @@
                                     string="توزيع المستفيدين حسب المحلية"
                                     groups="kser_erp.group_admin_supervisor,kser_erp.group_data_manager,kser_erp.group_stock_manager,kser_erp.group_field_supervisor,kser_erp.group_system_admin"/>
                             <action name="%(action_visits_dashboard_graph)d" 
-                                    string="حالة زيارات العيادة اليومية"
-                                    groups="kser_erp.group_admin_supervisor,kser_erp.group_clinic_manager,kser_erp.group_doctor,kser_erp.group_pharmacist,kser_erp.group_system_admin"/>
+                                     string="حالة زيارات العيادة اليومية"
+                                     groups="kser_erp.group_admin_supervisor,kser_erp.group_clinic_manager,kser_erp.group_doctor,kser_erp.group_pharmacist,kser_erp.group_system_admin,kser_erp.group_receptionist"/>
+                            <action name="%(action_visits_frequency_graph)d" 
+                                     string="معدل تردد زيارات المرضى"
+                                     groups="kser_erp.group_admin_supervisor,kser_erp.group_clinic_manager,kser_erp.group_doctor,kser_erp.group_pharmacist,kser_erp.group_system_admin,kser_erp.group_receptionist"/>
                             <action name="%(action_campaigns_dashboard_kanban)d" 
                                     string="الحملات الإغاثية (النشطة والقادمة)"
                                     groups="kser_erp.group_admin_supervisor,kser_erp.group_field_supervisor,kser_erp.group_system_admin"/>

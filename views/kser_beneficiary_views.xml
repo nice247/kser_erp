@@ -89,6 +89,12 @@
                         </div>
 
                         <group>
+                            <group>
+                                <field name="patient_type" string="نوع تسجيل العيادة" widget="radio"/>
+                            </group>
+                        </group>
+
+                        <group invisible="not patient_type and not national_id_number and not national_id_image">
                             <!-- Right Column: Personal & Relationship Data -->
                             <group string="البيانات الأساسية والتحقق">
                                 <field name="is_child" string="طفل"/>
@@ -108,6 +114,7 @@
                                 <field name="birthdate" string="تاريخ الميلاد"/>
                                 <field name="family_size" string="عدد أفراد الأسرة" invisible="is_child"/>
                                 <field name="district" string="المحلية"/>
+                                <field name="address" string="عنوان السكن" placeholder="اسم الشارع / الحارة / الحي / علامة مميزة"/>
                             </group>
                             <!-- Left Column: National ID Image & Registration Data -->
                             <group>
@@ -124,7 +131,7 @@
                             </group>
                         </group>
 
-                        <notebook>
+                        <notebook invisible="not patient_type and not national_id_number and not national_id_image">
                             <page string="أفراد الأسرة" name="family_members" invisible="relationship != 'self'">
                                 <field name="family_member_ids" domain="[('relationship', '=', 'self'), ('id', '!=', id)]">
                                     <list editable="bottom">

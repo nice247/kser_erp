@@ -105,6 +105,18 @@ class KserBeneficiary(models.Model):
         store=True,
         tracking=True,
     )
+    patient_type = fields.Selection(
+        [
+            ('child', 'طفل (تسجيل بدون رقم وطني وصورة)'),
+            ('patient', 'مريض (تسجيل بدون رقم وطني وصورة)'),
+        ],
+        string='نوع تسجيل العيادة',
+    )
+    address = fields.Char(
+        related='partner_id.street',
+        readonly=False,
+        string='Address',
+    )
     head_of_family_id = fields.Many2one(
         'kser.beneficiary',
         string='Head of Family',
@@ -363,10 +375,17 @@ class KserBeneficiary(models.Model):
             else:
                 rec.is_child = False
 
-    @api.constrains('national_id_number', 'national_id_image', 'is_child', 'birthdate')
+    @api.constrains('national_id_number', 'national_id_image', 'is_child', 'birthdate', 'patient_type')
     def _check_national_id_beneficiary(self):
         for rec in self:
             if rec.is_child:
+                continue
+            if rec.patient_type:
+                if rec.national_id_number:
+                    if len(rec.national_id_number) != 11 or not rec.national_id_number.isdigit():
+                        raise ValidationError(_("يجب أن يتكون الرقم الوطني للمستفيد من 11 خانة رقمية فقط!"))
+                continue
+            if self.env.user.has_group('kser_erp.group_receptionist'):
                 continue
             if not rec.national_id_image:
                 raise ValidationError(_("يجب رفع صورة الرقم الوطني للمستفيد!"))
@@ -389,12 +408,23 @@ class KserBeneficiary(models.Model):
             'context': {'default_beneficiary_id': self.id},
         }
 
+    @api.model
+    def name_create(self, name):
+        partner = self.env['res.partner'].create({'name': name})
+        beneficiary = self.create({'partner_id': partner.id, 'patient_type': 'patient'})
+        return beneficiary.id, beneficiary.partner_id.name
+
     @api.model_create_multi
     def create(self, vals_list):
         records = super().create(vals_list)
         for rec in records:
             if not rec.head_of_family_id:
                 rec.head_of_family_id = rec.id
+            if rec.partner_id:
+                rec.partner_id.write({
+                    'national_id_number': rec.national_id_number,
+                    'national_id_image': rec.national_id_image,
+                })
         beneficiary_tag = self.env.ref('kser_erp.partner_category_beneficiary', raise_if_not_found=False)
         if beneficiary_tag:
             for rec in records:
@@ -410,7 +440,28 @@ class KserBeneficiary(models.Model):
         return records
 
     def write(self, vals):
+        business_fields = set(vals.keys()) - {
+            'message_follower_ids', 'activity_ids', 'message_ids',
+            'message_main_attachment_id', 'activity_state', 'activity_type_id',
+            'activity_date_deadline', 'activity_summary', 'activity_user_id'
+        }
+        if business_fields:
+            for rec in self:
+                if rec.national_id_image:
+                    raise ValidationError(_("يُمنع تعديل بيانات المستفيد بعد إضافة وتأكيد الهوية الوطنية!"))
+            if not (self.env.user.has_group('kser_erp.group_data_manager') or
+                    self.env.user.has_group('kser_erp.group_admin_supervisor') or
+                    self.env.user.has_group('kser_erp.group_system_admin')):
+                raise ValidationError(_("يُمنع تعديل بيانات المستفيد لغير مسؤولي البيانات! يمكنك فقط تسجيل مستفيد جديد."))
+
         res = super().write(vals)
+        if 'national_id_number' in vals or 'national_id_image' in vals:
+            for rec in self:
+                if rec.partner_id:
+                    rec.partner_id.write({
+                        'national_id_number': rec.national_id_number,
+                        'national_id_image': rec.national_id_image,
+                    })
         if 'head_of_family_id' in vals and not vals['head_of_family_id']:
             for rec in self:
                 super(KserBeneficiary, rec).write({'head_of_family_id': rec.id})
@@ -428,7 +479,7 @@ class KserBeneficiary(models.Model):
                     'target_id': rec.id,
                     'details': f"تم التحقق من المستفيد (الرقم الوطني: {rec.national_id_number})",
                 })
-            elif vals:
+            elif vals and business_fields:
                 self.env['kser.audit.log'].sudo().create({
                     'action_type': 'update',
                     'target_model': self._name,

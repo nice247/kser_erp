@@ -58,10 +58,10 @@
                     <header>
                         <button name="action_set_consultation" type="object" string="بدء الفحص"
                                 class="btn-primary" invisible="state != 'waiting'"
-                                groups="kser_erp.group_doctor,kser_erp.group_clinic_manager,kser_erp.group_admin_supervisor,kser_erp.group_system_admin"/>
+                                groups="kser_erp.group_doctor,kser_erp.group_admin_supervisor,kser_erp.group_system_admin"/>
                         <button name="action_set_done" type="object" string="إكمال الزيارة"
                                 class="btn-success" invisible="state != 'consultation'"
-                                groups="kser_erp.group_doctor,kser_erp.group_clinic_manager,kser_erp.group_admin_supervisor,kser_erp.group_system_admin"/>
+                                groups="kser_erp.group_doctor,kser_erp.group_admin_supervisor,kser_erp.group_system_admin"/>
                         <button name="action_set_cancelled" type="object" string="إلغاء الزيارة"
                                 class="btn-secondary" invisible="state in ('done', 'cancelled')"/>
                         <field name="state" widget="statusbar" statusbar_visible="waiting,consultation,done"/>
@@ -86,7 +86,7 @@
                         <notebook>
                             <page string="الروشتات الصادرة" name="prescriptions" invisible="state == 'waiting'">
                                 <field name="prescription_ids" 
-                                       groups="kser_erp.group_doctor,kser_erp.group_clinic_manager,kser_erp.group_admin_supervisor,kser_erp.group_system_admin"
+                                       groups="kser_erp.group_doctor,kser_erp.group_admin_supervisor,kser_erp.group_system_admin"
                                        context="{'default_beneficiary_id': beneficiary_id, 'default_doctor_id': doctor_id, 'default_visit_id': id}">
                                     <list>
                                         <field name="name" string="رقم الروشتة"/>
@@ -95,7 +95,7 @@
                                     </list>
                                 </field>
                                 <field name="prescription_ids" 
-                                       groups="kser_erp.group_receptionist,kser_erp.group_pharmacist"
+                                       groups="kser_erp.group_receptionist,kser_erp.group_pharmacist,kser_erp.group_clinic_manager"
                                        readonly="1">
                                     <list>
                                         <field name="name" string="رقم الروشتة"/>
@@ -106,7 +106,7 @@
                             </page>
                             <page string="متابعات سوء التغذية" name="followups" invisible="state == 'waiting'">
                                 <field name="followup_ids" 
-                                       groups="kser_erp.group_doctor,kser_erp.group_clinic_manager,kser_erp.group_admin_supervisor,kser_erp.group_system_admin"
+                                       groups="kser_erp.group_doctor,kser_erp.group_admin_supervisor,kser_erp.group_system_admin"
                                        context="{'default_beneficiary_id': beneficiary_id, 'default_measured_by': uid, 'default_visit_id': id}">
                                     <list>
                                         <field name="followup_date" string="التاريخ"/>
@@ -116,7 +116,7 @@
                                     </list>
                                 </field>
                                 <field name="followup_ids" 
-                                       groups="kser_erp.group_receptionist,kser_erp.group_pharmacist"
+                                       groups="kser_erp.group_receptionist,kser_erp.group_pharmacist,kser_erp.group_clinic_manager"
                                        readonly="1">
                                     <list>
                                         <field name="followup_date" string="التاريخ"/>

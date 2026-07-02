@@ -13,5 +13,6 @@ from . import kser_prescription
 from . import kser_prescription_line
 from . import kser_child_followup
 from . import kser_clinic_visit
+from . import res_users
 
 

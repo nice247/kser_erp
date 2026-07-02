@@ -37,6 +37,19 @@ class ResPartner(models.Model):
         compute='_compute_role_booleans',
         store=True,
     )
+    is_clinic_only = fields.Boolean(
+        string='Clinic Only',
+        compute='_compute_is_clinic_only',
+        store=True,
+    )
+
+    @api.depends('is_beneficiary', 'national_id_number', 'national_id_image')
+    def _compute_is_clinic_only(self):
+        for rec in self:
+            if rec.is_beneficiary:
+                rec.is_clinic_only = not rec.national_id_number or not rec.national_id_image
+            else:
+                rec.is_clinic_only = False
 
     @api.depends('category_tag')
     def _compute_role_booleans(self):

@@ -40,6 +40,8 @@ class StockPicking(models.Model):
         for rec in self:
             if rec.project_id and rec.project_id.state != 'approved':
                 raise UserError(_("لا يمكن تأكيد التحويل. ميزانية الحملة '%s' غير معتمدة!") % rec.project_id.name)
+            if rec.distribution_type == 'individual' and rec.partner_id and rec.partner_id.is_clinic_only:
+                raise UserError(_("لا يمكن صرف إغاثة لمستفيد مسجل كـ 'عيادة فقط' دون رقم وطني وصورة هوية معتمدة!"))
         res = super().button_validate()
         for rec in self:
             if rec.state == 'done':

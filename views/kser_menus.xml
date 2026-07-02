@@ -175,7 +175,7 @@
                   name="لوحة القيادة"
                   parent="menu_kser_root"
                   action="action_kser_emergency_dashboard"
-                  groups="kser_erp.group_admin_supervisor,kser_erp.group_system_admin,kser_erp.group_data_manager,kser_erp.group_stock_manager,kser_erp.group_field_supervisor,kser_erp.group_doctor,kser_erp.group_pharmacist,kser_erp.group_clinic_manager,kser_erp.group_campaign_manager"
+                  groups="kser_erp.group_admin_supervisor,kser_erp.group_system_admin,kser_erp.group_data_manager,kser_erp.group_stock_manager,kser_erp.group_field_supervisor,kser_erp.group_doctor,kser_erp.group_pharmacist,kser_erp.group_clinic_manager,kser_erp.group_receptionist"
                   sequence="1"
                   active="True"/>
 
