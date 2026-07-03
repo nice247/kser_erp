@@ -162,43 +162,43 @@
                 <form string="لوحة تحكم غرفة الطوارئ">
                     <board style="1-1">
                         <column>
-                            <action name="%(action_beneficiaries_dashboard_pie)d" 
-                                    string="توزيع المستفيدين حسب المحلية"
-                                    groups="kser_erp.group_admin_supervisor,kser_erp.group_data_manager,kser_erp.group_stock_manager,kser_erp.group_field_supervisor,kser_erp.group_system_admin"/>
                             <action name="%(action_visits_dashboard_graph)d" 
                                      string="حالة زيارات العيادة اليومية"
-                                     groups="kser_erp.group_admin_supervisor,kser_erp.group_clinic_manager,kser_erp.group_doctor,kser_erp.group_pharmacist,kser_erp.group_system_admin,kser_erp.group_receptionist"/>
-                            <action name="%(action_visits_frequency_graph)d" 
-                                     string="معدل تردد زيارات المرضى"
-                                     groups="kser_erp.group_admin_supervisor,kser_erp.group_clinic_manager,kser_erp.group_doctor,kser_erp.group_pharmacist,kser_erp.group_system_admin,kser_erp.group_receptionist"/>
-                            <action name="%(action_campaigns_dashboard_kanban)d" 
-                                    string="الحملات الإغاثية (النشطة والقادمة)"
-                                    groups="kser_erp.group_admin_supervisor,kser_erp.group_field_supervisor,kser_erp.group_system_admin"/>
-                            <action name="%(action_contacts_dashboard_list)d" 
-                                    string="أحدث سجلات جهات الاتصال المسجلة"
-                                    groups="kser_erp.group_admin_supervisor,kser_erp.group_system_admin"/>
-                        </column>
-                        <column>
+                                     groups="kser_erp.group_admin_supervisor,kser_erp.group_clinic_manager,kser_erp.group_doctor,kser_erp.group_system_admin,kser_erp.group_receptionist"/>
                             <action name="%(action_inventory_dashboard_graph)d" 
                                     string="حالة مخزون الأدوية والإغاثة"
                                     groups="kser_erp.group_stock_manager,kser_erp.group_pharmacist,kser_erp.group_system_admin"/>
-                            <action name="%(action_prescriptions_pending_dispense_list)d" 
-                                    string="روشتات في انتظار الصرف"
-                                    groups="kser_erp.group_pharmacist,kser_erp.group_clinic_manager,kser_erp.group_admin_supervisor,kser_erp.group_system_admin"/>
                             <action name="%(action_prescriptions_dashboard_list)d" 
                                     string="آخر الروشتات الطبية الصادرة"
                                     groups="kser_erp.group_admin_supervisor,kser_erp.group_clinic_manager,kser_erp.group_doctor,kser_erp.group_pharmacist,kser_erp.group_system_admin"/>
+                            <action name="%(action_beneficiaries_dashboard_pie)d" 
+                                    string="توزيع المستفيدين حسب المحلية"
+                                    groups="kser_erp.group_admin_supervisor,kser_erp.group_data_manager,kser_erp.group_stock_manager,kser_erp.group_field_supervisor,kser_erp.group_system_admin"/>
+                            <action name="%(action_tasks_dashboard_list)d" 
+                                    string="آخر المهام الميدانية النشطة"
+                                    groups="kser_erp.group_admin_supervisor,kser_erp.group_field_supervisor,kser_erp.group_system_admin"/>
+                            <action name="%(action_audit_dashboard_list)d" 
+                                    string="سجلات التدقيق الأخيرة"
+                                    groups="kser_erp.group_admin_supervisor,kser_erp.group_system_admin"/>
+                        </column>
+                        <column>
+                            <action name="%(action_visits_frequency_graph)d" 
+                                     string="معدل تردد زيارات المرضى"
+                                     groups="kser_erp.group_admin_supervisor,kser_erp.group_clinic_manager,kser_erp.group_doctor,kser_erp.group_system_admin,kser_erp.group_receptionist"/>
+                            <action name="%(action_prescriptions_pending_dispense_list)d" 
+                                    string="روشتات في انتظار الصرف"
+                                    groups="kser_erp.group_pharmacist,kser_erp.group_clinic_manager,kser_erp.group_admin_supervisor,kser_erp.group_system_admin"/>
+                            <action name="%(action_campaigns_dashboard_kanban)d" 
+                                    string="الحملات الإغاثية (النشطة والقادمة)"
+                                    groups="kser_erp.group_admin_supervisor,kser_erp.group_field_supervisor,kser_erp.group_system_admin"/>
                             <action name="%(action_followups_dashboard_list)d" 
                                     string="آخر متابعات سوء التغذية للأطفال"
                                     groups="kser_erp.group_admin_supervisor,kser_erp.group_clinic_manager,kser_erp.group_doctor,kser_erp.group_system_admin"/>
                             <action name="%(action_donations_dashboard_list)d" 
                                     string="أحدث التبرعات المستلمة"
                                     groups="kser_erp.group_admin_supervisor,kser_erp.group_data_manager,kser_erp.group_system_admin"/>
-                            <action name="%(action_tasks_dashboard_list)d" 
-                                    string="آخر المهام الميدانية النشطة"
-                                    groups="kser_erp.group_admin_supervisor,kser_erp.group_field_supervisor,kser_erp.group_system_admin"/>
-                            <action name="%(action_audit_dashboard_list)d" 
-                                    string="سجلات التدقيق الأخيرة"
+                            <action name="%(action_contacts_dashboard_list)d" 
+                                    string="أحدث سجلات جهات الاتصال المسجلة"
                                     groups="kser_erp.group_admin_supervisor,kser_erp.group_system_admin"/>
                         </column>
                     </board>

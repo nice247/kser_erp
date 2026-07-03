@@ -64,22 +64,35 @@ class KserBeneficiary(models.Model):
         ],
         string='Marital Status',
     )
+    gender = fields.Selection(
+        [
+            ('male', 'ذكر'),
+            ('female', 'أنثى'),
+        ],
+        string='Gender',
+        tracking=True,
+    )
     family_size = fields.Integer(
         string='Number of Family Members',
         compute='_compute_family_size',
         store=True,
     )
-    health_conditions = fields.Text(
-        string='Chronic Diseases',
+    health_conditions = fields.Many2many(
+        'kser.chronic.condition',
+        string='الأمراض المزمنة',
     )
     birthdate = fields.Date(
         string='Birth Date',
     )
+    def _default_district(self):
+        return self.env.company.city or ''
+
     district = fields.Char(
         string='District',
         size=100,
         required=True,
         index=True,
+        default=_default_district,
     )
     registration_date = fields.Date(
         string='Registration Date',
@@ -105,12 +118,8 @@ class KserBeneficiary(models.Model):
         store=True,
         tracking=True,
     )
-    patient_type = fields.Selection(
-        [
-            ('child', 'طفل (تسجيل بدون رقم وطني وصورة)'),
-            ('patient', 'مريض (تسجيل بدون رقم وطني وصورة)'),
-        ],
-        string='نوع تسجيل العيادة',
+    without_national_id = fields.Boolean(
+        string='تسجيل بدون رقم وطني',
     )
     address = fields.Char(
         related='partner_id.street',
@@ -375,12 +384,12 @@ class KserBeneficiary(models.Model):
             else:
                 rec.is_child = False
 
-    @api.constrains('national_id_number', 'national_id_image', 'is_child', 'birthdate', 'patient_type')
+    @api.constrains('national_id_number', 'national_id_image', 'is_child', 'birthdate', 'without_national_id')
     def _check_national_id_beneficiary(self):
         for rec in self:
             if rec.is_child:
                 continue
-            if rec.patient_type:
+            if rec.without_national_id:
                 if rec.national_id_number:
                     if len(rec.national_id_number) != 11 or not rec.national_id_number.isdigit():
                         raise ValidationError(_("يجب أن يتكون الرقم الوطني للمستفيد من 11 خانة رقمية فقط!"))
@@ -411,7 +420,7 @@ class KserBeneficiary(models.Model):
     @api.model
     def name_create(self, name):
         partner = self.env['res.partner'].create({'name': name})
-        beneficiary = self.create({'partner_id': partner.id, 'patient_type': 'patient'})
+        beneficiary = self.create({'partner_id': partner.id, 'without_national_id': True})
         return beneficiary.id, beneficiary.partner_id.name
 
     @api.model_create_multi
@@ -446,9 +455,6 @@ class KserBeneficiary(models.Model):
             'activity_date_deadline', 'activity_summary', 'activity_user_id'
         }
         if business_fields:
-            for rec in self:
-                if rec.national_id_image:
-                    raise ValidationError(_("يُمنع تعديل بيانات المستفيد بعد إضافة وتأكيد الهوية الوطنية!"))
             if not (self.env.user.has_group('kser_erp.group_data_manager') or
                     self.env.user.has_group('kser_erp.group_admin_supervisor') or
                     self.env.user.has_group('kser_erp.group_system_admin')):

@@ -29,6 +29,7 @@
     'data': [
         'security/kser_security.xml',
         'security/ir.model.access.csv',
+        'data/kser_chronic_condition_data.xml',
         'data/kser_data.xml',
         'report/kser_report_templates.xml',
         'views/kser_beneficiary_views.xml',

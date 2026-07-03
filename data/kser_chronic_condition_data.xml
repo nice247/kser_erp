@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="condition_diabetes" model="kser.chronic.condition">
+            <field name="code">diabetes</field>
+            <field name="name">سكري</field>
+        </record>
+        <record id="condition_hypertension" model="kser.chronic.condition">
+            <field name="code">hypertension</field>
+            <field name="name">ضغط</field>
+        </record>
+        <record id="condition_asthma" model="kser.chronic.condition">
+            <field name="code">asthma</field>
+            <field name="name">ربو</field>
+        </record>
+        <record id="condition_heart_disease" model="kser.chronic.condition">
+            <field name="code">heart_disease</field>
+            <field name="name">قلب</field>
+        </record>
+        <record id="condition_thyroid" model="kser.chronic.condition">
+            <field name="code">thyroid</field>
+            <field name="name">غدة</field>
+        </record>
+        <record id="condition_kidney_disease" model="kser.chronic.condition">
+            <field name="code">kidney_disease</field>
+            <field name="name">كلى</field>
+        </record>
+        <record id="condition_epilepsy" model="kser.chronic.condition">
+            <field name="code">epilepsy</field>
+            <field name="name">صرع</field>
+        </record>
+        <record id="condition_sickle_cell" model="kser.chronic.condition">
+            <field name="code">sickle_cell</field>
+            <field name="name">فقر دم منجلي</field>
+        </record>
+        <record id="condition_hepatitis_b" model="kser.chronic.condition">
+            <field name="code">hepatitis_b</field>
+            <field name="name">التهاب كبد B</field>
+        </record>
+    </data>
+</odoo>

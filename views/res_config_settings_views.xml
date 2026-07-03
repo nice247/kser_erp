@@ -13,26 +13,16 @@
                 <xpath expr="//form" position="inside">
                     <app data-string="غرفة الطوارئ" string="غرفة الطوارئ"
                          name="kser_erp">
-                        <block title="إعدادات خادم الذكاء الاصطناعي (AI)"
+                        <block title="إعدادات قراءة الهوية والإيصالات (Gemini API)"
                                name="kser_api_settings">
-                            <setting string="رابط الخادم"
-                                     help="رابط خادم Spring Boot للذكاء الاصطناعي والتعرف الآلي (مثال: https://api.example.com)">
+                            <setting string="مفتاح الذكاء الاصطناعي"
+                                     help="مفتاح الاتصال الخاص بخدمات جوجل للذكاء الاصطناعي">
                                 <div class="content-group">
                                     <div class="row mt16">
-                                        <label for="kser_springboot_base_url" class="col-lg-3"/>
-                                        <field name="kser_springboot_base_url"
-                                               placeholder="https://api.example.com"/>
-                                    </div>
-                                </div>
-                            </setting>
-                            <setting string="مفتاح API"
-                                     help="مفتاح المصادقة للاتصال بخادم الذكاء الاصطناعي">
-                                <div class="content-group">
-                                    <div class="row mt16">
-                                        <label for="kser_springboot_api_key" class="col-lg-3"/>
-                                        <field name="kser_springboot_api_key"
+                                        <label for="kser_gemini_api_key" class="col-lg-3"/>
+                                        <field name="kser_gemini_api_key"
                                                password="True"
-                                               placeholder="أدخل مفتاح API هنا..."/>
+                                               placeholder="أدخل مفتاح Gemini هنا..."/>
                                     </div>
                                 </div>
                             </setting>

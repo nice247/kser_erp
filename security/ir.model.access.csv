@@ -10,12 +10,12 @@ access_kser_cash_donation_stock,kser.cash.donation.stock,model_kser_cash_donatio
 access_kser_cash_donation_system,kser.cash.donation.system,model_kser_cash_donation,kser_erp.group_system_admin,1,1,1,1
 access_kser_audit_log_admin,kser.audit.log.admin,model_kser_audit_log,kser_erp.group_admin_supervisor,1,0,0,1
 access_kser_audit_log_system,kser.audit.log.system,model_kser_audit_log,kser_erp.group_system_admin,1,0,1,0
-access_kser_ai_wizard_admin,kser.ai.wizard.admin,model_kser_ai_wizard,kser_erp.group_admin_supervisor,1,1,1,1
-access_kser_ai_wizard_manager,kser.ai.wizard.manager,model_kser_ai_wizard,kser_erp.group_clinic_manager,1,1,1,1
-access_kser_ai_wizard_system,kser.ai.wizard.system,model_kser_ai_wizard,kser_erp.group_system_admin,1,1,1,1
-access_kser_ai_uncovered_case_admin,kser.ai.uncovered.case.admin,model_kser_ai_uncovered_case,kser_erp.group_admin_supervisor,1,1,1,1
-access_kser_ai_uncovered_case_manager,kser.ai.uncovered.case.manager,model_kser_ai_uncovered_case,kser_erp.group_clinic_manager,1,1,1,1
-access_kser_ai_uncovered_case_system,kser.ai.uncovered.case.system,model_kser_ai_uncovered_case,kser_erp.group_system_admin,1,1,1,1
+access_kser_inventory_wizard_admin,kser.inventory.wizard.admin,model_kser_inventory_wizard,kser_erp.group_admin_supervisor,1,1,1,1
+access_kser_inventory_wizard_manager,kser.inventory.wizard.manager,model_kser_inventory_wizard,kser_erp.group_clinic_manager,1,1,1,1
+access_kser_inventory_wizard_system,kser.inventory.wizard.system,model_kser_inventory_wizard,kser_erp.group_system_admin,1,1,1,1
+access_kser_inventory_uncovered_case_admin,kser.inventory.uncovered.case.admin,model_kser_inventory_uncovered_case,kser_erp.group_admin_supervisor,1,1,1,1
+access_kser_inventory_uncovered_case_manager,kser.inventory.uncovered.case.manager,model_kser_inventory_uncovered_case,kser_erp.group_clinic_manager,1,1,1,1
+access_kser_inventory_uncovered_case_system,kser.inventory.uncovered.case.system,model_kser_inventory_uncovered_case,kser_erp.group_system_admin,1,1,1,1
 access_kser_donor_import_data,kser.donor.import.data,model_kser_donor_import_wizard,kser_erp.group_data_manager,1,1,1,1
 access_kser_donor_import_system,kser.donor.import.system,model_kser_donor_import_wizard,kser_erp.group_system_admin,1,1,1,1
 access_kser_national_id_data,kser.national.id.data,model_kser_national_id_wizard,kser_erp.group_data_manager,1,1,1,1
@@ -59,3 +59,4 @@ access_kser_clinic_visit_clinic_manager,kser.clinic.visit.clinic_manager,model_k
 access_kser_prescription_clinic_manager,kser.prescription.clinic_manager,model_kser_prescription,kser_erp.group_clinic_manager,1,0,0,0
 access_kser_prescription_line_clinic_manager,kser.prescription.line.clinic_manager,model_kser_prescription_line,kser_erp.group_clinic_manager,1,0,0,0
 access_kser_child_followup_clinic_manager,kser.child.followup.clinic_manager,model_kser_child_followup,kser_erp.group_clinic_manager,1,0,0,0
+access_kser_chronic_condition,kser.chronic.condition,model_kser_chronic_condition,base.group_user,1,1,1,1

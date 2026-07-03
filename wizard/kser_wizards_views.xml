@@ -197,14 +197,14 @@
         </record>
 
         <!-- ============================================================ -->
-        <!--  Wizard: Smart Distribution — kser.ai.wizard                 -->
+        <!--  Wizard: Smart Distribution — kser.inventory.wizard                 -->
         <!-- ============================================================ -->
 
-        <record id="view_kser_ai_wizard_form" model="ir.ui.view">
-            <field name="name">kser.ai.wizard.form</field>
-            <field name="model">kser.ai.wizard</field>
+        <record id="view_kser_inventory_wizard_form" model="ir.ui.view">
+            <field name="name">kser.inventory.wizard.form</field>
+            <field name="model">kser.inventory.wizard</field>
             <field name="arch" type="xml">
-                <form string="فحص فجوات تغطية الأدوية (AI)" create="0" delete="0">
+                <form string="فحص فجوات تغطية الأدوية" create="0" delete="0">
                     <field name="state" invisible="1"/>
                     <sheet>
                         <div class="alert alert-info" role="alert" invisible="state != 'draft'">
@@ -241,9 +241,9 @@
             </field>
         </record>
 
-        <record id="action_kser_ai_wizard" model="ir.actions.act_window">
-            <field name="name">فحص حالة المخزون (AI)</field>
-            <field name="res_model">kser.ai.wizard</field>
+        <record id="action_kser_inventory_wizard" model="ir.actions.act_window">
+            <field name="name">فحص حالة المخزون</field>
+            <field name="res_model">kser.inventory.wizard</field>
             <field name="view_mode">form</field>
             <field name="target">new</field>
         </record>

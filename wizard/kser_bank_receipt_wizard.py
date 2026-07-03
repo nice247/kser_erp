@@ -70,40 +70,93 @@ class KserBankReceiptWizard(models.TransientModel):
         if not self.receipt_image:
             raise UserError(_('يرجى رفع صورة الإيصال البنكي!'))
 
-        api_key = self.env['ir.config_parameter'].sudo().get_param('kser.springboot_api_key')
-        base_url = self.env['ir.config_parameter'].sudo().get_param('kser.springboot_base_url')
+        api_key = self.env['ir.config_parameter'].sudo().get_param('kser.gemini_api_key')
+        if not api_key:
+            api_key = self.env['ir.config_parameter'].sudo().get_param('kser.springboot_api_key')
 
-        if not api_key or not base_url:
-            raise UserError(_('بيانات الاتصال بالنظام غير مهيأة. يرجى مراجعة مسؤول النظام.'))
+        if not api_key:
+            raise UserError(_('مفتاح Gemini API غير مهيأ. يرجى مراجعة مسؤول النظام.'))
 
-        base_url = base_url.rstrip('/')
+        # Prepare Gemini Request
+        prompt = """
+أنت خبير في استخراج البيانات من إيصالات التحويل البنكي والمالي.
+قم بتحليل الإيصال المرفق لتحديد ما إذا كان إيصال "بنكك" (Bankak / Bank of Khartoum) أو إيصال "فوري" (Fawry / FISB / البنك الإسلامي السوداني)، ثم استخرج البيانات بصيغة JSON فقط، مع مراعاة أن الإيصال قد يكون باللغة العربية أو الإنجليزية:
 
-        image_bytes = base64.b64decode(self.receipt_image)
+البيانات المطلوبة في الـ JSON:
+- transactionId: رقم المعاملة (يقابله في الإيصال: Reference Number, Trx. ID, رقم العملية, أو الرقم المرجعي) (سلسلة نصية).
+- senderAccount: الحساب المرسل (يقابله في الإيصال: From Account, من الحساب, أو من حساب) (سلسلة نصية).
+- amount: المبلغ المحول (يقابله في الإيصال: Amount أو المبلغ) (رقم عشري، تأكد من استخراجه بشكل صحيح بدون فواصل الآلاف).
+- date: تاريخ المعاملة (يقابله في الإيصال: Date, Date & Time, التاريخ, أو التاريخ و الزمن) (حوله دائمًا ليكون بصيغة YYYY-MM-DD).
+- receiverAccount: الحساب المستقبل أو رقمه (يقابله في الإيصال: To Account, الي الحساب, أو الى حساب) (سلسلة نصية).
+- bankName: اسم البنك أو مزود الخدمة (سلسلة نصية، مثل "بنك الخرطوم" لبنكك، و"بنك فيصل الاسلامي" لفوري).
+
+طريقة استخراج البيانات ومعالجتها لكل إيصال:
+
+أولاً: إذا كان الإيصال يخص "بنكك" (Bankak / بنك الخرطوم):
+- حدد bankName كـ "BOK".
+- المعالجة المطلوبة لأرقام الحسابات (senderAccount و receiverAccount):
+  بعد استخراج الرقم من الحقول المناسبة، قم بـ:
+  1. إزالة جميع المسافات الفارغة من الرقم.
+  2. ابدأ العد من اليسار وصولاً إلى الخانة رقم 6، واستخرج 7 أرقام متتالية فقط (بدءاً من هذه الخانة السادسة)، ليكون هذا هو الرقم النهائي للحساب.
+
+ثانياً: إذا كان الإيصال يخص "فوري" (Fawry / FISB):
+- حدد bankName كـ "FISB".
+- المعالجة المطلوبة لأرقام الحسابات (senderAccount و receiverAccount):
+  بعد استخراج الرقم من الحقول المناسبة، قم بـ:
+  1. إزالة جميع المسافات الفارغة من الرقم.
+  2. ابدأ العد من اليسار وصولاً إلى الخانة رقم 10، واستخرج 8 أرقام متتالية فقط (بدءاً من الخانة العاشرة)، ليكون هذا هو الرقم النهائي للحساب.
+
+ثالثاً: اذا لم يكن اي منهم استخرج البيانات وارجع ارقام الحساب كما هي.
+
+لا تضف أي نص، أو مقدمات، أو شروحات خارج هيكل الـ JSON المنسق.
+"""
+        payload = {
+            "contents": [{
+                "parts": [
+                    {"text": prompt},
+                    {
+                        "inlineData": {
+                            "mimeType": "image/jpeg",
+                            "data": self.receipt_image.decode('utf-8') if isinstance(self.receipt_image, bytes) else self.receipt_image
+                        }
+                    }
+                ]
+            }],
+            "generationConfig": {
+                "temperature": 0.1
+            }
+        }
+        
+        url = f'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={api_key}'
+        headers = {'Content-Type': 'application/json'}
 
         try:
-            response = requests.post(
-                f'{base_url}/api/v1/vision/process',
-                files={'image': ('receipt.jpg', image_bytes, 'image/jpeg')},
-                headers={'X-API-KEY': api_key},
-                timeout=30,
-            )
+            response = requests.post(url, json=payload, headers=headers, timeout=60)
+            response.raise_for_status()
         except requests.exceptions.RequestException as e:
-            _logger.error('Bank receipt OCR request failed: %s', str(e))
-            raise UserError(_('فشل الاتصال بالخادم. يرجى المحاولة مرة أخرى أو الاتصال بمسؤول النظام.'))
+            _logger.error('Gemini API request failed: %s - %s', str(e), response.text if hasattr(e, 'response') and e.response else '')
+            raise UserError(_('فشل الاتصال بخادم Gemini. يرجى المحاولة مرة أخرى أو الاتصال بمسؤول النظام.'))
 
         try:
             result = response.json()
-        except Exception:
-            raise UserError(_('تلقى النظام استجابة غير صالحة من الخادم. يرجى الاتصال بمسؤول النظام.'))
-
-        if not result.get('success'):
-            backend_msg = result.get('message', '')
-            errors = result.get('data', {}).get('errors', [])
-            detailed_errors = ', '.join(errors) if errors else ''
-            _logger.error('OCR process failed: %s (Details: %s)', backend_msg, detailed_errors)
-            raise UserError(_("فشلت عملية استخراج البيانات. يرجى التأكد من وضوح صورة الإيصال البنكي والمحاولة مرة أخرى، أو إدخال البيانات يدوياً."))
-
-        data = result.get('data', {})
+            text_response = result['candidates'][0]['content']['parts'][0]['text'].strip()
+            
+            # Clean markdown code blocks if any
+            if text_response.startswith('```json'):
+                text_response = text_response[7:]
+            elif text_response.startswith('```'):
+                text_response = text_response[3:]
+            
+            if text_response.endswith('```'):
+                text_response = text_response[:-3]
+                
+            text_response = text_response.strip()
+            
+            import json
+            data = json.loads(text_response)
+        except (Exception, ValueError, KeyError, IndexError) as e:
+            _logger.error('Failed to parse Gemini response: %s', str(e))
+            raise UserError(_("تلقى النظام استجابة غير صالحة. يرجى التأكد من وضوح الصورة والمحاولة مرة أخرى، أو إدخال البيانات يدوياً."))
 
         self.write({
             'extracted_transaction_id': data.get('transactionId', ''),

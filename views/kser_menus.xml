@@ -205,7 +205,7 @@
                   name="طابور العيادة اليومي"
                   parent="menu_kser_clinic"
                   action="action_kser_clinic_visit_today"
-                  groups="kser_erp.group_admin_supervisor,kser_erp.group_clinic_manager,kser_erp.group_doctor,kser_erp.group_pharmacist,kser_erp.group_receptionist,kser_erp.group_system_admin"
+                  groups="kser_erp.group_admin_supervisor,kser_erp.group_clinic_manager,kser_erp.group_doctor,kser_erp.group_receptionist,kser_erp.group_system_admin"
                   sequence="1"/>
 
         <menuitem id="menu_kser_prescription"
@@ -214,6 +214,13 @@
                   action="action_kser_prescription"
                   groups="kser_erp.group_admin_supervisor,kser_erp.group_clinic_manager,kser_erp.group_doctor,kser_erp.group_pharmacist,kser_erp.group_system_admin"
                   sequence="2"/>
+
+        <menuitem id="menu_kser_prescription_pending"
+                  name="الروشتات قيد انتظار الصرف"
+                  parent="menu_kser_clinic"
+                  action="action_kser_prescription_pending_dispense"
+                  groups="kser_erp.group_admin_supervisor,kser_erp.group_clinic_manager,kser_erp.group_pharmacist,kser_erp.group_system_admin"
+                  sequence="3"/>
 
         <menuitem id="menu_kser_child_followup"
                   name="متابعة سوء التغذية للأطفال"
@@ -236,10 +243,10 @@
                   groups="kser_erp.group_admin_supervisor,kser_erp.group_clinic_manager,kser_erp.group_receptionist,kser_erp.group_system_admin"
                   sequence="5"/>
 
-        <menuitem id="menu_kser_ai_wizard"
-                  name="فحص حالة المخزون (AI)"
+        <menuitem id="menu_kser_inventory_wizard"
+                  name="فحص حالة المخزون"
                   parent="menu_kser_clinic"
-                  action="action_kser_ai_wizard"
+                  action="action_kser_inventory_wizard"
                   groups="kser_erp.group_admin_supervisor,kser_erp.group_clinic_manager,kser_erp.group_system_admin"
                   sequence="6"/>
 

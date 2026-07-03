@@ -96,40 +96,74 @@ class KserNationalIdWizard(models.TransientModel):
         if not self.id_image:
             raise UserError(_('يرجى رفع صورة الرقم الوطني!'))
 
-        api_key = self.env['ir.config_parameter'].sudo().get_param('kser.springboot_api_key')
-        base_url = self.env['ir.config_parameter'].sudo().get_param('kser.springboot_base_url')
+        api_key = self.env['ir.config_parameter'].sudo().get_param('kser.gemini_api_key')
+        if not api_key:
+            api_key = self.env['ir.config_parameter'].sudo().get_param('kser.springboot_api_key')
 
-        if not api_key or not base_url:
-            raise UserError(_('بيانات الاتصال بالنظام غير مهيأة. يرجى مراجعة مسؤول النظام.'))
+        if not api_key:
+            raise UserError(_('مفتاح Gemini API غير مهيأ. يرجى مراجعة مسؤول النظام.'))
 
-        base_url = base_url.rstrip('/')
+        # Prepare Gemini Request
+        prompt = """
+أنت خبير في استخراج البيانات من بطاقات الهوية الوطنية السودانية.
+استخرج البيانات التالية من صورة البطاقة المرفقة بصيغة JSON فقط:
+- nationalIdNumber: الرقم الوطني (يجب أن يكون أرقام فقط 11 خانة)
+- name: الاسم الكامل (نص)
+- dateOfBirth: تاريخ الميلاد (بصيغة YYYY-MM-DD أو بالشكل الموجود في البطاقة)
+- gender: الجنس (ذكر أو أنثى)
+- profession: المهنة (نص)
+- maritalStatus: الحالة الاجتماعية (أعزب، متزوج، الخ)
+- motherName: اسم الأم الثلاثي (نص) المكتوب على البطاقة
 
-        image_bytes = base64.b64decode(self.id_image)
+لا تضف أي نص خارج هيكل JSON.
+"""
+        payload = {
+            "contents": [{
+                "parts": [
+                    {"text": prompt},
+                    {
+                        "inlineData": {
+                            "mimeType": "image/jpeg",
+                            "data": self.id_image.decode('utf-8') if isinstance(self.id_image, bytes) else self.id_image
+                        }
+                    }
+                ]
+            }],
+            "generationConfig": {
+                "temperature": 0.1
+            }
+        }
+        
+        url = f'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={api_key}'
+        headers = {'Content-Type': 'application/json'}
 
         try:
-            response = requests.post(
-                f'{base_url}/api/v1/vision/national-id',
-                files={'image': ('national_id.jpg', image_bytes, 'image/jpeg')},
-                headers={'X-API-KEY': api_key},
-                timeout=30,
-            )
+            response = requests.post(url, json=payload, headers=headers, timeout=60)
+            response.raise_for_status()
         except requests.exceptions.RequestException as e:
-            _logger.error('National ID OCR request failed: %s', str(e))
-            raise UserError(_('فشل الاتصال بالخادم. يرجى المحاولة مرة أخرى أو الاتصال بمسؤول النظام.'))
+            _logger.error('Gemini API request failed: %s - %s', str(e), response.text if hasattr(e, 'response') and e.response else '')
+            raise UserError(_('فشل الاتصال بخادم Gemini. يرجى المحاولة مرة أخرى أو الاتصال بمسؤول النظام.'))
 
         try:
             result = response.json()
-        except Exception:
-            raise UserError(_('تلقى النظام استجابة غير صالحة من الخادم. يرجى الاتصال بمسؤول النظام.'))
-
-        if not result.get('success'):
-            backend_msg = result.get('message', '')
-            errors = result.get('data', {}).get('errors', [])
-            detailed_errors = ', '.join(errors) if errors else ''
-            _logger.error('OCR process failed: %s (Details: %s)', backend_msg, detailed_errors)
-            raise UserError(_("فشلت عملية استخراج البيانات. يرجى التأكد من وضوح صورة الهوية الوطنية والمحاولة مرة أخرى، أو إدخال البيانات يدوياً."))
-
-        data = result.get('data', {})
+            text_response = result['candidates'][0]['content']['parts'][0]['text'].strip()
+            
+            # Clean markdown code blocks if any
+            if text_response.startswith('```json'):
+                text_response = text_response[7:]
+            elif text_response.startswith('```'):
+                text_response = text_response[3:]
+            
+            if text_response.endswith('```'):
+                text_response = text_response[:-3]
+                
+            text_response = text_response.strip()
+            
+            import json
+            data = json.loads(text_response)
+        except (Exception, ValueError, KeyError, IndexError) as e:
+            _logger.error('Failed to parse Gemini response: %s', str(e))
+            raise UserError(_("تلقى النظام استجابة غير صالحة. يرجى التأكد من وضوح الصورة والمحاولة مرة أخرى، أو إدخال البيانات يدوياً."))
 
         self.write({
             'extracted_name': data.get('name', ''),
@@ -210,6 +244,14 @@ class KserNationalIdWizard(models.TransientModel):
         marital_key = MARITAL_STATUS_MAP.get(self.extracted_marital_status, False)
         beneficiary_tag = self.env.ref('kser_erp.partner_category_beneficiary', raise_if_not_found=False)
 
+        gender_key = False
+        if self.extracted_gender:
+            g = self.extracted_gender.strip()
+            if g in ('ذكر', 'Male', 'male', 'M', 'm'):
+                gender_key = 'male'
+            elif g in ('أنثى', 'Female', 'female', 'F', 'f'):
+                gender_key = 'female'
+
         is_id_required = (not self.is_child) or is_older_child
 
         if existing:
@@ -223,6 +265,7 @@ class KserNationalIdWizard(models.TransientModel):
                 'national_id_image': self.id_image,
                 'profession': self.extracted_profession or existing.profession,
                 'marital_status': marital_key or existing.marital_status,
+                'gender': gender_key or existing.gender,
                 'birthdate': birthdate or existing.birthdate,
                 'extracted_mother_name': self.extracted_mother_name,
                 'is_disabled': self.is_disabled,
@@ -243,6 +286,7 @@ class KserNationalIdWizard(models.TransientModel):
             'national_id_image': self.id_image if is_id_required else False,
             'profession': self.extracted_profession or False,
             'marital_status': marital_key,
+            'gender': gender_key,
             'birthdate': birthdate,
             'district': '-',
             'registered_by': self.env.uid,
