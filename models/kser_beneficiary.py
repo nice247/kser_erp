@@ -253,7 +253,9 @@ class KserBeneficiary(models.Model):
                     raise ValidationError(_("يجب أن تكون العلاقة 'رب الأسرة (نفسه)' إذا كان الشخص هو رب الأسرة!"))
 
     @api.constrains('head_of_family_id', 'relationship', 'extracted_mother_name')
-    def _check_ai_relationship_validation(self):
+    def _check_relationship_validation(self):
+        # التحقق من منطقية علاقة القرابة بناءً على تطابق الأسماء بين المستفيد ورب الأسرة
+        # الهدف: منع إدخال علاقات قرابة غير صحيحة بناءً على تشابه الأسماء لتجنب التلاعب
         for rec in self:
             if rec.relationship == 'self' or not rec.head_of_family_id:
                 continue
@@ -263,6 +265,7 @@ class KserBeneficiary(models.Model):
             head_name = rec.head_of_family_id.partner_id.name.strip().split()
             dep_name = rec.partner_id.name.strip().split()
 
+            # يتطلب التحقق وجود اسمين على الأقل لكل من المستفيد ورب الأسرة
             if len(head_name) < 2 or len(dep_name) < 2:
                 continue
 
@@ -311,6 +314,8 @@ class KserBeneficiary(models.Model):
                     raise ValidationError(error_msg)
 
     def _determine_auto_relationship(self, dep):
+        # استنتاج علاقة القرابة تلقائياً بين المستفيد (dep) ورب الأسرة (self)
+        # يعتمد الاستنتاج على مقارنة أجزاء الاسم أو فروق الأعمار في حال عدم تطابق الأسماء
         self.ensure_one()
         head = self
         head_name = head.partner_id.name.strip().split() if head.partner_id.name else []
@@ -425,6 +430,7 @@ class KserBeneficiary(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
+        # إنشاء السجلات مع ضمان ربط المستفيد بنفسه كرب أسرة افتراضياً وتحديث بيانات الاتصال
         records = super().create(vals_list)
         for rec in records:
             if not rec.head_of_family_id:
@@ -434,11 +440,13 @@ class KserBeneficiary(models.Model):
                     'national_id_number': rec.national_id_number,
                     'national_id_image': rec.national_id_image,
                 })
+        # إضافة وسم (Tag) مخصص للمستفيد لتمييزه في جهات الاتصال
         beneficiary_tag = self.env.ref('kser_erp.partner_category_beneficiary', raise_if_not_found=False)
         if beneficiary_tag:
             for rec in records:
                 if rec.partner_id and rec.partner_id.category_tag != beneficiary_tag:
                     rec.partner_id.category_tag = beneficiary_tag.id
+        # تسجيل عملية الإنشاء في سجل التدقيق (Audit Log) للتتبع الأمني
         for rec in records:
             self.env['kser.audit.log'].sudo().create({
                 'action_type': 'create',
@@ -449,11 +457,13 @@ class KserBeneficiary(models.Model):
         return records
 
     def write(self, vals):
+        # فصل الحقول التشغيلية (التي لا تحتاج لصلاحيات عالية) عن الحقول الأساسية
         business_fields = set(vals.keys()) - {
             'message_follower_ids', 'activity_ids', 'message_ids',
             'message_main_attachment_id', 'activity_state', 'activity_type_id',
             'activity_date_deadline', 'activity_summary', 'activity_user_id'
         }
+        # التحقق من الصلاحيات: منع تعديل البيانات الأساسية إلا لمن يملك الصلاحيات المحددة
         if business_fields:
             if not (self.env.user.has_group('kser_erp.group_data_manager') or
                     self.env.user.has_group('kser_erp.group_admin_supervisor') or
@@ -495,6 +505,7 @@ class KserBeneficiary(models.Model):
         return res
 
     def unlink(self):
+        # منع الحذف نهائياً لضمان سلامة قاعدة البيانات وسجلات التدقيق (Data Integrity)
         raise ValidationError(_("يُمنع حذف سجلات المستفيدين بشكل مطلق للحفاظ على سلامة البيانات والتدقيق. إذا لزم الأمر، يمكنك أرشفة السجل أو إيقافه بدلاً من الحذف."))
 
     def action_open_whatsapp(self):

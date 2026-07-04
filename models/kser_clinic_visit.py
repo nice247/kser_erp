@@ -71,8 +71,6 @@ class KserClinicVisit(models.Model):
     @api.model
     def _get_default_visit_date(self):
         now_local = fields.Datetime.context_timestamp(self, datetime.now())
-        if now_local.hour < 2:
-            return (now_local - timedelta(days=1)).date()
         return now_local.date()
 
     @api.model_create_multi

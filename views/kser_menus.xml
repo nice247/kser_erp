@@ -239,7 +239,7 @@
         <menuitem id="menu_kser_clinic_visit_all"
                   name="سجل الزيارات التاريخي"
                   parent="menu_kser_clinic"
-                  action="action_kser_clinic_visit_all"
+                  action="action_kser_clinic_visit_history"
                   groups="kser_erp.group_admin_supervisor,kser_erp.group_clinic_manager,kser_erp.group_receptionist,kser_erp.group_system_admin"
                   sequence="5"/>
 

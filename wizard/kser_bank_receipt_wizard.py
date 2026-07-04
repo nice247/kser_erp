@@ -65,11 +65,14 @@ class KserBankReceiptWizard(models.TransientModel):
         }
 
     def action_extract_data(self):
+        # هذه الدالة مسؤولة عن استخراج البيانات من صورة الإيصال المرفقة باستخدام تقنية الذكاء الاصطناعي
+        # تدعم الدالة حالياً استخراج البيانات عبر نموذج Gemini
         self.ensure_one()
 
         if not self.receipt_image:
             raise UserError(_('يرجى رفع صورة الإيصال البنكي!'))
 
+        # محاولة الحصول على مفتاح الـ API لـ Gemini من إعدادات النظام
         api_key = self.env['ir.config_parameter'].sudo().get_param('kser.gemini_api_key')
         if not api_key:
             api_key = self.env['ir.config_parameter'].sudo().get_param('kser.springboot_api_key')

@@ -76,7 +76,9 @@ async function replayPendingRequestsFallback() {
     try {
         const pending = await getPendingRequests();
         if (!pending || pending.length === 0) return;
-        
+
+        console.log(`[KSER Sync] بدء مزامنة ${pending.length} طلب(ات) معلّقة...`);
+
         for (const record of pending) {
             try {
                 const response = await fetch(record.url, {
@@ -84,13 +86,35 @@ async function replayPendingRequestsFallback() {
                     headers: record.headers,
                     body: record.payload,
                 });
+
                 if (response.ok) {
-                    await deleteRequest(record.id);
+                    // أودو يعيد HTTP 200 دائمًا حتى لو فشل الطلب تطبيقيًا —
+                    // الخطأ الحقيقي يكون داخل جسم JSON كـ {"error": {...}}
+                    // لذلك يجب فحص محتوى الاستجابة قبل حذف السجل
+                    const respJson = await response.json();
+
+                    if (respJson.error) {
+                        console.error(
+                            `[KSER Sync] فشل تطبيقي من أودو للسجل id=${record.id}:`,
+                            respJson.error.data?.message || respJson.error.message || respJson.error
+                        );
+                        // لا نحذف السجل — سيُعاد إرساله في المحاولة القادمة
+                    } else {
+                        await deleteRequest(record.id);
+                        console.log(`[KSER Sync] ✅ تمت مزامنة السجل id=${record.id} بنجاح`);
+                    }
+                } else {
+                    console.warn(
+                        `[KSER Sync] استجابة HTTP غير ناجحة للسجل id=${record.id}: ${response.status}`
+                    );
                 }
             } catch (err) {
+                console.warn(`[KSER Sync] فشل الاتصال للسجل id=${record.id}:`, err.message);
+                // لا يزال غير متصل أو خطأ شبكة — نترك السجل للمحاولة القادمة
             }
         }
     } catch (e) {
+        console.error("[KSER Sync] خطأ عام في عملية المزامنة:", e);
     }
 }
 

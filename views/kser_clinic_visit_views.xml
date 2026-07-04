@@ -143,11 +143,22 @@
             </field>
         </record>
 
-        <record id="action_kser_clinic_visit_all" model="ir.actions.act_window">
+        <record id="action_kser_clinic_visit_history" model="ir.actions.server">
             <field name="name">سجل الزيارات التاريخي</field>
-            <field name="res_model">kser.clinic.visit</field>
-            <field name="view_mode">list,form,graph</field>
-            <field name="search_view_id" ref="view_kser_clinic_visit_search"/>
+            <field name="model_id" ref="model_kser_clinic_visit"/>
+            <field name="state">code</field>
+            <field name="code">
+clinic_date = model._get_default_visit_date()
+action = {
+    'name': 'سجل الزيارات التاريخي',
+    'type': 'ir.actions.act_window',
+    'res_model': 'kser.clinic.visit',
+    'view_mode': 'list,form,graph',
+    'search_view_id': env.ref('kser_erp.view_kser_clinic_visit_search').id,
+    'domain': [('visit_date', '&lt;', str(clinic_date))],
+    'context': {'create': False, 'edit': False, 'delete': False},
+}
+            </field>
         </record>
 
         <record id="action_kser_clinic_visit_today" model="ir.actions.server">

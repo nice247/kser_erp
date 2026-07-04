@@ -1,5 +1,14 @@
 // @odoo-module ignore
 
+// --- Service Worker Activation Control ---
+self.addEventListener("install", (event) => {
+    self.skipWaiting();
+});
+
+self.addEventListener("activate", (event) => {
+    event.waitUntil(self.clients.claim());
+});
+
 // ============================================================
 // KSER Service Worker Extension
 // Appended to Odoo's core service worker via controller override.
@@ -13,6 +22,7 @@ const KSER_SYNC_TAG = "kser-sync";
 const ODOO_ASSETS_CACHE = "kser-assets-cache-v1";
 
 // --- IndexedDB Helpers ---
+
 
 function ksOpenDatabase() {
     return new Promise((resolve, reject) => {
@@ -136,12 +146,18 @@ self.addEventListener("fetch", (event) => {
                         modelName = parsedBody.params ? parsedBody.params.model : "";
                     } catch (e) {}
 
-                    let mockResult = true;
+                    const isSaveAction = rpcMethod === "create" || rpcMethod === "write" || rpcMethod === "web_save" || rpcMethod.startsWith("action_");
 
-                    const isSaveAction = rpcMethod === "create" || rpcMethod === "write" || rpcMethod === "web_save";
+                    const targetModels = [
+                        "kser.beneficiary",
+                        "kser.clinic.visit",
+                        "kser.prescription",
+                        "kser.prescription.line",
+                        "kser.child.followup"
+                    ];
 
-                    // إذا كان الطلب هو حفظ مستفيد جديد
-                    if (isSaveAction && modelName === "kser.beneficiary") {
+                    // إذا كان الطلب هو حفظ مستفيد جديد، زيارة في طابور العيادة، روشتة أو متابعة سوء تغذية
+                    if (isSaveAction && targetModels.includes(modelName)) {
                         const headersObj = {};
                         for (const [key, value] of clonedRequest.headers.entries()) {
                             headersObj[key] = value;
@@ -153,7 +169,11 @@ self.addEventListener("fetch", (event) => {
                             await self.registration.sync.register(KSER_SYNC_TAG);
                         }
 
-                        mockResult = [{ id: Math.floor(Math.random() * 100000) }];
+                        if (rpcMethod === "write" || rpcMethod.startsWith("action_")) {
+                            mockResult = true;
+                        } else {
+                            mockResult = [{ id: Math.floor(Math.random() * 100000) }];
+                        }
                     }
                     // إذا كان طلب واجهة عادي (بحث، تغيير حقل) نعطيه استجابة وهمية لمنع الانهيار
                     else {
@@ -193,6 +213,9 @@ self.addEventListener("sync", (event) => {
             (async () => {
                 const pendingRequests = await ksGetPendingRequests();
 
+                if (pendingRequests.length === 0) return;
+                console.log(`[KSER SW Sync] بدء مزامنة ${pendingRequests.length} طلب(ات) معلّقة...`);
+
                 for (const record of pendingRequests) {
                     try {
                         const response = await fetch(record.url, {
@@ -205,9 +228,20 @@ self.addEventListener("sync", (event) => {
                             const respJson = await response.json();
                             if (!respJson.error) {
                                 await ksDeleteRequest(record.id);
+                                console.log(`[KSER SW Sync] ✅ تمت مزامنة السجل id=${record.id} بنجاح`);
+                            } else {
+                                console.error(
+                                    `[KSER SW Sync] فشل تطبيقي من أودو للسجل id=${record.id}:`,
+                                    respJson.error.data?.message || respJson.error.message || respJson.error
+                                );
                             }
+                        } else {
+                            console.warn(
+                                `[KSER SW Sync] استجابة HTTP غير ناجحة للسجل id=${record.id}: ${response.status}`
+                            );
                         }
                     } catch (syncError) {
+                        console.warn(`[KSER SW Sync] فشل الاتصال للسجل id=${record.id}:`, syncError.message);
                         // لا يزال غير متصل، اتركها للمحاولة القادمة
                     }
                 }

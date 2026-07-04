@@ -62,7 +62,7 @@ class KserInventoryWizard(models.TransientModel):
             'target': 'current',
         }
 
-    def action_get_ai_suggestions(self):
+    def action_analyze_inventory_gap(self):
         self.ensure_one()
 
         if not (self.env.user.has_group('kser_erp.group_admin_supervisor') or 

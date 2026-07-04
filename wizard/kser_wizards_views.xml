@@ -232,7 +232,7 @@
                         </div>
                     </sheet>
                     <footer>
-                        <button name="action_get_ai_suggestions" type="object"
+                        <button name="action_analyze_inventory_gap" type="object"
                                 string="بدء الفحص" class="oe_highlight btn-primary"
                                 invisible="state != 'draft'"/>
                         <button string="إغلاق" special="cancel" class="btn-secondary"/>
