@@ -473,8 +473,7 @@ msgid "Field Volunteers Performance Report"
 msgstr "تقرير إنجاز المتطوعين الميدانيين"
 
 #. module: kser_erp
-msgid "API credentials (kser.springboot_api_key or kser.springboot_base_url) are not configured!"
-msgstr "بيانات الاعتماد للـ API (kser.springboot_api_key أو kser.springboot_base_url) غير مهيأة في النظام!"
+
 
 #. module: kser_erp
 msgid "Connection failed: %s"

@@ -60,3 +60,7 @@ access_kser_prescription_clinic_manager,kser.prescription.clinic_manager,model_k
 access_kser_prescription_line_clinic_manager,kser.prescription.line.clinic_manager,model_kser_prescription_line,kser_erp.group_clinic_manager,1,0,0,0
 access_kser_child_followup_clinic_manager,kser.child.followup.clinic_manager,model_kser_child_followup,kser_erp.group_clinic_manager,1,0,0,0
 access_kser_chronic_condition,kser.chronic.condition,model_kser_chronic_condition,base.group_user,1,1,1,1
+access_stock_move_data,stock.move.data,stock.model_stock_move,kser_erp.group_data_manager,1,0,0,0
+access_stock_picking_data,stock.picking.data,stock.model_stock_picking,kser_erp.group_data_manager,1,0,0,0
+access_stock_move_field,stock.move.field,stock.model_stock_move,kser_erp.group_field_supervisor,1,0,0,0
+access_stock_picking_field,stock.picking.field,stock.model_stock_picking,kser_erp.group_field_supervisor,1,0,0,0

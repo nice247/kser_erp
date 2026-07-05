@@ -42,6 +42,13 @@ class StockPicking(models.Model):
                 raise UserError(_("لا يمكن تأكيد التحويل. ميزانية الحملة '%s' غير معتمدة!") % rec.project_id.name)
             if rec.distribution_type == 'individual' and rec.partner_id and rec.partner_id.is_clinic_only:
                 raise UserError(_("لا يمكن صرف إغاثة لمستفيد مسجل كـ 'عيادة فقط' دون رقم وطني وصورة هوية معتمدة!"))
+            
+            if self.env.user.has_group('kser_erp.group_pharmacist'):
+                if rec.picking_type_id.code != 'outgoing':
+                    raise UserError(_("الصيدلي لا يمكنه استلام مخزون (الوارد). يمكنك فقط اعتماد أذونات الصرف (المنصرف)."))
+                for line in rec.move_ids_without_package:
+                    if not line.product_id.is_therapeutic:
+                        raise UserError(_("الصيدلي لا يمكنه صرف أو التعامل مع منتجات غير علاجية! المنتج (%s) غير علاجي.") % line.product_id.display_name)
         res = super().button_validate()
         for rec in self:
             if rec.state == 'done':

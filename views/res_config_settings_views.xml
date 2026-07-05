@@ -15,14 +15,27 @@
                          name="kser_erp">
                         <block title="إعدادات قراءة الهوية والإيصالات (Gemini API)"
                                name="kser_api_settings">
-                            <setting string="مفتاح الذكاء الاصطناعي"
-                                     help="مفتاح الاتصال الخاص بخدمات جوجل للذكاء الاصطناعي">
+                            <setting string="مزود الذكاء الاصطناعي"
+                                     help="اختيار مزود الذكاء الاصطناعي وإعداداته">
                                 <div class="content-group">
                                     <div class="row mt16">
-                                        <label for="kser_gemini_api_key" class="col-lg-3"/>
-                                        <field name="kser_gemini_api_key"
+                                        <label for="kser_ai_provider" class="col-lg-3"/>
+                                        <field name="kser_ai_provider" required="1"/>
+                                    </div>
+                                    <div class="row mt16">
+                                        <label for="kser_ai_model" class="col-lg-3"/>
+                                        <field name="kser_ai_model" placeholder="مثال: gemini-2.5-flash أو llava"/>
+                                    </div>
+                                    <div class="row mt16" invisible="kser_ai_provider != 'gemini'">
+                                        <label for="kser_ai_api_key" class="col-lg-3"/>
+                                        <field name="kser_ai_api_key"
                                                password="True"
-                                               placeholder="أدخل مفتاح Gemini هنا..."/>
+                                               placeholder="أدخل مفتاح الـ API..."/>
+                                    </div>
+                                    <div class="row mt16" invisible="kser_ai_provider != 'ollama'">
+                                        <label for="kser_local_llm_url" class="col-lg-3"/>
+                                        <field name="kser_local_llm_url"
+                                               placeholder="مثال: http://localhost:11434/api/generate"/>
                                     </div>
                                 </div>
                             </setting>

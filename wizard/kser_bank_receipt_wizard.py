@@ -72,15 +72,10 @@ class KserBankReceiptWizard(models.TransientModel):
         if not self.receipt_image:
             raise UserError(_('يرجى رفع صورة الإيصال البنكي!'))
 
-        # محاولة الحصول على مفتاح الـ API لـ Gemini من إعدادات النظام
-        api_key = self.env['ir.config_parameter'].sudo().get_param('kser.gemini_api_key')
-        if not api_key:
-            api_key = self.env['ir.config_parameter'].sudo().get_param('kser.springboot_api_key')
+        ai_provider = self.env['ir.config_parameter'].sudo().get_param('kser.ai_provider', 'gemini')
+        ai_model = self.env['ir.config_parameter'].sudo().get_param('kser.ai_model', 'gemini-2.5-flash')
 
-        if not api_key:
-            raise UserError(_('مفتاح Gemini API غير مهيأ. يرجى مراجعة مسؤول النظام.'))
-
-        # Prepare Gemini Request
+        # Prepare Request Prompt
         prompt = """
 أنت خبير في استخراج البيانات من إيصالات التحويل البنكي والمالي.
 قم بتحليل الإيصال المرفق لتحديد ما إذا كان إيصال "بنكك" (Bankak / Bank of Khartoum) أو إيصال "فوري" (Fawry / FISB / البنك الإسلامي السوداني)، ثم استخرج البيانات بصيغة JSON فقط، مع مراعاة أن الإيصال قد يكون باللغة العربية أو الإنجليزية:
@@ -113,36 +108,57 @@ class KserBankReceiptWizard(models.TransientModel):
 
 لا تضف أي نص، أو مقدمات، أو شروحات خارج هيكل الـ JSON المنسق.
 """
-        payload = {
-            "contents": [{
-                "parts": [
-                    {"text": prompt},
-                    {
-                        "inlineData": {
-                            "mimeType": "image/jpeg",
-                            "data": self.receipt_image.decode('utf-8') if isinstance(self.receipt_image, bytes) else self.receipt_image
-                        }
-                    }
-                ]
-            }],
-            "generationConfig": {
-                "temperature": 0.1
-            }
-        }
-        
-        url = f'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={api_key}'
         headers = {'Content-Type': 'application/json'}
+        img_data = self.receipt_image.decode('utf-8') if isinstance(self.receipt_image, bytes) else self.receipt_image
+
+        if ai_provider == 'gemini':
+            api_key = self.env['ir.config_parameter'].sudo().get_param('kser.ai_api_key')
+            if not api_key:
+                raise UserError(_('مفتاح الـ API غير مهيأ. يرجى مراجعة إعدادات النظام.'))
+            
+            url = f'https://generativelanguage.googleapis.com/v1beta/models/{ai_model}:generateContent?key={api_key}'
+            payload = {
+                "contents": [{
+                    "parts": [
+                        {"text": prompt},
+                        {
+                            "inlineData": {
+                                "mimeType": "image/jpeg",
+                                "data": img_data
+                            }
+                        }
+                    ]
+                }],
+                "generationConfig": {
+                    "temperature": 0.1
+                }
+            }
+        else:
+            url = self.env['ir.config_parameter'].sudo().get_param('kser.local_llm_url')
+            if not url:
+                raise UserError(_('رابط الخادم المحلي غير مهيأ. يرجى مراجعة إعدادات النظام.'))
+            
+            payload = {
+                "model": ai_model,
+                "prompt": prompt,
+                "images": [img_data],
+                "stream": False,
+                "format": "json"
+            }
 
         try:
             response = requests.post(url, json=payload, headers=headers, timeout=60)
             response.raise_for_status()
         except requests.exceptions.RequestException as e:
-            _logger.error('Gemini API request failed: %s - %s', str(e), response.text if hasattr(e, 'response') and e.response else '')
-            raise UserError(_('فشل الاتصال بخادم Gemini. يرجى المحاولة مرة أخرى أو الاتصال بمسؤول النظام.'))
+            _logger.error('API request failed: %s - %s', str(e), response.text if hasattr(e, 'response') and e.response else '')
+            raise UserError(_('فشل الاتصال بخادم الذكاء الاصطناعي. يرجى المحاولة مرة أخرى أو الاتصال بمسؤول النظام.'))
 
         try:
             result = response.json()
-            text_response = result['candidates'][0]['content']['parts'][0]['text'].strip()
+            if ai_provider == 'gemini':
+                text_response = result['candidates'][0]['content']['parts'][0]['text'].strip()
+            else:
+                text_response = result.get('response', '').strip()
             
             # Clean markdown code blocks if any
             if text_response.startswith('```json'):
@@ -158,7 +174,7 @@ class KserBankReceiptWizard(models.TransientModel):
             import json
             data = json.loads(text_response)
         except (Exception, ValueError, KeyError, IndexError) as e:
-            _logger.error('Failed to parse Gemini response: %s', str(e))
+            _logger.error('Failed to parse AI response: %s', str(e))
             raise UserError(_("تلقى النظام استجابة غير صالحة. يرجى التأكد من وضوح الصورة والمحاولة مرة أخرى، أو إدخال البيانات يدوياً."))
 
         self.write({

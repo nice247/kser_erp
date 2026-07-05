@@ -98,12 +98,12 @@ class ResPartner(models.Model):
     @api.depends('task_ids')
     def _compute_task_count(self):
         for rec in self:
-            rec.task_count = len(rec.task_ids)
+            rec.task_count = len(rec.task_ids.sudo())
 
     @api.depends('donation_ids')
     def _compute_donation_count(self):
         for rec in self:
-            rec.donation_count = len(rec.donation_ids)
+            rec.donation_count = len(rec.donation_ids.sudo())
 
     def action_view_volunteer_tasks(self):
         self.ensure_one()

@@ -106,6 +106,11 @@ class KserBeneficiary(models.Model):
         index=True,
         tracking=True,
     )
+    active = fields.Boolean(
+        string='Active',
+        default=True,
+        tracking=True,
+    )
 
     is_disabled = fields.Boolean(
         string='Disabled / Special Needs',
@@ -409,7 +414,7 @@ class KserBeneficiary(models.Model):
     @api.depends('move_ids')
     def _compute_move_count(self):
         for rec in self:
-            rec.move_count = len(rec.move_ids)
+            rec.move_count = len(rec.move_ids.sudo())
 
     def action_view_moves(self):
         self.ensure_one()
@@ -430,6 +435,11 @@ class KserBeneficiary(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
+        for vals in vals_list:
+            if vals.get('is_verified') and not (self.env.user.has_group('kser_erp.group_data_manager') or
+                                                self.env.user.has_group('kser_erp.group_admin_supervisor') or
+                                                self.env.user.has_group('kser_erp.group_system_admin')):
+                vals['is_verified'] = False
         # إنشاء السجلات مع ضمان ربط المستفيد بنفسه كرب أسرة افتراضياً وتحديث بيانات الاتصال
         records = super().create(vals_list)
         for rec in records:

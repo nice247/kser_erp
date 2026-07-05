@@ -35,7 +35,10 @@
         <record id="group_pharmacist" model="res.groups">
             <field name="name">الصيدلي</field>
             <field name="category_id" ref="module_category_kser"/>
-            <field name="implied_ids" eval="[(4, ref('group_kser_user'))]"/>
+            <field name="implied_ids" eval="[
+                (4, ref('group_kser_user')),
+                (4, ref('stock.group_stock_user'))
+            ]"/>
         </record>
 
         <record id="group_clinic_manager" model="res.groups">
@@ -59,7 +62,10 @@
         <record id="group_stock_manager" model="res.groups">
             <field name="name">مسؤول المخازن</field>
             <field name="category_id" ref="module_category_kser"/>
-            <field name="implied_ids" eval="[(4, ref('group_kser_user'))]"/>
+            <field name="implied_ids" eval="[
+                (4, ref('group_kser_user')),
+                (4, ref('stock.group_stock_manager'))
+            ]"/>
         </record>
 
         <record id="group_admin_supervisor" model="res.groups">

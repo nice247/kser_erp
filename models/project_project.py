@@ -48,12 +48,12 @@ class ProjectProject(models.Model):
     @api.depends('picking_ids')
     def _compute_picking_count(self):
         for rec in self:
-            rec.picking_count = len(rec.picking_ids)
+            rec.picking_count = len(rec.picking_ids.sudo())
 
     @api.depends('donation_ids')
     def _compute_donation_count(self):
         for rec in self:
-            rec.donation_count = len(rec.donation_ids)
+            rec.donation_count = len(rec.donation_ids.sudo())
 
     def action_approve_budget(self):
         for rec in self:

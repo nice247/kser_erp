@@ -68,7 +68,8 @@
                     <field name="is_beneficiary" invisible="1"/>
                     <button name="action_view_volunteer_tasks" type="object"
                             class="oe_stat_button" icon="fa-tasks"
-                            invisible="not is_volunteer">
+                            invisible="not is_volunteer"
+                            groups="kser_erp.group_field_supervisor,kser_erp.group_admin_supervisor,kser_erp.group_system_admin">
                         <div class="o_stat_info">
                             <field name="task_count" class="o_stat_value"/>
                             <span class="o_stat_text">المهام الميدانية</span>
