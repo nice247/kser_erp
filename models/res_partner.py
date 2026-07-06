@@ -75,10 +75,10 @@ class ResPartner(models.Model):
                 if not rec.national_id_number or len(rec.national_id_number) != 11 or not rec.national_id_number.isdigit():
                     raise ValidationError(_("يجب أن يتكون الرقم الوطني للمتطوع من 11 خانة رقمية فقط!"))
 
-    task_ids = fields.One2many(
+    task_ids = fields.Many2many(
         'project.task',
-        'volunteer_id',
         string='Volunteer Tasks',
+        compute='_compute_task_ids',
     )
     donation_ids = fields.One2many(
         'kser.cash.donation',
@@ -94,6 +94,11 @@ class ResPartner(models.Model):
         compute='_compute_donation_count',
         string='Donations Count',
     )
+
+    @api.depends()
+    def _compute_task_ids(self):
+        for rec in self:
+            rec.task_ids = self.env['project.task'].search([('volunteer_ids', 'in', rec.id)])
 
     @api.depends('task_ids')
     def _compute_task_count(self):
@@ -112,8 +117,8 @@ class ResPartner(models.Model):
             'type': 'ir.actions.act_window',
             'res_model': 'project.task',
             'view_mode': 'list,form',
-            'domain': [('volunteer_id', '=', self.id)],
-            'context': {'default_volunteer_id': self.id},
+            'domain': [('volunteer_ids', 'in', self.id)],
+            'context': {'default_volunteer_ids': [(4, self.id)]},
         }
 
     def action_view_donations(self):
@@ -130,6 +135,16 @@ class ResPartner(models.Model):
     whatsapp_number = fields.Char(
         string='WhatsApp Number',
     )
+    volunteer_completion_rate = fields.Float(
+        string='نسبة الإنجاز الكلية',
+        help='التقييم أو نسبة الإنجاز الكلية للمتطوع الميداني',
+    )
+
+    @api.constrains('volunteer_completion_rate')
+    def _check_volunteer_completion_rate(self):
+        for rec in self:
+            if rec.volunteer_completion_rate and not (0 <= rec.volunteer_completion_rate <= 100):
+                raise ValidationError(_('يجب أن تكون نسبة الإنجاز بين 0 و 100!'))
 
     def action_open_whatsapp(self):
         self.ensure_one()

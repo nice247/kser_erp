@@ -21,6 +21,8 @@
                     <filter name="filter_child" string="أطفال" domain="[('is_child', '=', True)]"/>
                     <filter name="filter_widowed_females" string="الأرامل الإناث" domain="[('marital_status', '=', 'widowed'), ('gender', '=', 'female')]"/>
                     <separator/>
+                    <filter name="inactive" string="مؤرشف" domain="[('active', '=', False)]"/>
+                    <separator/>
                     <group expand="0" string="تجميع حسب">
                         <filter name="group_district" string="المحلية" context="{'group_by': 'district'}"/>
                         <filter name="group_disabled" string="ذوو احتياجات خاصة" context="{'group_by': 'is_disabled'}"/>

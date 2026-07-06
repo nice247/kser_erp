@@ -143,7 +143,7 @@ class KserCashDonation(models.Model):
 
 
     def action_confirm(self):
-        """Creates an account.payment (Inbound) for this donation."""
+        """Creates an account.move (Journal Entry) directly to record Donation Income."""
         for rec in self:
             if rec.state != 'draft':
                 continue
@@ -158,23 +158,47 @@ class KserCashDonation(models.Model):
             
             if not journal:
                 raise ValidationError(_("لم يتم العثور على دفتر يومية بنك أو نقدية لهذه الشركة."))
+            
+            if not journal.default_account_id:
+                raise ValidationError(_("دفتر اليومية (البنك/النقدية) المختار ليس لديه حساب افتراضي مهيأ."))
 
-            payment_vals = {
-                'payment_type': 'inbound',
-                'partner_type': 'customer',
-                'partner_id': rec.partner_id.id,
-                'amount': rec.amount,
-                'currency_id': rec.currency_id.id,
-                'journal_id': journal.id,
+            # Find Income Account
+            income_account = self.env['account.account'].search([
+                ('account_type', '=', 'income'),
+                ('company_id', '=', self.env.company.id)
+            ], limit=1)
+            
+            if not income_account:
+                raise ValidationError(_("لم يتم العثور على حساب 'إيرادات' (Income) في شجرة الحسابات. يرجى تهيئة الحسابات أولاً."))
+
+            move_vals = {
+                'move_type': 'entry',
                 'date': rec.donation_date,
-                'memo': f"Donation: {rec.transaction_number}",
+                'journal_id': journal.id,
+                'ref': f"Donation: {rec.transaction_number}",
+                'line_ids': [
+                    (0, 0, {
+                        'name': f"Donation Receipt from {rec.partner_id.name}",
+                        'account_id': journal.default_account_id.id,
+                        'debit': rec.amount,
+                        'credit': 0.0,
+                        'partner_id': rec.partner_id.id,
+                    }),
+                    (0, 0, {
+                        'name': f"Donation Income: {rec.transaction_number}",
+                        'account_id': income_account.id,
+                        'debit': 0.0,
+                        'credit': rec.amount,
+                        'partner_id': rec.partner_id.id,
+                    }),
+                ]
             }
-            payment = self.env['account.payment'].create(payment_vals)
-            payment.action_post()
+            move = self.env['account.move'].create(move_vals)
+            move.action_post()
 
             rec.write({
-                'payment_id': payment.id,
-                'move_id': payment.move_id.id,
+                'payment_id': False,
+                'move_id': move.id,
                 'state': 'posted',
             })
             

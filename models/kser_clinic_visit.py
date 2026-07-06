@@ -21,6 +21,11 @@ class KserClinicVisit(models.Model):
         required=True,
         tracking=True,
     )
+    health_conditions = fields.Many2many(
+        related='beneficiary_id.health_conditions',
+        string='الأمراض المزمنة',
+        readonly=True,
+    )
     receptionist_id = fields.Many2one(
         'res.users',
         string='Receptionist',

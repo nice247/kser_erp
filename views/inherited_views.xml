@@ -165,6 +165,7 @@
                                 <field name="whatsapp_number" placeholder="مثال: 0912345678"/>
                                 <button name="action_open_whatsapp" type="object" class="btn-success" icon="fa-whatsapp" title="مراسلة عبر واتساب" invisible="not whatsapp_number"/>
                             </div>
+                            <field name="volunteer_completion_rate" invisible="not is_volunteer" widget="progressbar"/>
                         </group>
                         <group string="بيانات الهوية" invisible="is_donor">
                             <field name="national_id_number" string="رقم الهوية الوطنية" required="is_volunteer"/>
@@ -185,10 +186,29 @@
             <field name="model">project.task</field>
             <field name="inherit_id" ref="project.view_task_form2"/>
             <field name="arch" type="xml">
-                <xpath expr="//sheet" position="inside">
+                <!-- إخفاء الحقول غير المطلوبة لمسؤولي الطوارئ -->
+                <xpath expr="//field[@name='user_ids']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='partner_id']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='date_deadline']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='tag_ids']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//notebook" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                
+                <!-- إضافة بيانات التقييم بعد بيانات الحملة -->
+                <xpath expr="//group" position="after">
                     <group string="بيانات التقييم والتكليف (KSER)" name="kser_evaluation_group">
+                        <field name="available_volunteer_ids" invisible="1"/>
                         <group>
-                            <field name="volunteer_id" string="المتطوع المكلف"/>
+                            <field name="volunteer_ids" string="المتطوعين المكلفين" widget="many2many_tags"/>
                             <field name="picking_id" string="إذن التوزيع المرتبط"/>
                         </group>
                         <group>

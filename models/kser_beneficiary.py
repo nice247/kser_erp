@@ -444,9 +444,9 @@ class KserBeneficiary(models.Model):
         records = super().create(vals_list)
         for rec in records:
             if not rec.head_of_family_id:
-                rec.head_of_family_id = rec.id
+                rec.sudo().head_of_family_id = rec.id
             if rec.partner_id:
-                rec.partner_id.write({
+                rec.partner_id.sudo().write({
                     'national_id_number': rec.national_id_number,
                     'national_id_image': rec.national_id_image,
                 })
@@ -455,7 +455,7 @@ class KserBeneficiary(models.Model):
         if beneficiary_tag:
             for rec in records:
                 if rec.partner_id and rec.partner_id.category_tag != beneficiary_tag:
-                    rec.partner_id.category_tag = beneficiary_tag.id
+                    rec.partner_id.sudo().category_tag = beneficiary_tag.id
         # تسجيل عملية الإنشاء في سجل التدقيق (Audit Log) للتتبع الأمني
         for rec in records:
             self.env['kser.audit.log'].sudo().create({
@@ -474,7 +474,7 @@ class KserBeneficiary(models.Model):
             'activity_date_deadline', 'activity_summary', 'activity_user_id'
         }
         # التحقق من الصلاحيات: منع تعديل البيانات الأساسية إلا لمن يملك الصلاحيات المحددة
-        if business_fields:
+        if business_fields and not self.env.su:
             if not (self.env.user.has_group('kser_erp.group_data_manager') or
                     self.env.user.has_group('kser_erp.group_admin_supervisor') or
                     self.env.user.has_group('kser_erp.group_system_admin')):

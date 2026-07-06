@@ -70,9 +70,11 @@
                     <header>
                         <button name="%(kser_erp.action_kser_bank_receipt_wizard)d" type="action" 
                                 string="قراءة الإيصال (AI)" class="oe_highlight"
-                                invisible="not id"/>
+                                invisible="not id"
+                                groups="kser_erp.group_admin_supervisor,kser_erp.group_system_admin"/>
                         <button name="action_confirm" type="object" string="تأكيد مالياً"
-                                class="oe_highlight" invisible="state != 'draft'"/>
+                                class="oe_highlight" invisible="state != 'draft'"
+                                groups="kser_erp.group_admin_supervisor,kser_erp.group_system_admin"/>
                         <field name="state" widget="statusbar" statusbar_visible="draft,posted"/>
                     </header>
                     <sheet>
@@ -89,31 +91,32 @@
                         <div class="oe_title">
                             <h1>
                                 <field name="transaction_number" string="رقم العملية البنكية"
-                                       placeholder="رقم العملية البنكية..."/>
+                                       placeholder="رقم العملية البنكية..."
+                                       readonly="state == 'posted' or matched_by_ocr"/>
                             </h1>
                         </div>
 
                         <group>
                             <group string="بيانات التبرع">
-                                <field name="partner_id" string="المتبرع"/>
-                                <field name="campaign_id" string="الحملة المرتبطة"/>
-                                <field name="amount" string="المبلغ"/>
-                                <field name="currency_id" string="العملة" invisible="1"/>
-                                <field name="donation_date" string="تاريخ التبرع"/>
-                                <field name="bank_name" string="اسم البنك"/>
+                                <field name="partner_id" string="المتبرع" readonly="state == 'posted'"/>
+                                <field name="campaign_id" string="الحملة المرتبطة" readonly="state == 'posted'"/>
+                                <field name="amount" string="المبلغ" readonly="state == 'posted' or matched_by_ocr" options="{'currency_field': 'currency_id'}"/>
+                                <field name="currency_id" invisible="1"/>
+                                <field name="donation_date" string="تاريخ التبرع" readonly="state == 'posted' or matched_by_ocr"/>
+                                <field name="bank_name" string="اسم البنك" readonly="state == 'posted' or matched_by_ocr"/>
                             </group>
                             <group string="إيصال الدفع">
                                 <field name="receipt_image" string="صورة إيصال البنك"
                                        widget="image" class="oe_avatar" options="{'size': [2048, 2048]}" readonly="1"/>
                             </group>
                             <group string="بيانات الحسابات">
-                                <field name="sender_account_number" string="رقم حساب المرسل"/>
-                                <field name="receiver_account_number" string="رقم حساب المستلم"/>
+                                <field name="sender_account_number" string="رقم حساب المرسل" readonly="state == 'posted' or matched_by_ocr"/>
+                                <field name="receiver_account_number" string="رقم حساب المستلم" readonly="state == 'posted' or matched_by_ocr"/>
                                 <field name="payment_id" string="السند المرتبط" readonly="1"
                                        invisible="not payment_id"/>
                                 <field name="move_id" string="القيد المرتبط" readonly="1"
                                        invisible="not move_id"/>
-                                <field name="created_by" string="رُفع بواسطة"/>
+                                <field name="created_by" string="رُفع بواسطة" readonly="1"/>
                             </group>
                         </group>
 

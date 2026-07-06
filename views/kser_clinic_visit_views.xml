@@ -37,6 +37,7 @@
                       decoration-muted="state == 'cancelled'">
                     <field name="name" string="رقم الزيارة"/>
                     <field name="beneficiary_id" string="المريض"/>
+                    <field name="health_conditions" string="الأمراض المزمنة" widget="many2many_tags" optional="show"/>
                     <field name="doctor_id" string="الطبيب المعالج"/>
                     <field name="receptionist_id" string="موظف الاستقبال"/>
                     <field name="visit_date" string="تاريخ الزيارة"/>
@@ -75,6 +76,7 @@
                         <group>
                             <group string="بيانات الزيارة">
                                 <field name="beneficiary_id" string="المريض"/>
+                                <field name="health_conditions" string="الأمراض المزمنة" widget="many2many_tags" invisible="not health_conditions"/>
                                 <field name="doctor_id" string="الطبيب المعالج"/>
                                 <field name="receptionist_id" string="موظف الاستقبال"/>
                             </group>

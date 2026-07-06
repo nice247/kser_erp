@@ -1,7 +1,7 @@
 // @odoo-module ignore
 
 // ============================================================
-// KSER IndexedDB — وحدة المزامنة دون اتصال (Offline Sync Module)
+// KSER IndexedDB — ملف المزامنة دون اتصال
 // يعمل في السياق الرئيسي للمتصفح كآلية احتياطية (Fallback)
 // عندما لا يدعم المتصفح Background Sync API
 // ============================================================
@@ -266,20 +266,16 @@ async function ksGetCachedRpcResponse(cacheKey) {
 /**
  * إعادة إرسال الطلبات المعلّقة — آلية احتياطية (Fallback)
  * تعمل كبديل عندما لا يدعم المتصفح Background Sync API
- *
  * الحماية من التنفيذ المتداخل:
  * - يستخدم قفل `_isSyncing` لمنع التداخل عند استدعاء الدالة
  *   من `setInterval` و `online` event و `load` event في نفس الوقت
- *
  * معالجة أخطاء أودو:
  * - أودو يعيد HTTP 200 دائمًا حتى لو فشل الطلب تطبيقيًا
  * - الخطأ الحقيقي يكون داخل جسم JSON كـ {"error": {...}}
  * - إذا تجاوز عدد المحاولات الحد الأقصى، يُنقل السجل إلى Dead Letter Queue
- *
  * تحسين الشبكة:
  * - عند فشل الاتصال بالشبكة، يتوقف الحلقة فوراً (break)
  *   لعدم محاولة إرسال طلبات أخرى على اتصال ميت
- *
  * @returns {Promise<void>}
  */
 /**
@@ -364,7 +360,7 @@ async function replayPendingRequestsFallback() {
                         respJson = JSON.parse(responseText);
                     } catch (_parseErr) {
                         console.error(
-                            `[KSER Sync] ❌ استجابة غير JSON للسجل id=${record.id} — نقل إلى Dead Letter Queue`
+                            `[KSER Sync] استجابة غير JSON للسجل id=${record.id} — نقل إلى Dead Letter Queue`
                         );
                         await moveToDeadLetterQueue(record, `Non-JSON response: ${responseText.substring(0, 200)}`);
                         continue;
@@ -387,7 +383,7 @@ async function replayPendingRequestsFallback() {
                             await moveToDeadLetterQueue(record, errorMsg);
                         } else {
                             console.warn(
-                                `[KSER Sync] ⚠️ فشل تطبيقي من أودو للسجل id=${record.id} (محاولة ${currentRetries}/${KSER_MAX_RETRIES}):`,
+                                `[KSER Sync]  فشل تطبيقي من أودو للسجل id=${record.id} (محاولة ${currentRetries}/${KSER_MAX_RETRIES}):`,
                                 errorMsg
                             );
                             await updateRetryCount(record);
@@ -411,7 +407,7 @@ async function replayPendingRequestsFallback() {
 
                         if (record.mockId && realId) {
                             idMap[record.mockId] = realId;
-                            console.log(`[KSER Sync] 🔗 تم مطابقة المعرف الوهمي ${record.mockId} بالمعرف الحقيقي ${realId}`);
+                            console.log(`[KSER Sync] تم مطابقة المعرف الوهمي ${record.mockId} بالمعرف الحقيقي ${realId}`);
                         }
 
                         await deleteRequest(record.id);

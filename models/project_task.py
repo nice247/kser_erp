@@ -5,12 +5,47 @@ from odoo.exceptions import ValidationError
 class ProjectTask(models.Model):
     _inherit = 'project.task'
 
-    volunteer_id = fields.Many2one(
+    volunteer_ids = fields.Many2many(
         'res.partner',
-        string='Volunteer',
-        domain=[('category_tag', '!=', False)], # Will filter by volunteer category in action context or generic classification tag
-        tracking=True,
+        string='Volunteers',
+        domain="[('id', 'in', available_volunteer_ids)]",
     )
+    available_volunteer_ids = fields.Many2many(
+        'res.partner',
+        compute='_compute_available_volunteer_ids',
+        store=False,
+    )
+
+    @api.depends_context('uid')
+    def _compute_available_volunteer_ids(self):
+        volunteer_tag = self.env.ref('kser_erp.partner_category_volunteer', raise_if_not_found=False)
+        base_domain = [('category_tag', '=', volunteer_tag.id)] if volunteer_tag else [('category_tag', '!=', False)]
+        
+        user = self.env.user
+        is_field_supervisor = user.has_group('kser_erp.group_field_supervisor')
+        is_admin = user.has_group('kser_erp.group_system_admin')
+        is_admin_supervisor = user.has_group('kser_erp.group_admin_supervisor')
+        is_data_manager = user.has_group('kser_erp.group_data_manager')
+
+        if is_admin or is_admin_supervisor or is_data_manager:
+            # Can see all volunteers
+            allowed_partners = self.env['res.partner'].sudo().search(base_domain)
+        elif is_field_supervisor:
+            # Can only see their own, or those created by admin / data manager
+            admin_data_users = self.env['res.users'].sudo().search([
+                '|',
+                ('groups_id', 'in', [self.env.ref('kser_erp.group_admin_supervisor').id]),
+                ('groups_id', 'in', [self.env.ref('kser_erp.group_data_manager').id])
+            ])
+            allowed_uids = admin_data_users.ids + [user.id]
+            domain = base_domain + [('create_uid', 'in', allowed_uids)]
+            allowed_partners = self.env['res.partner'].sudo().search(domain)
+        else:
+            allowed_partners = self.env['res.partner'].browse()
+
+        for rec in self:
+            rec.available_volunteer_ids = allowed_partners
+
     picking_id = fields.Many2one(
         'stock.picking',
         string='Distribution Order (Picking)',
@@ -31,14 +66,13 @@ class ProjectTask(models.Model):
             if rec.completion_rate and not (0 <= rec.completion_rate <= 100):
                 raise ValidationError(_('يجب أن تكون نسبة الإنجاز بين 0 و 100!'))
 
-    @api.constrains('volunteer_id')
+    @api.constrains('volunteer_ids')
     def _check_volunteer_assignment(self):
         is_field_supervisor = self.env.user.has_group('kser_erp.group_field_supervisor')
         is_admin = self.env.user.has_group('kser_erp.group_system_admin')
         is_admin_supervisor = self.env.user.has_group('kser_erp.group_admin_supervisor')
         if is_field_supervisor and not (is_admin or is_admin_supervisor):
             for rec in self:
-                if rec.volunteer_id:
-                    volunteer = rec.volunteer_id
+                for volunteer in rec.volunteer_ids:
                     if volunteer.supervisor_id != self.env.user and volunteer.create_uid != self.env.user:
                         raise ValidationError(_("لا يمكنك تعيين مهام إلا للمتطوعين التابعين لك!"))
