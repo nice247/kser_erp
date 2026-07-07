@@ -14,6 +14,7 @@
                     <field name="journal_id"/>
                     <field name="campaign_id"/>
                     <field name="volunteer_id" optional="show"/>
+                    <field name="beneficiary_id" optional="show" string="المستفيد"/>
                     <field name="amount" sum="Total Amount"/>
                     <field name="currency_id" column_invisible="True"/>
                     <field name="state" widget="badge" decoration-info="state == 'draft'" decoration-success="state == 'posted'"/>
@@ -49,6 +50,10 @@
                                        required="expense_type == 'volunteer_incentive'"
                                        domain="[('id', 'in', available_volunteer_ids)]"
                                        options="{'no_create': True}"/>
+                                <field name="beneficiary_id" readonly="state == 'posted'"
+                                       invisible="expense_type != 'financial_aid'"
+                                       required="expense_type == 'financial_aid'"
+                                       options="{'no_create': True}"/>
                             </group>
                             <group>
                                 <field name="date" readonly="state == 'posted'"/>
@@ -76,14 +81,17 @@
                     <field name="name"/>
                     <field name="campaign_id"/>
                     <field name="volunteer_id"/>
+                    <field name="beneficiary_id"/>
                     <filter string="مسودة" name="state_draft" domain="[('state', '=', 'draft')]"/>
                     <filter string="معتمدة ومصروفة" name="state_posted" domain="[('state', '=', 'posted')]"/>
                     <separator/>
                     <filter string="حوافز متطوعين" name="type_incentive" domain="[('expense_type', '=', 'volunteer_incentive')]"/>
+                    <filter string="مساعدات مالية" name="type_financial_aid" domain="[('expense_type', '=', 'financial_aid')]"/>
                     <filter string="مصروفات تشغيلية" name="type_operational" domain="[('expense_type', '=', 'operational_expense')]"/>
                     <group expand="0" string="تجميع حسب">
                         <filter string="الحملة" name="group_campaign" context="{'group_by': 'campaign_id'}"/>
                         <filter string="المتطوع" name="group_volunteer" context="{'group_by': 'volunteer_id'}"/>
+                        <filter string="المستفيد" name="group_beneficiary" context="{'group_by': 'beneficiary_id'}"/>
                         <filter string="نوع الصرف" name="group_type" context="{'group_by': 'expense_type'}"/>
                         <filter string="الحالة" name="group_state" context="{'group_by': 'state'}"/>
                         <filter string="التاريخ" name="group_date" context="{'group_by': 'date'}"/>

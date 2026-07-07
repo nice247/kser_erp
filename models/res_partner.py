@@ -131,20 +131,73 @@ class ResPartner(models.Model):
             'domain': [('partner_id', '=', self.id)],
             'context': {'default_partner_id': self.id},
         }
-
     whatsapp_number = fields.Char(
         string='WhatsApp Number',
     )
+    task_volunteer_ids = fields.One2many(
+        'project.task.volunteer',
+        'volunteer_id',
+        string='مهام التطوع',
+    )
     volunteer_completion_rate = fields.Float(
         string='نسبة الإنجاز الكلية',
+        compute='_compute_volunteer_completion_rate',
+        store=True,
         help='التقييم أو نسبة الإنجاز الكلية للمتطوع الميداني',
     )
 
-    @api.constrains('volunteer_completion_rate')
-    def _check_volunteer_completion_rate(self):
+    @api.depends('task_volunteer_ids.completion_rate')
+    def _compute_volunteer_completion_rate(self):
         for rec in self:
-            if rec.volunteer_completion_rate and not (0 <= rec.volunteer_completion_rate <= 100):
-                raise ValidationError(_('يجب أن تكون نسبة الإنجاز بين 0 و 100!'))
+            records = rec.task_volunteer_ids
+            if records:
+                rates = [r.completion_rate for r in records]
+                rec.volunteer_completion_rate = sum(rates) / len(rates)
+            else:
+                rec.volunteer_completion_rate = 0.0
+
+    incentive_count = fields.Integer(
+        compute='_compute_incentive_count',
+        string='عدد الحوافز',
+    )
+    incentive_total = fields.Monetary(
+        compute='_compute_incentive_count',
+        string='إجمالي الحوافز',
+        currency_field='currency_id',
+    )
+    currency_id = fields.Many2one(
+        'res.currency',
+        compute='_compute_currency_id',
+        string='العملة',
+    )
+
+    def _compute_currency_id(self):
+        for rec in self:
+            rec.currency_id = rec.company_id.currency_id or self.env.company.currency_id
+
+    def _compute_incentive_count(self):
+        for rec in self:
+            expenses = self.env['kser.cash.expense'].search([
+                ('volunteer_id', '=', rec.id),
+                ('expense_type', '=', 'volunteer_incentive'),
+                ('state', '=', 'posted'),
+            ])
+            rec.incentive_count = len(expenses)
+            rec.incentive_total = sum(e.amount for e in expenses)
+
+    def action_view_incentives(self):
+        self.ensure_one()
+        return {
+            'name': _('Incentives Paid'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'kser.cash.expense',
+            'view_mode': 'list,form',
+            'domain': [('volunteer_id', '=', self.id), ('expense_type', '=', 'volunteer_incentive')],
+            'context': {
+                'default_volunteer_id': self.id,
+                'default_expense_type': 'volunteer_incentive',
+            },
+        }
 
     def action_open_whatsapp(self):
         self.ensure_one()

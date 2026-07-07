@@ -269,10 +269,20 @@
 
                     <!-- ===== DISTINGUISHED VOLUNTEERS ===== -->
                     <div class="kser-notes-section">
-                        <div class="section-label">🏅 متطوعو الربع المتميزون:</div>
-                        <div class="kser-dotted-line">1. ...............................................................................</div>
-                        <div class="kser-dotted-line">2. ...............................................................................</div>
-                        <div class="kser-dotted-line">3. ...............................................................................</div>
+                        <div class="section-label">🏅 أفضل 3 متطوعين متميزين بالفترة:</div>
+                        <t t-set="top_vols" t-value="volunteers[:3]"/>
+                        <t t-foreach="top_vols" t-as="top_vol">
+                            <div class="kser-dotted-line" style="font-weight: bold; color: #0E5E3A;">
+                                <t t-esc="top_vol_index + 1"/>. <t t-esc="top_vol['name']"/>
+                                (عدد المهام المكتملة: <t t-esc="top_vol['completed_tasks']"/>، متوسط نسبة الإنجاز: <t t-esc="top_vol['avg_completion_rate']"/>%، إجمالي الساعات: <t t-esc="top_vol['total_hours']"/>)
+                            </div>
+                        </t>
+                        <t t-if="not top_vols">
+                            <div class="kser-dotted-line">- لا يوجد متطوعين متميزين مسجلين -</div>
+                        </t>
+                        <div style="font-size: 9px; color: #666; margin-top: 5px; text-align: right; line-height: 1.3;">
+                            * آلية المفاضلة المعتمدة: يتم الترتيب أولاً بناءً على عدد المهام المكتملة، ثم متوسط نسبة الإنجاز، ثم إجمالي ساعات التطوع، وفي حال التطابق التام يتم تفضيل الأقدم تسجيلاً بالنظام.
+                        </div>
                     </div>
 
                     <!-- ===== NOTES ===== -->

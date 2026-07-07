@@ -75,6 +75,15 @@
                             <span class="o_stat_text">المهام الميدانية</span>
                         </div>
                     </button>
+                    <button name="action_view_incentives" type="object"
+                            class="oe_stat_button" icon="fa-money"
+                            invisible="not is_volunteer"
+                            groups="kser_erp.group_field_supervisor,kser_erp.group_admin_supervisor,kser_erp.group_system_admin">
+                        <div class="o_stat_info">
+                            <field name="incentive_total" class="o_stat_value" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                            <span class="o_stat_text">الحوافز (<field name="incentive_count"/>)</span>
+                        </div>
+                    </button>
                     <button name="action_view_donations" type="object"
                             class="oe_stat_button" icon="fa-money"
                             invisible="not is_donor">
@@ -207,12 +216,22 @@
                 <xpath expr="//group" position="after">
                     <group string="بيانات التقييم والتكليف (KSER)" name="kser_evaluation_group">
                         <field name="available_volunteer_ids" invisible="1"/>
+                        <group colspan="2">
+                            <field name="task_volunteer_ids" string="ساعات وتفاصيل المتطوعين المكلفين">
+                                <list editable="bottom">
+                                    <field name="available_volunteer_ids" invisible="1"/>
+                                    <field name="volunteer_id" string="المتطوع" domain="[('id', 'in', available_volunteer_ids)]" options="{'no_create': True, 'no_open': True}"/>
+                                    <field name="hours_worked" string="ساعات العمل"/>
+                                    <field name="completion_rate" string="نسبة الإنجاز %"/>
+                                    <field name="incentive_amount" string="الحافز المالي" sum="إجمالي الحوافز"/>
+                                </list>
+                            </field>
+                        </group>
                         <group>
-                            <field name="volunteer_ids" string="المتطوعين المكلفين" widget="many2many_tags"/>
                             <field name="picking_id" string="إذن التوزيع المرتبط"/>
                         </group>
                         <group>
-                            <field name="completion_rate" string="نسبة الإنجاز"/>
+                            <field name="completion_rate" string="نسبة الإنجاز العامة %"/>
                             <field name="evaluation_notes" string="ملاحظات التقييم"/>
                         </group>
                     </group>
@@ -414,5 +433,30 @@
                 <attribute name="content">#0c3246</attribute>
             </xpath>
         </template>
+
+        <!-- إخفاء تبويب متابعة المدفوعات (Payment Follow-up) -->
+        <record id="view_partner_inherit_followup_form_hide" model="ir.ui.view">
+            <field name="name">res.partner.followup.form.hide</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="om_account_followup.view_partner_inherit_followup_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//page[@name='followup_tab']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+            </field>
+        </record>
+
+        <!-- إخفاء زر أرقام المجموعات / الأرقام التسلسلية (Lot/Serial Numbers) -->
+        <record id="view_partner_stock_warnings_form_hide_lots" model="ir.ui.view">
+            <field name="name">res.partner.stock.warnings.form.hide.lots</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="stock.view_partner_stock_warnings_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//button[@name='action_view_stock_lots']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+            </field>
+        </record>
+
     </data>
 </odoo>

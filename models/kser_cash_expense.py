@@ -19,6 +19,7 @@ class KserCashExpense(models.Model):
         ('volunteer_incentive', 'حوافز متطوعين'),
         ('warehouse_rent', 'إيجار مستودعات'),
         ('relief_materials', 'شراء مواد إغاثية'),
+        ('financial_aid', 'مساعدات مالية للمستفيدين'),
         ('operational_expense', 'مصاريف تشغيلية أخرى'),
     ], string='نوع المصروف', required=True, tracking=True, default='operational_expense')
 
@@ -31,6 +32,11 @@ class KserCashExpense(models.Model):
     volunteer_id = fields.Many2one(
         'res.partner',
         string='المتطوع المستحق',
+        tracking=True,
+    )
+    beneficiary_id = fields.Many2one(
+        'kser.beneficiary',
+        string='المستفيد (للمساعدات المالية)',
         tracking=True,
     )
     available_volunteer_ids = fields.Many2many(
@@ -116,6 +122,12 @@ class KserCashExpense(models.Model):
             if rec.amount <= 0:
                 raise ValidationError(_('يجب أن يكون المبلغ أكبر من صفر!'))
 
+    @api.constrains('expense_type', 'beneficiary_id')
+    def _check_beneficiary_financial_aid(self):
+        for rec in self:
+            if rec.expense_type == 'financial_aid' and not rec.beneficiary_id:
+                raise ValidationError(_('يجب تحديد المستفيد عند صرف مساعدات مالية للمستفيدين!'))
+
     @api.constrains('expense_type', 'volunteer_id', 'campaign_id')
     def _check_volunteer_incentive(self):
         for rec in self:
@@ -165,6 +177,7 @@ class KserCashExpense(models.Model):
                 'volunteer_incentive': '52001',
                 'warehouse_rent': '53001',
                 'relief_materials': '13001',
+                'financial_aid': '52002',
                 'operational_expense': '53009',
             }
             
@@ -187,6 +200,10 @@ class KserCashExpense(models.Model):
             label = _("Expense: %s for campaign %s") % (rec.get_expense_type_display(), rec.campaign_id.name)
             if rec.expense_type == 'volunteer_incentive':
                 label = _("Volunteer Incentive: %s - campaign %s") % (rec.volunteer_id.name, rec.campaign_id.name)
+            elif rec.expense_type == 'financial_aid':
+                label = _("Financial Aid: %s - campaign %s") % (rec.beneficiary_id.partner_id.name, rec.campaign_id.name)
+
+            partner = rec.volunteer_id.id if rec.volunteer_id else (rec.beneficiary_id.partner_id.id if rec.beneficiary_id else False)
 
             move_vals = {
                 'move_type': 'entry',
@@ -199,7 +216,7 @@ class KserCashExpense(models.Model):
                         'account_id': expense_account.id,
                         'debit': rec.amount,
                         'credit': 0.0,
-                        'partner_id': rec.volunteer_id.id if rec.volunteer_id else False,
+                        'partner_id': partner,
                         'project_id': rec.campaign_id.id,
                     }),
                     (0, 0, {
@@ -207,7 +224,7 @@ class KserCashExpense(models.Model):
                         'account_id': journal.default_account_id.id,
                         'debit': 0.0,
                         'credit': rec.amount,
-                        'partner_id': rec.volunteer_id.id if rec.volunteer_id else False,
+                        'partner_id': partner,
                         'project_id': rec.campaign_id.id,
                     }),
                 ]

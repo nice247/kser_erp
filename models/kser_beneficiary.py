@@ -378,6 +378,16 @@ class KserBeneficiary(models.Model):
         'beneficiary_id',
         string='Relief Received',
     )
+    prescription_ids = fields.One2many(
+        'kser.prescription',
+        'beneficiary_id',
+        string='الروشتات الطبية',
+    )
+    financial_aid_ids = fields.One2many(
+        'kser.cash.expense',
+        'beneficiary_id',
+        string='المساعدات المالية',
+    )
     move_count = fields.Integer(
         compute='_compute_move_count',
         string='Relief Count',

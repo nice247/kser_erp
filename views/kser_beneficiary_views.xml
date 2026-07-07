@@ -154,6 +154,44 @@
                                     </group>
                                 </group>
                             </page>
+                            <page string="المساعدات المستلمة" name="aids_received">
+                                <group string="المساعدات المالية">
+                                    <field name="financial_aid_ids" string="المساعدات المالية المستلمة" readonly="1">
+                                        <list>
+                                            <field name="name" string="رقم المستند"/>
+                                            <field name="date" string="تاريخ الصرف"/>
+                                            <field name="campaign_id" string="الحملة المرتبطة"/>
+                                            <field name="amount" string="المبلغ المستلم"/>
+                                            <field name="notes" string="ملاحظات وتفاصيل"/>
+                                            <field name="state" string="الحالة"/>
+                                        </list>
+                                    </field>
+                                </group>
+                                <group string="المساعدات العينية الإغاثية">
+                                    <field name="move_ids" string="المواد الإغاثية المستلمة" readonly="1">
+                                        <list>
+                                            <field name="reference" string="إذن التوزيع"/>
+                                            <field name="date" string="تاريخ التوزيع"/>
+                                            <field name="product_id" string="المادة الموزعة"/>
+                                            <field name="product_uom_qty" string="الكمية"/>
+                                            <field name="product_uom" string="الوحدة"/>
+                                            <field name="state" string="الحالة"/>
+                                        </list>
+                                    </field>
+                                </group>
+                                <group string="المساعدات العينية العلاجية">
+                                    <field name="prescription_ids" string="الروشتات الطبية المستلمة" readonly="1">
+                                        <list>
+                                            <field name="name" string="رقم الروشتة"/>
+                                            <field name="prescription_date" string="تاريخ الروشتة"/>
+                                            <field name="visit_id" string="زيارة العيادة"/>
+                                            <field name="doctor_id" string="الطبيب المعالج"/>
+                                            <field name="picking_id" string="إذن الصرف الصيدلاني"/>
+                                            <field name="state" string="الحالة"/>
+                                        </list>
+                                    </field>
+                                </group>
+                            </page>
                         </notebook>
                     </sheet>
                     <chatter/>

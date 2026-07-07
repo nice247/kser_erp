@@ -31,32 +31,59 @@ class KserVolunteerReport(models.AbstractModel):
         volunteer_map = {}
 
         for task in done_tasks:
-            assignees = task.user_ids
-            if not assignees:
-                continue
+            if task.task_volunteer_ids:
+                for tv in task.task_volunteer_ids:
+                    partner = tv.volunteer_id
+                    vol_id = partner.id
 
-            for user in assignees:
-                partner = user.partner_id
-                vol_id = partner.id
+                    if vol_id not in volunteer_map:
+                        volunteer_map[vol_id] = {
+                            'id': vol_id,
+                            'name': partner.name,
+                            'national_id': partner.national_id_number or '-',
+                            'completed_tasks': 0,
+                            'completion_rates': [],
+                            'campaign_ids': set(),
+                            'total_hours': 0.0,
+                            'total_incentives': 0.0,
+                        }
 
-                if vol_id not in volunteer_map:
-                    volunteer_map[vol_id] = {
-                        'name': partner.name,
-                        'national_id': partner.national_id_number or '-',
-                        'completed_tasks': 0,
-                        'completion_rates': [],
-                        'campaign_ids': set(),
-                        'total_hours': 0.0,
-                        'total_incentives': 0.0,
-                    }
+                    volunteer_map[vol_id]['completed_tasks'] += 1
+                    volunteer_map[vol_id]['total_hours'] += tv.hours_worked
 
-                volunteer_map[vol_id]['completed_tasks'] += 1
+                    if tv.completion_rate:
+                        volunteer_map[vol_id]['completion_rates'].append(tv.completion_rate)
 
-                if task.completion_rate:
-                    volunteer_map[vol_id]['completion_rates'].append(task.completion_rate)
+                    if task.project_id:
+                        volunteer_map[vol_id]['campaign_ids'].add(task.project_id.id)
+            else:
+                assignees = task.user_ids
+                if not assignees:
+                    continue
 
-                if task.project_id:
-                    volunteer_map[vol_id]['campaign_ids'].add(task.project_id.id)
+                for user in assignees:
+                    partner = user.partner_id
+                    vol_id = partner.id
+
+                    if vol_id not in volunteer_map:
+                        volunteer_map[vol_id] = {
+                            'id': vol_id,
+                            'name': partner.name,
+                            'national_id': partner.national_id_number or '-',
+                            'completed_tasks': 0,
+                            'completion_rates': [],
+                            'campaign_ids': set(),
+                            'total_hours': 0.0,
+                            'total_incentives': 0.0,
+                        }
+
+                    volunteer_map[vol_id]['completed_tasks'] += 1
+
+                    if task.completion_rate:
+                        volunteer_map[vol_id]['completion_rates'].append(task.completion_rate)
+
+                    if task.project_id:
+                        volunteer_map[vol_id]['campaign_ids'].add(task.project_id.id)
 
         incentive_lines = self.env['account.move.line'].search([
             ('date', '>=', date_from),
@@ -94,8 +121,9 @@ class KserVolunteerReport(models.AbstractModel):
 
             volunteers_list.append(vol_data)
 
+        # الترتيب حسب: المهام المكتملة (أكبر أولاً)، متوسط نسبة الإنجاز (أكبر أولاً)، إجمالي الساعات (أكبر أولاً)، ورقم المعرف (الأقدم أولاً)
         volunteers_list.sort(
-            key=lambda v: (v['completed_tasks'], v['avg_completion_rate']),
+            key=lambda v: (v['completed_tasks'], v['avg_completion_rate'], v['total_hours'], -v['id']),
             reverse=True,
         )
 

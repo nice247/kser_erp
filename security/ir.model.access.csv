@@ -73,3 +73,8 @@ access_kser_cash_expense_system,kser.cash.expense.system,model_kser_cash_expense
 access_kser_cash_expense_field,kser.cash.expense.field,model_kser_cash_expense,kser_erp.group_field_supervisor,1,1,1,0
 access_kser_cash_expense_data,kser.cash.expense.data,model_kser_cash_expense,kser_erp.group_data_manager,1,0,0,0
 access_kser_cash_expense_stock,kser.cash.expense.stock,model_kser_cash_expense,kser_erp.group_stock_manager,1,0,0,0
+access_project_task_volunteer_field,project.task.volunteer.field,model_project_task_volunteer,kser_erp.group_field_supervisor,1,1,1,1
+access_project_task_volunteer_admin,project.task.volunteer.admin,model_project_task_volunteer,kser_erp.group_admin_supervisor,1,1,1,1
+access_project_task_volunteer_system,project.task.volunteer.system,model_project_task_volunteer,kser_erp.group_system_admin,1,1,1,1
+access_project_task_volunteer_data,project.task.volunteer.data,model_project_task_volunteer,kser_erp.group_data_manager,1,0,0,0
+access_project_task_volunteer_user,project.task.volunteer.user,model_project_task_volunteer,kser_erp.group_kser_user,1,0,0,0

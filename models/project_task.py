@@ -2,19 +2,81 @@ from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError
 
 
+class ProjectTaskVolunteer(models.Model):
+    _name = 'project.task.volunteer'
+    _description = 'Volunteer Assignment on Task'
+    _order = 'task_id, id'
+
+    task_id = fields.Many2one(
+        'project.task',
+        string='المهمة',
+        ondelete='cascade',
+        required=True,
+    )
+    volunteer_id = fields.Many2one(
+        'res.partner',
+        string='المتطوع',
+        required=True,
+    )
+    available_volunteer_ids = fields.Many2many(
+        'res.partner',
+        related='task_id.available_volunteer_ids',
+    )
+    hours_worked = fields.Float(
+        string='ساعات التطوع',
+        default=0.0,
+    )
+    completion_rate = fields.Float(
+        string='نسبة الإنجاز %',
+        default=0.0,
+    )
+    incentive_amount = fields.Monetary(
+        string='الحافز المستحق',
+        currency_field='currency_id',
+        default=0.0,
+    )
+    currency_id = fields.Many2one(
+        'res.currency',
+        related='task_id.company_id.currency_id',
+        string='العملة',
+        readonly=True,
+    )
+
+    @api.constrains('hours_worked', 'completion_rate', 'incentive_amount')
+    def _check_values(self):
+        for rec in self:
+            if rec.hours_worked < 0:
+                raise ValidationError(_('ساعات العمل لا يمكن أن تكون سالبة!'))
+            if not (0 <= rec.completion_rate <= 100):
+                raise ValidationError(_('يجب أن تكون نسبة الإنجاز بين 0 و 100!'))
+            if rec.incentive_amount < 0:
+                raise ValidationError(_('الحافز المالي لا يمكن أن يكون سالباً!'))
+
+
 class ProjectTask(models.Model):
     _inherit = 'project.task'
 
+    task_volunteer_ids = fields.One2many(
+        'project.task.volunteer',
+        'task_id',
+        string='تفاصيل المتطوعين وساعات العمل',
+    )
     volunteer_ids = fields.Many2many(
         'res.partner',
         string='Volunteers',
-        domain="[('id', 'in', available_volunteer_ids)]",
+        compute='_compute_volunteer_ids',
+        store=True,
     )
     available_volunteer_ids = fields.Many2many(
         'res.partner',
         compute='_compute_available_volunteer_ids',
         store=False,
     )
+
+    @api.depends('task_volunteer_ids.volunteer_id')
+    def _compute_volunteer_ids(self):
+        for rec in self:
+            rec.volunteer_ids = rec.task_volunteer_ids.mapped('volunteer_id')
 
     @api.depends_context('uid')
     def _compute_available_volunteer_ids(self):
@@ -28,10 +90,8 @@ class ProjectTask(models.Model):
         is_data_manager = user.has_group('kser_erp.group_data_manager')
 
         if is_admin or is_admin_supervisor or is_data_manager:
-            # Can see all volunteers
             allowed_partners = self.env['res.partner'].sudo().search(base_domain)
         elif is_field_supervisor:
-            # Can only see their own, or those created by admin / data manager
             admin_data_users = self.env['res.users'].sudo().search([
                 '|',
                 ('groups_id', 'in', [self.env.ref('kser_erp.group_admin_supervisor').id]),

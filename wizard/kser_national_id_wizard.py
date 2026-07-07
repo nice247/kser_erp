@@ -114,12 +114,16 @@ class KserNationalIdWizard(models.TransientModel):
 لا تضف أي نص خارج هيكل JSON.
 """
         headers = {'Content-Type': 'application/json'}
-        img_data = self.id_image.decode('utf-8') if isinstance(self.id_image, bytes) else self.id_image
+        img_data = self.id_image
+        if img_data:
+            img_data = img_data.decode('utf-8') if isinstance(img_data, bytes) else img_data
+            img_data = img_data.replace('\n', '').replace('\r', '').replace(' ', '').strip()
 
         if ai_provider == 'gemini':
             api_key = self.env['ir.config_parameter'].sudo().get_param('kser.ai_api_key')
             if not api_key:
                 raise UserError(_('مفتاح الـ API غير مهيأ. يرجى مراجعة إعدادات النظام.'))
+            api_key = api_key.strip()
             
             url = f'https://generativelanguage.googleapis.com/v1beta/models/{ai_model}:generateContent?key={api_key}'
             payload = {
