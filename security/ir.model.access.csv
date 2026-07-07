@@ -8,7 +8,7 @@ access_kser_cash_donation_admin,kser.cash.donation.admin,model_kser_cash_donatio
 access_kser_cash_donation_data,kser.cash.donation.data,model_kser_cash_donation,kser_erp.group_data_manager,1,0,0,0
 access_kser_cash_donation_stock,kser.cash.donation.stock,model_kser_cash_donation,kser_erp.group_stock_manager,1,0,0,0
 access_kser_cash_donation_system,kser.cash.donation.system,model_kser_cash_donation,kser_erp.group_system_admin,1,1,1,1
-access_kser_cash_donation_field,kser.cash.donation.field,model_kser_cash_donation,kser_erp.group_field_supervisor,1,1,1,0
+access_kser_cash_donation_field,kser.cash.donation.field,model_kser_cash_donation,kser_erp.group_field_supervisor,0,0,0,0
 access_kser_audit_log_admin,kser.audit.log.admin,model_kser_audit_log,kser_erp.group_admin_supervisor,1,0,0,0
 access_kser_audit_log_system,kser.audit.log.system,model_kser_audit_log,kser_erp.group_system_admin,1,0,1,0
 access_kser_inventory_wizard_admin,kser.inventory.wizard.admin,model_kser_inventory_wizard,kser_erp.group_admin_supervisor,1,1,1,1

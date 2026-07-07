@@ -21,6 +21,7 @@ class KserBeneficiary(models.Model):
         required=True,
         index=True,
         ondelete='restrict',
+        domain=[('is_beneficiary', '=', True)],
         tracking=True,
     )
     national_id_number = fields.Char(

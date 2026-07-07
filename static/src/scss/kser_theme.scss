@@ -260,14 +260,14 @@ body {
     }
 }
 
-.o_burger_menu {
-    max-height: 100vh !important;
-    display: flex !important;
-    flex-direction: column !important;
-}
-
-.o_burger_menu_content {
+.o_burger_menu, 
+.o_burger_menu_content, 
+.o-burger-menu, 
+.o_mobile_menu, 
+.o_burger_menu_body, 
+.o_navbar_apps_menu,
+.o_menu_sections {
     overflow-y: auto !important;
+    max-height: 100vh !important;
     -webkit-overflow-scrolling: touch !important;
-    flex: 1 1 auto !important;
 }

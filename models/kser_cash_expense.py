@@ -32,6 +32,7 @@ class KserCashExpense(models.Model):
     volunteer_id = fields.Many2one(
         'res.partner',
         string='المتطوع المستحق',
+        domain=[('is_volunteer', '=', True)],
         tracking=True,
     )
     beneficiary_id = fields.Many2one(

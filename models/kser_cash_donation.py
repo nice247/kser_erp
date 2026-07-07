@@ -25,7 +25,7 @@ class KserCashDonation(models.Model):
     partner_id = fields.Many2one(
         'res.partner',
         string='Donor (Partner)',
-        domain=[('category_tag', '!=', False)],
+        domain=[('is_donor', '=', True)],
         tracking=True,
     )
 

@@ -17,6 +17,7 @@ class ProjectTaskVolunteer(models.Model):
         'res.partner',
         string='المتطوع',
         required=True,
+        domain=[('is_volunteer', '=', True)],
     )
     available_volunteer_ids = fields.Many2many(
         'res.partner',

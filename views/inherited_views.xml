@@ -248,22 +248,11 @@
             <field name="inherit_id" ref="stock.view_picking_form"/>
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='partner_id']" position="attributes">
-                    <attribute name="domain">[('is_clinic_only', '=', False)]</attribute>
+                    <attribute name="domain">picking_type_code == 'outgoing' and [('is_beneficiary', '=', True), ('is_clinic_only', '=', False)] or []</attribute>
                 </xpath>
                 <xpath expr="//field[@name='origin']" position="after">
                     <field name="project_id" string="الحملة المرتبطة"/>
                     <field name="prescriber_id" string="الطبيب المعالج/الكاتب"/>
-                </xpath>
-                <xpath expr="//sheet" position="inside">
-                    <group string="التوزيع والذكاء الاصطناعي (KSER)" name="kser_distribution_group">
-                        <group>
-                            <field name="distribution_type" string="نوع التوزيع"/>
-                        </group>
-                        <group>
-                            <field name="ai_suggestion" string="اقتراح الذكاء الاصطناعي"
-                                    widget="boolean_toggle"/>
-                        </group>
-                    </group>
                 </xpath>
             </field>
         </record>

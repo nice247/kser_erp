@@ -48,7 +48,7 @@
                                 <field name="volunteer_id" readonly="state == 'posted'" 
                                        invisible="expense_type != 'volunteer_incentive'" 
                                        required="expense_type == 'volunteer_incentive'"
-                                       domain="[('id', 'in', available_volunteer_ids)]"
+                                       domain="[('is_volunteer', '=', True), ('id', 'in', available_volunteer_ids)]"
                                        options="{'no_create': True}"/>
                                 <field name="beneficiary_id" readonly="state == 'posted'"
                                        invisible="expense_type != 'financial_aid'"

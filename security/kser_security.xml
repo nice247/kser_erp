@@ -176,7 +176,7 @@
         <record id="rule_donation_own_records" model="ir.rule">
             <field name="name">Donations: Own Records Only</field>
             <field name="model_id" ref="kser_erp.model_kser_cash_donation"/>
-            <field name="groups" eval="[(4, ref('group_stock_manager')), (4, ref('group_field_supervisor'))]"/>
+            <field name="groups" eval="[(4, ref('group_stock_manager'))]"/>
             <field name="domain_force">[('create_uid', '=', user.id)]</field>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>
@@ -194,8 +194,6 @@
             <field name="perm_create" eval="True"/>
             <field name="perm_unlink" eval="True"/>
         </record>
-
-
 
         <record id="rule_prescription_write_global" model="ir.rule">
             <field name="name">Clinic Prescriptions: Restrict Write Globally</field>
@@ -239,5 +237,38 @@
             <field name="perm_unlink" eval="True"/>
         </record>
 
+        <!-- 4. قواعد المخزون (stock.quant) حسب المجموعات -->
+        <record id="rule_stock_quant_manager_admin" model="ir.rule">
+            <field name="name">Stock Quants: Admin/Stock Manager see all</field>
+            <field name="model_id" ref="stock.model_stock_quant"/>
+            <field name="groups" eval="[(4, ref('group_stock_manager')), (4, ref('group_admin_supervisor')), (4, ref('group_system_admin'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+
+        <record id="rule_stock_quant_therapeutic_only" model="ir.rule">
+            <field name="name">Stock Quants: Clinic staff see therapeutic only</field>
+            <field name="model_id" ref="stock.model_stock_quant"/>
+            <field name="groups" eval="[(4, ref('group_pharmacist')), (4, ref('group_doctor')), (4, ref('group_clinic_manager'))]"/>
+            <field name="domain_force">[('product_id.is_therapeutic', '=', True)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+
+        <record id="rule_stock_quant_relief_only" model="ir.rule">
+            <field name="name">Stock Quants: Field Supervisor see relief only</field>
+            <field name="model_id" ref="stock.model_stock_quant"/>
+            <field name="groups" eval="[(4, ref('group_field_supervisor'))]"/>
+            <field name="domain_force">[('product_id.is_therapeutic', '=', False)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
     </data>
 </odoo>
