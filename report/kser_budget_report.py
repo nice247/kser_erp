@@ -102,6 +102,7 @@ class KserBudgetReport(models.AbstractModel):
         expenses = {
             'Warehouse Rent': 0.0,
             'Volunteer Incentives': 0.0,
+            'Beneficiary Financial Aid': 0.0,
             'Relief Materials Purchases': 0.0,
             'Other Operational Expenses': 0.0,
         }
@@ -124,6 +125,8 @@ class KserBudgetReport(models.AbstractModel):
                 expenses['Warehouse Rent'] += amount
             elif 'حوافز' in account_name or 'متطوع' in account_name or 'Incentive' in account_name:
                 expenses['Volunteer Incentives'] += amount
+            elif 'مساعدات' in account_name or 'مستفيد' in account_name or 'Aid' in account_name:
+                expenses['Beneficiary Financial Aid'] += amount
             elif 'إغاث' in account_name or 'مواد' in account_name or 'شراء' in account_name or 'Material' in account_name:
                 expenses['Relief Materials Purchases'] += amount
             else:

@@ -583,6 +583,10 @@
                                 <td><t t-esc="'{:,.2f}'.format(expenses.get('Volunteer Incentives', 0))"/></td>
                             </tr>
                             <tr>
+                                <td style="text-align: right;">مساعدات مالية للمستفيدين</td>
+                                <td><t t-esc="'{:,.2f}'.format(expenses.get('Beneficiary Financial Aid', 0))"/></td>
+                            </tr>
+                            <tr>
                                 <td style="text-align: right;">شراء مواد إغاثية</td>
                                 <td><t t-esc="'{:,.2f}'.format(expenses.get('Relief Materials Purchases', 0))"/></td>
                             </tr>
