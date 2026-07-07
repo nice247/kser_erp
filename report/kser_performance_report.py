@@ -67,6 +67,16 @@ class KserPerformanceReport(models.AbstractModel):
             'others': {'male': 0, 'female': 0, 'total': 0, 'pct': 0.0},
         }
 
+        # Query clinic visits in this period to include visited beneficiaries under patients
+        visited_beneficiary_ids = set()
+        if date_from and date_to:
+            visits = self.env['kser.clinic.visit'].search([
+                ('visit_date', '>=', date_from),
+                ('visit_date', '<=', date_to),
+                ('state', '!=', 'cancelled'),
+            ])
+            visited_beneficiary_ids = set(visits.mapped('beneficiary_id.id'))
+
         today = fields.Date.today()
         for b in beneficiary_records:
             gender = b.gender if b.gender in ['male', 'female'] else 'male'
@@ -81,10 +91,10 @@ class KserPerformanceReport(models.AbstractModel):
                 cat = 'orphans'
             elif b.birthdate and age >= 60:
                 cat = 'elderly'
-            elif b.health_conditions or b.is_disabled:
+            elif b.marital_status == 'widowed' and gender == 'female':
+                cat = 'needy'  # Replaced Needy Families with Widows (Arameel)
+            elif b.health_conditions or b.is_disabled or (b.id in visited_beneficiary_ids):
                 cat = 'patients'
-            elif b.family_size >= 3 or b.marital_status in ['widowed', 'divorced']:
-                cat = 'needy'
             else:
                 cat = 'others'
                 

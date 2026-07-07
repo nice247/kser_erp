@@ -402,7 +402,7 @@
                         <tbody>
                             <tr>
                                 <td>1</td>
-                                <td style="text-align: right;">أسر محتاجة</td>
+                                <td style="text-align: right;">أرامل</td>
                                 <td><t t-esc="stats['needy']['male']"/></td>
                                 <td><t t-esc="stats['needy']['female']"/></td>
                                 <td><t t-esc="stats['needy']['total']"/></td>
@@ -660,7 +660,7 @@
             <field name="report_type">qweb-pdf</field>
             <field name="report_name">kser_erp.report_volunteer_template</field>
             <field name="report_file">kser_erp.report_volunteer_template</field>
-            <field name="print_report_name">'تقرير_إنجاز_المتطوعين_الميدانيين_%s' % (object.create_date.strftime('%Y-%m-%d_%H-%M-%S'))</field>
+            <field name="print_report_name">'تقرير إنجاز المتطوعين الميدانيين - %s' % (object.create_date + datetime.timedelta(hours=3)).strftime('%H-%M - %d - %m - %y')</field>
             <field name="binding_type">report</field>
             <field name="paperformat_id" ref="kser_erp.paperformat_kser"/>
         </record>
@@ -672,7 +672,7 @@
             <field name="report_type">qweb-pdf</field>
             <field name="report_name">kser_erp.report_performance_template</field>
             <field name="report_file">kser_erp.report_performance_template</field>
-            <field name="print_report_name">'تقرير_أداء_الغرفة_وحجم_المساعدات_%s' % (object.create_date.strftime('%Y-%m-%d_%H-%M-%S'))</field>
+            <field name="print_report_name">'تقرير أداء الغرفة وحجم المساعدات - %s' % (object.create_date + datetime.timedelta(hours=3)).strftime('%H-%M - %d - %m - %y')</field>
             <field name="binding_type">report</field>
             <field name="paperformat_id" ref="kser_erp.paperformat_kser"/>
         </record>
@@ -684,7 +684,7 @@
             <field name="report_type">qweb-pdf</field>
             <field name="report_name">kser_erp.report_budget_template</field>
             <field name="report_file">kser_erp.report_budget_template</field>
-            <field name="print_report_name">'تقرير_الميزانية_التشغيلية_%s' % (object.create_date.strftime('%Y-%m-%d_%H-%M-%S'))</field>
+            <field name="print_report_name">'تقرير الميزانية التشغيلية - %s' % (object.create_date + datetime.timedelta(hours=3)).strftime('%H-%M - %d - %m - %y')</field>
             <field name="binding_type">report</field>
             <field name="paperformat_id" ref="kser_erp.paperformat_kser"/>
         </record>
@@ -821,7 +821,7 @@
             <field name="report_type">qweb-pdf</field>
             <field name="report_name">kser_erp.report_clinic_template</field>
             <field name="report_file">kser_erp.report_clinic_template</field>
-            <field name="print_report_name">'تقرير_أداء_العيادة_%s' % (object.create_date.strftime('%Y-%m-%d_%H-%M-%S'))</field>
+            <field name="print_report_name">'تقرير أداء العيادة - %s' % (object.create_date + datetime.timedelta(hours=3)).strftime('%H-%M - %d - %m - %y')</field>
             <field name="binding_type">report</field>
             <field name="paperformat_id" ref="kser_erp.paperformat_kser"/>
         </record>
