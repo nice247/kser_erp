@@ -55,6 +55,46 @@ class KserPerformanceReport(models.AbstractModel):
 
         distribution_lines.sort(key=lambda x: x.get('date') or fields.Date.today())
 
+        # Classify unique beneficiaries who received distributions in this period
+        beneficiary_records = moves.mapped('beneficiary_id')
+        total_b_count = len(beneficiary_records)
+        
+        stats = {
+            'needy': {'male': 0, 'female': 0, 'total': 0, 'pct': 0.0},
+            'patients': {'male': 0, 'female': 0, 'total': 0, 'pct': 0.0},
+            'elderly': {'male': 0, 'female': 0, 'total': 0, 'pct': 0.0},
+            'orphans': {'male': 0, 'female': 0, 'total': 0, 'pct': 0.0},
+            'others': {'male': 0, 'female': 0, 'total': 0, 'pct': 0.0},
+        }
+
+        today = fields.Date.today()
+        for b in beneficiary_records:
+            gender = b.gender if b.gender in ['male', 'female'] else 'male'
+            
+            # Calculate age
+            age = 0
+            if b.birthdate:
+                age = today.year - b.birthdate.year - ((today.month, today.day) < (b.birthdate.month, b.birthdate.day))
+            
+            # Classify
+            if b.is_child or (b.birthdate and age < 18):
+                cat = 'orphans'
+            elif b.birthdate and age >= 60:
+                cat = 'elderly'
+            elif b.health_conditions or b.is_disabled:
+                cat = 'patients'
+            elif b.family_size >= 3 or b.marital_status in ['widowed', 'divorced']:
+                cat = 'needy'
+            else:
+                cat = 'others'
+                
+            stats[cat][gender] += 1
+            stats[cat]['total'] += 1
+
+        if total_b_count > 0:
+            for cat in stats:
+                stats[cat]['pct'] = (stats[cat]['total'] / total_b_count) * 100.0
+
         return {
             'doc_ids': docids,
             'doc_model': 'stock.move',
@@ -65,4 +105,5 @@ class KserPerformanceReport(models.AbstractModel):
             'total_distributions': len(distribution_lines),
             'total_beneficiaries': len(unique_beneficiaries),
             'total_quantity': sum(line['quantity'] for line in distribution_lines),
+            'stats': stats,
         }

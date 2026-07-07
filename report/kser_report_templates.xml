@@ -403,47 +403,47 @@
                             <tr>
                                 <td>1</td>
                                 <td style="text-align: right;">أسر محتاجة</td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
+                                <td><t t-esc="stats['needy']['male']"/></td>
+                                <td><t t-esc="stats['needy']['female']"/></td>
+                                <td><t t-esc="stats['needy']['total']"/></td>
+                                <td><t t-esc="'{:.1f}%'.format(stats['needy']['pct'])"/></td>
                             </tr>
                             <tr>
                                 <td>2</td>
                                 <td style="text-align: right;">مرضى</td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
+                                <td><t t-esc="stats['patients']['male']"/></td>
+                                <td><t t-esc="stats['patients']['female']"/></td>
+                                <td><t t-esc="stats['patients']['total']"/></td>
+                                <td><t t-esc="'{:.1f}%'.format(stats['patients']['pct'])"/></td>
                             </tr>
                             <tr>
                                 <td>3</td>
                                 <td style="text-align: right;">كبار السن</td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
+                                <td><t t-esc="stats['elderly']['male']"/></td>
+                                <td><t t-esc="stats['elderly']['female']"/></td>
+                                <td><t t-esc="stats['elderly']['total']"/></td>
+                                <td><t t-esc="'{:.1f}%'.format(stats['elderly']['pct'])"/></td>
                             </tr>
                             <tr>
                                 <td>4</td>
                                 <td style="text-align: right;">أيتام</td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
+                                <td><t t-esc="stats['orphans']['male']"/></td>
+                                <td><t t-esc="stats['orphans']['female']"/></td>
+                                <td><t t-esc="stats['orphans']['total']"/></td>
+                                <td><t t-esc="'{:.1f}%'.format(stats['orphans']['pct'])"/></td>
                             </tr>
                             <tr>
                                 <td>5</td>
                                 <td style="text-align: right;">أخرى</td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
+                                <td><t t-esc="stats['others']['male']"/></td>
+                                <td><t t-esc="stats['others']['female']"/></td>
+                                <td><t t-esc="stats['others']['total']"/></td>
+                                <td><t t-esc="'{:.1f}%'.format(stats['others']['pct'])"/></td>
                             </tr>
                             <tr class="total-row">
                                 <td colspan="2" style="text-align: center; font-size: 12px;">إجمالي المستفيدين خلال الربع</td>
-                                <td></td>
-                                <td></td>
+                                <td><t t-esc="sum(stats[cat]['male'] for cat in stats)"/></td>
+                                <td><t t-esc="sum(stats[cat]['female'] for cat in stats)"/></td>
                                 <td><t t-esc="total_beneficiaries"/></td>
                                 <td>100%</td>
                             </tr>
