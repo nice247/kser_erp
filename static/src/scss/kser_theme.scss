@@ -72,11 +72,17 @@ body {
 .o_required_modifier.o_input, .o_required_modifier .o_input, input[required], select[required], textarea[required] {
     border-bottom: 2px solid #0084b4 !important;
     background-color: #f0f9ff !important;
+    color: #212529 !important;
+}
+
+.o_input, input, select, textarea {
+    color: #212529 !important;
 }
 
 .o_input:focus {
     border-color: #0084b4 !important;
     box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.18) !important;
+    color: #212529 !important;
 }
 
 .alert-danger {
