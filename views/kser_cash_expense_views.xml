@@ -58,6 +58,7 @@
                             <group>
                                 <field name="date" readonly="state == 'posted'"/>
                                 <field name="amount" readonly="state == 'posted'"/>
+                                <field name="currency_id" invisible="1"/>
                                 <field name="move_id" invisible="not move_id" readonly="1"/>
                             </group>
                         </group>
