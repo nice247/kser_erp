@@ -42,6 +42,7 @@
         'views/kser_dashboard_views.xml',
         'views/kser_prescription_views.xml',
         'views/kser_child_followup_views.xml',
+        'views/kser_cash_expense_views.xml',
         'views/kser_menus.xml',
     ],
     'assets': {

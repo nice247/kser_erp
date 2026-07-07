@@ -19,10 +19,12 @@ class ProjectProject(models.Model):
         [
             ('draft', 'Draft'),
             ('approved', 'Approved'),
+            ('done', 'Completed'),
         ],
         string='Budget Status',
         default='draft',
         tracking=True,
+        group_expand='_read_group_states',
     )
 
     picking_ids = fields.One2many(
@@ -77,6 +79,18 @@ class ProjectProject(models.Model):
                 'details': f"تمت إعادة ميزانية الحملة للمسودة: {rec.name}",
             })
 
+    def action_close_campaign(self):
+        for rec in self:
+            if rec.state != 'approved':
+                continue
+            rec.state = 'done'
+            self.env['kser.audit.log'].sudo().create({
+                'action_type': 'update',
+                'target_model': self._name,
+                'target_id': rec.id,
+                'details': f"تم إغلاق الحملة وتأكيد اكتمالها: {rec.name}",
+            })
+
     def action_view_pickings(self):
         self.ensure_one()
         return {
@@ -114,3 +128,8 @@ class ProjectProject(models.Model):
 
     def unlink(self):
         raise ValidationError(_("غير مسموح بحذف المشاريع / الحملات مطلقاً! يمكنكم أرشفتها بدلاً من ذلك."))
+
+    @api.model
+    def _read_group_states(self, stages, domain):
+        # تجميع وإرجاع الحالات بالترتيب المطلوب: مسودة -> معتمدة -> مكتملة
+        return ['draft', 'approved', 'done']

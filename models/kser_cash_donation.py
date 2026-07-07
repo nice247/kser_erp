@@ -164,9 +164,15 @@ class KserCashDonation(models.Model):
 
             # Find Income Account
             income_account = self.env['account.account'].search([
-                ('account_type', '=', 'income'),
-                ('company_id', '=', self.env.company.id)
+                ('code', '=', '41001'),
+                ('company_ids', '=', self.env.company.id)
             ], limit=1)
+            
+            if not income_account:
+                income_account = self.env['account.account'].search([
+                    ('account_type', '=', 'income'),
+                    ('company_ids', '=', self.env.company.id)
+                ], limit=1)
             
             if not income_account:
                 raise ValidationError(_("لم يتم العثور على حساب 'إيرادات' (Income) في شجرة الحسابات. يرجى تهيئة الحسابات أولاً."))

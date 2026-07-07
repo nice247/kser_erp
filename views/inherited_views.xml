@@ -212,7 +212,7 @@
                             <field name="picking_id" string="إذن التوزيع المرتبط"/>
                         </group>
                         <group>
-                            <field name="completion_rate" string="نسبة الإنجاز" widget="progressbar"/>
+                            <field name="completion_rate" string="نسبة الإنجاز"/>
                             <field name="evaluation_notes" string="ملاحظات التقييم"/>
                         </group>
                     </group>
@@ -277,6 +277,12 @@
             <field name="model">project.project</field>
             <field name="inherit_id" ref="project.edit_project"/>
             <field name="arch" type="xml">
+                <xpath expr="//form" position="attributes">
+                    <attribute name="edit">state != 'done'</attribute>
+                </xpath>
+                <xpath expr="//div[@name='button_box']" position="before">
+                    <widget name="web_ribbon" title="مكتملة" bg_color="text-bg-success" invisible="state != 'done'"/>
+                </xpath>
                 <xpath expr="//field[@name='partner_id']" position="attributes">
                     <attribute name="invisible">1</attribute>
                 </xpath>
@@ -285,10 +291,13 @@
                     <button name="action_approve_budget" type="object" string="اعتماد الميزانية"
                             class="oe_highlight" invisible="state != 'draft'"
                             groups="kser_erp.group_admin_supervisor"/>
-                    <button name="action_draft_budget" type="object" string="إرجاع لمسودة"
-                            invisible="state != 'approved'"
+                    <button name="action_close_campaign" type="object" string="إغلاق الحملة"
+                            class="oe_highlight" invisible="state != 'approved'"
                             groups="kser_erp.group_admin_supervisor"/>
-                    <field name="state" widget="statusbar" statusbar_visible="draft,approved"/>
+                    <button name="action_draft_budget" type="object" string="إرجاع لمسودة"
+                            invisible="state not in ('approved', 'done')"
+                            groups="kser_erp.group_admin_supervisor"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,approved,done"/>
                 </xpath>
                 <!-- Add budget fields -->
                 <xpath expr="//group" position="inside">
@@ -312,6 +321,17 @@
                             <span class="o_stat_text">التبرعات النقدية</span>
                         </div>
                     </button>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="view_project_kanban_inherit_kser" model="ir.ui.view">
+            <field name="name">project.project.kanban.inherit.kser</field>
+            <field name="model">project.project</field>
+            <field name="inherit_id" ref="project.view_project_kanban"/>
+            <field name="arch" type="xml">
+                <xpath expr="//kanban" position="attributes">
+                    <attribute name="default_group_by">state</attribute>
                 </xpath>
             </field>
         </record>

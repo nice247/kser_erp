@@ -1,4 +1,4 @@
-from odoo import models, api, _
+from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError
 
 
@@ -17,10 +17,17 @@ class AccountMove(models.Model):
                                 project = line.project_id
                                 if project:
                                     completed_tasks = self.env['project.task'].search_count([
-                                        ('volunteer_id', '=', line.partner_id.id),
                                         ('project_id', '=', project.id),
-                                        ('stage_id.fold', '=', True),
+                                        '|', ('volunteer_ids', 'in', [line.partner_id.id]), ('user_ids.partner_id', '=', line.partner_id.id),
+                                        '|', '|', ('stage_id.fold', '=', True), ('state', '=', '1_done'), ('completion_rate', '=', 100.0)
                                     ])
                                     if completed_tasks == 0:
                                         raise ValidationError(_("لا يمكن صرف حافز للمتطوع %s في الحملة %s لأنه لا يملك أي مهمة مكتملة مرتبطة بها!") % (line.partner_id.name, project.name))
         return super().action_post()
+
+
+class AccountMoveLine(models.Model):
+    _inherit = 'account.move.line'
+
+    project_id = fields.Many2one('project.project', string='المشروع/الحملة')
+

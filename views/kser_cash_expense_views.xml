@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- List View -->
+        <record id="view_kser_cash_expense_tree" model="ir.ui.view">
+            <field name="name">kser.cash.expense.list</field>
+            <field name="model">kser.cash.expense</field>
+            <field name="arch" type="xml">
+                <list string="المصروفات النقدية والحوافز" decoration-info="state == 'draft'" decoration-success="state == 'posted'">
+                    <field name="name"/>
+                    <field name="date"/>
+                    <field name="expense_type"/>
+                    <field name="journal_id"/>
+                    <field name="campaign_id"/>
+                    <field name="volunteer_id" optional="show"/>
+                    <field name="amount" sum="Total Amount"/>
+                    <field name="currency_id" column_invisible="True"/>
+                    <field name="state" widget="badge" decoration-info="state == 'draft'" decoration-success="state == 'posted'"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- Form View -->
+        <record id="view_kser_cash_expense_form" model="ir.ui.view">
+            <field name="name">kser.cash.expense.form</field>
+            <field name="model">kser.cash.expense</field>
+            <field name="arch" type="xml">
+                <form string="المصروف النقدية / الحافز">
+                    <header>
+                        <button name="action_confirm" string="اعتماد وصرف" type="object" class="oe_highlight" 
+                                invisible="state != 'draft'" groups="kser_erp.group_admin_supervisor,kser_erp.group_system_admin"/>
+                        <field name="state" widget="statusbar" statusbar_visible="draft,posted"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                            <h1>
+                                <field name="name" readonly="1"/>
+                            </h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="expense_type" readonly="state == 'posted'"/>
+                                <field name="journal_id" readonly="state == 'posted'" options="{'no_create': True, 'no_open': True}"/>
+                                <field name="campaign_id" readonly="state == 'posted'" options="{'no_create': True, 'no_open': True}"/>
+                                <field name="available_volunteer_ids" invisible="1"/>
+                                <field name="volunteer_id" readonly="state == 'posted'" 
+                                       invisible="expense_type != 'volunteer_incentive'" 
+                                       required="expense_type == 'volunteer_incentive'"
+                                       domain="[('id', 'in', available_volunteer_ids)]"
+                                       options="{'no_create': True}"/>
+                            </group>
+                            <group>
+                                <field name="date" readonly="state == 'posted'"/>
+                                <field name="amount" readonly="state == 'posted'"/>
+                                <field name="move_id" invisible="not move_id" readonly="1"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="ملاحظات وتفاصيل">
+                                <field name="notes" placeholder="اكتب تفاصيل إضافية عن سبب الصرف هنا..." readonly="state == 'posted'"/>
+                            </page>
+                        </notebook>
+                    </sheet>
+                    <chatter/>
+                </form>
+            </field>
+        </record>
+
+        <!-- Search View -->
+        <record id="view_kser_cash_expense_search" model="ir.ui.view">
+            <field name="name">kser.cash.expense.search</field>
+            <field name="model">kser.cash.expense</field>
+            <field name="arch" type="xml">
+                <search string="بحث في المصروفات">
+                    <field name="name"/>
+                    <field name="campaign_id"/>
+                    <field name="volunteer_id"/>
+                    <filter string="مسودة" name="state_draft" domain="[('state', '=', 'draft')]"/>
+                    <filter string="معتمدة ومصروفة" name="state_posted" domain="[('state', '=', 'posted')]"/>
+                    <separator/>
+                    <filter string="حوافز متطوعين" name="type_incentive" domain="[('expense_type', '=', 'volunteer_incentive')]"/>
+                    <filter string="مصروفات تشغيلية" name="type_operational" domain="[('expense_type', '=', 'operational_expense')]"/>
+                    <group expand="0" string="تجميع حسب">
+                        <filter string="الحملة" name="group_campaign" context="{'group_by': 'campaign_id'}"/>
+                        <filter string="المتطوع" name="group_volunteer" context="{'group_by': 'volunteer_id'}"/>
+                        <filter string="نوع الصرف" name="group_type" context="{'group_by': 'expense_type'}"/>
+                        <filter string="الحالة" name="group_state" context="{'group_by': 'state'}"/>
+                        <filter string="التاريخ" name="group_date" context="{'group_by': 'date'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <!-- Window Action -->
+        <record id="action_kser_cash_expense" model="ir.actions.act_window">
+            <field name="name">المصروفات النقدية والحوافز</field>
+            <field name="res_model">kser.cash.expense</field>
+            <field name="view_mode">list,form</field>
+            <field name="search_view_id" ref="view_kser_cash_expense_search"/>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    لا توجد مصروفات مسجلة حالياً
+                </p>
+                <p>اضغط لإنشاء مستند صرف مصروف أو حافز متطوع جديد.</p>
+            </field>
+        </record>
+
+    </data>
+</odoo>

@@ -139,7 +139,7 @@
         <record id="action_kser_campaigns" model="ir.actions.act_window">
             <field name="name">الحملات</field>
             <field name="res_model">project.project</field>
-            <field name="view_mode">list,form,kanban</field>
+            <field name="view_mode">kanban,list,form</field>
             <field name="help" type="html">
                 <p class="o_view_nocontent_smiling_face">
                     لا توجد حملات حالياً
@@ -164,7 +164,7 @@
                   name="غرفة الطوارئ"
                   action="action_kser_emergency_dashboard"
                   web_icon="kser_erp,static/description/icon.png"
-                  groups="kser_erp.group_kser_user"
+                  groups="base.group_user"
                   sequence="1"/>
 
         <!-- ============================================================ -->
@@ -342,6 +342,14 @@
                   action="action_kser_donor_import_wizard"
                   sequence="4"/>
 
+        <!-- المصروفات Sub-Items -->
+        <menuitem id="menu_kser_cash_expense_list"
+                  name="المصروفات والحوافز"
+                  parent="menu_kser_field_tasks"
+                  action="action_kser_cash_expense"
+                  groups="kser_erp.group_admin_supervisor,kser_erp.group_system_admin"
+                  sequence="3"/>
+
         <!-- المهام والحملات Sub-Items -->
         <menuitem id="menu_kser_campaigns"
                   name="الحملات"
@@ -357,12 +365,6 @@
                   groups="kser_erp.group_admin_supervisor,kser_erp.group_field_supervisor,kser_erp.group_system_admin"
                   sequence="2"/>
 
-        <menuitem id="menu_kser_field_volunteers"
-                  name="المتطوعين"
-                  parent="menu_kser_field_tasks"
-                  action="action_kser_volunteers"
-                  groups="kser_erp.group_admin_supervisor,kser_erp.group_field_supervisor,kser_erp.group_system_admin"
-                  sequence="3"/>
 
         <!-- المخزون والتوزيع Sub-Items -->
         <menuitem id="menu_kser_stock_picking_list"
@@ -446,14 +448,24 @@
         <!-- المخزن القياسي -->
         <menuitem id="stock.menu_stock_root" groups="kser_erp.group_stock_manager,kser_erp.group_system_admin"/>
 
-        <!-- الحسابات والفوترة القياسي -->
-        <menuitem id="account.menu_finance" groups="kser_erp.group_admin_supervisor,kser_erp.group_system_admin"/>
+        <!-- إخفاء الفوترة من الروت الرئيسي تماماً بكافة الصلاحيات -->
+        <record id="account.menu_finance" model="ir.ui.menu">
+            <field name="active" eval="False"/>
+        </record>
 
         <!-- المناقشة والمراسلات القياسي -->
-        <menuitem id="mail.menu_root_discuss" groups="kser_erp.group_kser_user"/>
+        <record id="mail.menu_root_discuss" model="ir.ui.menu">
+            <field name="sequence" eval="100"/>
+        </record>
 
+        <!-- لوحة عمل جداول البيانات القياسي -->
         <record id="spreadsheet_dashboard.spreadsheet_dashboard_menu_root" model="ir.ui.menu">
             <field name="active" eval="False"/>
+        </record>
+
+        <!-- المهام الشخصية القياسية -->
+        <record id="project_todo.menu_todo_todos" model="ir.ui.menu">
+            <field name="sequence" eval="110"/>
         </record>
     </data>
 </odoo>

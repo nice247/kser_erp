@@ -10,12 +10,28 @@ class KserBudgetReport(models.AbstractModel):
         data = data or {}
         date_from = data.get('date_from', fields.Date.today().replace(month=1, day=1))
         date_to = data.get('date_to', fields.Date.today())
-        opening_balance = data.get('opening_balance', 0.0)
 
         if isinstance(date_from, str):
             date_from = fields.Date.from_string(date_from)
         if isinstance(date_to, str):
             date_to = fields.Date.from_string(date_to)
+
+        # Calculate actual opening balance at date_from from cash & bank accounts (asset_cash)
+        liquidity_accounts = self.env['account.account'].search([
+            ('account_type', '=', 'asset_cash'),
+            ('company_ids', '=', self.env.company.id)
+        ])
+        
+        opening_balance = 0.0
+        if liquidity_accounts:
+            self.env.cr.execute("""
+                SELECT COALESCE(SUM(debit - credit), 0.0)
+                FROM account_move_line
+                WHERE account_id IN %s
+                  AND date < %s
+                  AND parent_state = 'posted'
+            """, (tuple(liquidity_accounts.ids), date_from))
+            opening_balance = self.env.cr.fetchone()[0]
 
         revenues = self._compute_revenues(date_from, date_to)
         expenses = self._compute_expenses(date_from, date_to)
@@ -43,12 +59,12 @@ class KserBudgetReport(models.AbstractModel):
             'Individual Donations': 0.0,
             'Corporate Donations': 0.0,
             'Campaign Donations': 0.0,
-            'Clinic Nominal Revenues': 0.0,
         }
 
         donations = self.env['kser.cash.donation'].search([
             ('donation_date', '>=', date_from),
             ('donation_date', '<=', date_to),
+            ('state', '=', 'posted'),
         ])
 
         for donation in donations:
@@ -57,6 +73,7 @@ class KserBudgetReport(models.AbstractModel):
             else:
                 revenues['Individual Donations'] += donation.amount
 
+        # Find other incomes recorded directly in accounting (not via kser.cash.donation)
         income_lines = self.env['account.move.line'].search([
             ('date', '>=', date_from),
             ('date', '<=', date_to),
@@ -64,13 +81,20 @@ class KserBudgetReport(models.AbstractModel):
             ('account_id.account_type', 'in', ['income', 'income_other']),
         ])
 
-        for line in income_lines:
-            account_name = line.account_id.name or ''
+        # Collect move IDs created by donation records to avoid double counting
+        donation_move_ids = donations.mapped('move_id').ids
 
-            if 'عيادة' in account_name or 'رمزية' in account_name or 'Clinic' in account_name:
-                revenues['Clinic Nominal Revenues'] += line.credit - line.debit
-            elif 'شركة' in account_name or 'مؤسسة' in account_name or 'Corporate' in account_name:
-                revenues['Corporate Donations'] += line.credit - line.debit
+        for line in income_lines:
+            if line.move_id.id in donation_move_ids:
+                continue
+                
+            account_name = line.account_id.name or ''
+            amount = line.credit - line.debit
+
+            if 'شركة' in account_name or 'مؤسسة' in account_name or 'Corporate' in account_name:
+                revenues['Corporate Donations'] += amount
+            else:
+                revenues['Individual Donations'] += amount
 
         return revenues
 

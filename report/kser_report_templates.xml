@@ -553,11 +553,7 @@
                                     revenues.get('Corporate Donations', 0) +
                                     revenues.get('Campaign Donations', 0))"/></td>
                             </tr>
-                            <!-- Clinic Revenue -->
-                            <tr>
-                                <td style="text-align: right;">إيرادات رمزية (عيادات)</td>
-                                <td><t t-esc="'{:,.2f}'.format(revenues.get('Clinic Nominal Revenues', 0))"/></td>
-                            </tr>
+
                             <!-- Total Revenue -->
                             <tr class="total-row">
                                 <td style="text-align: center; font-size: 12px;">إجمالي الإيرادات</td>

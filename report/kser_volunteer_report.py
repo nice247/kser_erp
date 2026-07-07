@@ -17,10 +17,16 @@ class KserVolunteerReport(models.AbstractModel):
             date_to = fields.Date.from_string(date_to)
 
         done_tasks = self.env['project.task'].search([
-            ('stage_id.fold', '=', True),
-            ('date_deadline', '>=', date_from),
-            ('date_deadline', '<=', date_to),
+            '|', ('stage_id.fold', '=', True), ('state', '=', '1_done'),
         ])
+        
+        # تصفية المهام بناءً على الموعد النهائي أو تاريخ الكتابة خلال الفترة المحددة
+        filtered_task_ids = []
+        for task in done_tasks:
+            task_date = task.date_deadline or task.write_date.date()
+            if date_from <= task_date <= date_to:
+                filtered_task_ids.append(task.id)
+        done_tasks = self.env['project.task'].browse(filtered_task_ids)
 
         volunteer_map = {}
 

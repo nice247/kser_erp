@@ -68,3 +68,8 @@ access_stock_move_field,stock.move.field,stock.model_stock_move,kser_erp.group_f
 access_stock_picking_field,stock.picking.field,stock.model_stock_picking,kser_erp.group_field_supervisor,1,0,0,0
 access_res_partner_kser_field,res.partner.kser.field,base.model_res_partner,kser_erp.group_field_supervisor,1,1,1,0
 access_res_partner_kser_data,res.partner.kser.data,base.model_res_partner,kser_erp.group_data_manager,1,1,1,0
+access_kser_cash_expense_admin,kser.cash.expense.admin,model_kser_cash_expense,kser_erp.group_admin_supervisor,1,1,1,1
+access_kser_cash_expense_system,kser.cash.expense.system,model_kser_cash_expense,kser_erp.group_system_admin,1,1,1,1
+access_kser_cash_expense_field,kser.cash.expense.field,model_kser_cash_expense,kser_erp.group_field_supervisor,1,1,1,0
+access_kser_cash_expense_data,kser.cash.expense.data,model_kser_cash_expense,kser_erp.group_data_manager,1,0,0,0
+access_kser_cash_expense_stock,kser.cash.expense.stock,model_kser_cash_expense,kser_erp.group_stock_manager,1,0,0,0
