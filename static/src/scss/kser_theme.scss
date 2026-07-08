@@ -69,7 +69,11 @@ body {
     transform: translateY(-1px) !important;
 }
 
-.o_required_modifier.o_input, .o_required_modifier .o_input, input[required], select[required], textarea[required] {
+.o_form_editable .o_required_modifier.o_input, 
+.o_form_editable .o_required_modifier .o_input, 
+.o_form_editable input[required], 
+.o_form_editable select[required], 
+.o_form_editable textarea[required] {
     border-bottom: 2px solid #0084b4 !important;
     background-color: #f0f9ff !important;
     color: #212529 !important;
