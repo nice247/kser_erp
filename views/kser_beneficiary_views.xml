@@ -103,8 +103,18 @@
                                 <field name="is_child" string="طفل" readonly="is_verified" invisible="is_verified and not is_child"/>
                                 <field name="is_disabled" string="ذوو احتياجات خاصة" readonly="is_verified" invisible="is_verified and not is_disabled"/>
                                 <field name="national_id_number" string="رقم الهوية الوطنية" readonly="is_verified or national_id_number" invisible="is_child or (is_verified and not national_id_number)"/>
-                                <field name="phone" string="رقم الهاتف" readonly="is_verified" invisible="is_verified and not phone"/>
-                                <field name="mobile" string="رقم الجوال" readonly="is_verified" invisible="is_verified and not mobile"/>
+                                <label for="phone" string="رقم الهاتف" invisible="is_verified and not phone"/>
+                                <div class="o_row" invisible="is_verified and not phone">
+                                    <field name="phone" placeholder="مثال: 0924747508" readonly="is_verified"/>
+                                    <button name="action_open_whatsapp_phone" type="object" class="btn-success" icon="fa-whatsapp" title="مراسلة عبر واتساب" invisible="not phone"/>
+                                </div>
+
+                                <label for="mobile" string="رقم الجوال" invisible="is_verified and not mobile"/>
+                                <div class="o_row" invisible="is_verified and not mobile">
+                                    <field name="mobile" placeholder="مثال: 0912345678" readonly="is_verified"/>
+                                    <button name="action_open_whatsapp_mobile" type="object" class="btn-success" icon="fa-whatsapp" title="مراسلة عبر واتساب" invisible="not mobile"/>
+                                </div>
+
                                 <label for="whatsapp_number" string="رقم الواتساب" invisible="not is_head_of_family or (is_verified and not whatsapp_number)"/>
                                 <div class="o_row" invisible="not is_head_of_family or (is_verified and not whatsapp_number)">
                                     <field name="whatsapp_number" placeholder="مثال: 0912345678" readonly="is_verified"/>

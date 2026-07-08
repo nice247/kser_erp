@@ -157,7 +157,7 @@ class KserBeneficiary(models.Model):
             ('child', 'ابن/ابنة'),
         ],
         string='Relationship to Head of Family',
-        default='self',
+        default=False,
         required=False,
     )
     member_ids = fields.One2many(
@@ -253,7 +253,7 @@ class KserBeneficiary(models.Model):
                 raise ValidationError(_('يجب أن يكون عدد أفراد الأسرة أكبر من صفر!'))
 
 
-    @api.constrains('head_of_family_id', 'relationship', 'is_head_of_family')
+    @api.constrains('head_of_family_id', 'relationship', 'is_head_of_family', 'is_verified')
     def _check_family_relationship(self):
         for rec in self:
             if rec.is_head_of_family:
@@ -262,12 +262,13 @@ class KserBeneficiary(models.Model):
                 if not rec.head_of_family_id or rec.head_of_family_id.id != rec.id:
                     rec.sudo().write({'head_of_family_id': rec.id})
             else:
-                if not rec.relationship or rec.relationship == 'self':
-                    raise ValidationError(_("يجب تحديد صلة قرابة صحيحة لرب الأسرة (لا يمكن أن تكون 'نفسه' للمستفيد التابع)!"))
-                if not rec.head_of_family_id or rec.head_of_family_id.id == rec.id:
-                    raise ValidationError(_("يجب تحديد رب الأسرة للمستفيد التابع (لا يمكن أن يكون الشخص نفسه)!"))
-                if rec.head_of_family_id.is_head_of_family is False:
-                    raise ValidationError(_("يجب أن يكون رب الأسرة المسؤول المحدد هو رب أسرة معتمد!"))
+                if rec.is_verified:
+                    if not rec.relationship or rec.relationship == 'self':
+                        raise ValidationError(_("يجب تحديد صلة قرابة صحيحة لرب الأسرة (لا يمكن أن تكون 'نفسه' للمستفيد التابع)!"))
+                    if not rec.head_of_family_id or rec.head_of_family_id.id == rec.id:
+                        raise ValidationError(_("يجب تحديد رب الأسرة للمستفيد التابع (لا يمكن أن يكون الشخص نفسه)!"))
+                    if rec.head_of_family_id and rec.head_of_family_id.is_head_of_family is False:
+                        raise ValidationError(_("يجب أن يكون رب الأسرة المسؤول المحدد هو رب أسرة معتمد!"))
 
     @api.constrains('head_of_family_id', 'relationship', 'extracted_mother_name')
     def _check_relationship_validation(self):
@@ -690,6 +691,29 @@ class KserBeneficiary(models.Model):
         # منع الحذف نهائياً لضمان سلامة قاعدة البيانات وسجلات التدقيق (Data Integrity)
         raise ValidationError(_("يُمنع حذف سجلات المستفيدين بشكل مطلق للحفاظ على سلامة البيانات والتدقيق. إذا لزم الأمر، يمكنك أرشفة السجل أو إيقافه بدلاً من الحذف."))
 
+    def _open_whatsapp_for_number(self, phone_number, label_name="واتساب"):
+        if not phone_number:
+            raise ValidationError(_("لا يوجد رقم %s مسجل لهذا المستفيد!") % label_name)
+        num = phone_number.strip()
+        if num.startswith('0'):
+            num = '249' + num[1:]
+        num = ''.join(c for c in num if c.isdigit())
+        url = f"https://wa.me/{num}"
+        return {
+            'type': 'ir.actions.act_url',
+            'url': url,
+            'target': 'new',
+        }
+
     def action_open_whatsapp(self):
         self.ensure_one()
-        return self.partner_id.action_open_whatsapp()
+        return self._open_whatsapp_for_number(self.whatsapp_number, _("واتساب"))
+
+    def action_open_whatsapp_phone(self):
+        self.ensure_one()
+        return self._open_whatsapp_for_number(self.phone, _("الهاتف"))
+
+    def action_open_whatsapp_mobile(self):
+        self.ensure_one()
+        return self._open_whatsapp_for_number(self.mobile, _("الجوال"))
+
