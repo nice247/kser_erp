@@ -102,7 +102,7 @@
                             <group string="البيانات الأساسية والتحقق">
                                 <field name="is_child" string="طفل"/>
                                 <field name="is_disabled" string="ذوو احتياجات خاصة"/>
-                                <field name="national_id_number" string="رقم الهوية الوطنية" invisible="is_child"/>
+                                <field name="national_id_number" string="رقم الهوية الوطنية" invisible="is_child" readonly="national_id_number"/>
                                 <field name="phone" string="رقم الهاتف"/>
                                 <field name="mobile" string="رقم الجوال"/>
                                 <label for="whatsapp_number" string="رقم الواتساب" invisible="not is_head_of_family"/>

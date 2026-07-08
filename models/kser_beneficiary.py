@@ -134,9 +134,6 @@ class KserBeneficiary(models.Model):
     )
     is_head_of_family = fields.Boolean(
         string='هل هو رب أسرة؟ / فرد لوحده',
-        compute='_compute_is_head_of_family',
-        inverse='_inverse_is_head_of_family',
-        store=True,
         default=True,
         tracking=True,
     )
@@ -200,20 +197,6 @@ class KserBeneficiary(models.Model):
                     rec.family_size = 1 + len(head.member_ids)
             else:
                 rec.family_size = 1
-
-    @api.depends('relationship')
-    def _compute_is_head_of_family(self):
-        for rec in self:
-            rec.is_head_of_family = (rec.relationship == 'self')
-
-    def _inverse_is_head_of_family(self):
-        for rec in self:
-            if rec.is_head_of_family:
-                rec.relationship = 'self'
-                rec.head_of_family_id = rec.id
-            else:
-                if rec.relationship == 'self':
-                    rec.relationship = False
 
     @api.depends('member_ids', 'member_ids.head_of_family_id')
     def _compute_family_member_ids(self):
@@ -492,14 +475,33 @@ class KserBeneficiary(models.Model):
     def create(self, vals_list):
         for vals in vals_list:
             if vals.get('is_verified') and not (self.env.user.has_group('kser_erp.group_data_manager') or
-                                                self.env.user.has_group('kser_erp.group_admin_supervisor') or
-                                                self.env.user.has_group('kser_erp.group_system_admin')):
+                                                 self.env.user.has_group('kser_erp.group_admin_supervisor') or
+                                                 self.env.user.has_group('kser_erp.group_system_admin')):
                 vals['is_verified'] = False
-        # إنشاء السجلات مع ضمان ربط المستفيد بنفسه كرب أسرة افتراضياً وتحديث بيانات الاتصال
+
+            # Sync relationship with is_head_of_family
+            if 'is_head_of_family' not in vals:
+                if vals.get('relationship') == 'self':
+                    vals['is_head_of_family'] = True
+                elif vals.get('relationship'):
+                    vals['is_head_of_family'] = False
+                else:
+                    vals['is_head_of_family'] = True
+
+            if vals.get('is_head_of_family'):
+                vals['relationship'] = 'self'
+            else:
+                if vals.get('relationship') == 'self':
+                    vals['relationship'] = False
+
         records = super().create(vals_list)
         for rec in records:
-            if not rec.head_of_family_id:
-                rec.sudo().head_of_family_id = rec.id
+            if rec.is_head_of_family:
+                if rec.relationship != 'self' or rec.head_of_family_id.id != rec.id:
+                    rec.sudo().write({
+                        'relationship': 'self',
+                        'head_of_family_id': rec.id
+                    })
             if rec.partner_id:
                 rec.partner_id.sudo().write({
                     'national_id_number': rec.national_id_number,
@@ -522,6 +524,19 @@ class KserBeneficiary(models.Model):
         return records
 
     def write(self, vals):
+        # Sync relationship and is_head_of_family
+        if 'is_head_of_family' in vals:
+            if vals['is_head_of_family']:
+                vals['relationship'] = 'self'
+            else:
+                if vals.get('relationship', self.relationship) == 'self':
+                    vals['relationship'] = False
+        elif 'relationship' in vals:
+            if vals['relationship'] == 'self':
+                vals['is_head_of_family'] = True
+            else:
+                vals['is_head_of_family'] = False
+
         # فصل الحقول التشغيلية (التي لا تحتاج لصلاحيات عالية) عن الحقول الأساسية
         business_fields = set(vals.keys()) - {
             'message_follower_ids', 'activity_ids', 'message_ids',
@@ -536,6 +551,21 @@ class KserBeneficiary(models.Model):
                 raise ValidationError(_("يُمنع تعديل بيانات المستفيد لغير مسؤولي البيانات! يمكنك فقط تسجيل مستفيد جديد."))
 
         res = super().write(vals)
+
+        # Force sync in database for head of family values
+        if 'is_head_of_family' in vals or 'head_of_family_id' in vals or 'relationship' in vals:
+            for rec in self:
+                if rec.is_head_of_family:
+                    if rec.relationship != 'self' or rec.head_of_family_id.id != rec.id:
+                        super(KserBeneficiary, rec).write({
+                            'relationship': 'self',
+                            'head_of_family_id': rec.id
+                        })
+                else:
+                    if rec.relationship == 'self':
+                        super(KserBeneficiary, rec).write({
+                            'relationship': False
+                        })
         if 'national_id_number' in vals or 'national_id_image' in vals:
             for rec in self:
                 if rec.partner_id:

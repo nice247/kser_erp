@@ -34,7 +34,7 @@
                             <group string="البيانات الشخصية">
                                 <field name="extracted_name" string="الاسم الكامل"/>
                                 <field name="extracted_mother_name" string="اسم الوالدة" invisible="is_child"/>
-                                <field name="extracted_national_id" string="رقم الهوية" required="state == 'review' and not is_child" invisible="is_child"/>
+                                <field name="extracted_national_id" string="رقم الهوية" required="state == 'review' and not is_child" invisible="is_child" readonly="not is_manual_entry"/>
                                 <field name="extracted_profession" string="المهنة" invisible="is_child"/>
                                 <field name="extracted_marital_status" string="الحالة الاجتماعية" invisible="is_child"/>
                             </group>
