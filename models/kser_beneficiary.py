@@ -587,6 +587,30 @@ class KserBeneficiary(models.Model):
         return records
 
     def write(self, vals):
+        # 1. منع تعديل الحقول المقفلة بعد التحقق
+        for rec in self:
+            if rec.is_verified and vals.get('is_verified', True) != False:
+                allowed_fields = {
+                    'is_verified', 'address', 'district', 'health_conditions', 
+                    'family_member_ids', 'message_follower_ids', 'activity_ids', 'message_ids',
+                    'message_main_attachment_id', 'activity_state', 'activity_type_id',
+                    'activity_date_deadline', 'activity_summary', 'activity_user_id',
+                    'head_of_family_id', 'relationship'
+                }
+                disallowed = [f for f in vals.keys() if f not in allowed_fields]
+                if disallowed:
+                    for field in disallowed:
+                        if field in rec._fields:
+                            new_val = vals[field]
+                            old_val = rec[field]
+                            if isinstance(old_val, models.BaseModel):
+                                old_val_id = old_val.id or False
+                                if new_val != old_val_id:
+                                    raise ValidationError(_("فشل الحفظ: لا يمكن تعديل حقل (%s) بعد التحقق من المستفيد.") % rec._fields[field].string)
+                            else:
+                                if new_val != old_val:
+                                    raise ValidationError(_("فشل الحفظ: لا يمكن تعديل حقل (%s) بعد التحقق من المستفيد.") % rec._fields[field].string)
+
         # Sync relationship and is_head_of_family
         if 'is_head_of_family' in vals:
             if vals['is_head_of_family']:

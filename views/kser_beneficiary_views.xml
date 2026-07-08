@@ -87,56 +87,56 @@
                                 invisible="is_verified"/>
                         <div class="oe_title">
                             <h1>
-                                <field name="partner_id" string="اسم المستفيد" placeholder="ادخل الاسم هنا..."/>
+                                <field name="partner_id" string="اسم المستفيد" placeholder="ادخل الاسم هنا..." readonly="is_verified"/>
                             </h1>
                         </div>
 
                         <group>
                             <group>
-                                <field name="without_national_id"/>
+                                <field name="without_national_id" invisible="is_verified or national_id_image != False or national_id_number != False" readonly="is_verified"/>
                             </group>
                         </group>
 
-                        <group invisible="not without_national_id and not national_id_number and not national_id_image">
+                        <group invisible="not is_verified and not without_national_id and not national_id_number and not national_id_image">
                             <!-- Right Column: Personal & Relationship Data -->
                             <group string="البيانات الأساسية والتحقق">
-                                <field name="is_child" string="طفل"/>
-                                <field name="is_disabled" string="ذوو احتياجات خاصة"/>
-                                <field name="national_id_number" string="رقم الهوية الوطنية" invisible="is_child" readonly="national_id_number"/>
-                                <field name="phone" string="رقم الهاتف"/>
-                                <field name="mobile" string="رقم الجوال"/>
-                                <label for="whatsapp_number" string="رقم الواتساب" invisible="not is_head_of_family"/>
-                                <div class="o_row" invisible="not is_head_of_family">
-                                    <field name="whatsapp_number" placeholder="مثال: 0912345678"/>
+                                <field name="is_child" string="طفل" readonly="is_verified" invisible="is_verified and not is_child"/>
+                                <field name="is_disabled" string="ذوو احتياجات خاصة" readonly="is_verified" invisible="is_verified and not is_disabled"/>
+                                <field name="national_id_number" string="رقم الهوية الوطنية" readonly="is_verified or national_id_number" invisible="is_child or (is_verified and not national_id_number)"/>
+                                <field name="phone" string="رقم الهاتف" readonly="is_verified" invisible="is_verified and not phone"/>
+                                <field name="mobile" string="رقم الجوال" readonly="is_verified" invisible="is_verified and not mobile"/>
+                                <label for="whatsapp_number" string="رقم الواتساب" invisible="not is_head_of_family or (is_verified and not whatsapp_number)"/>
+                                <div class="o_row" invisible="not is_head_of_family or (is_verified and not whatsapp_number)">
+                                    <field name="whatsapp_number" placeholder="مثال: 0912345678" readonly="is_verified"/>
                                     <button name="action_open_whatsapp" type="object" class="btn-success" icon="fa-whatsapp" title="مراسلة عبر واتساب" invisible="not whatsapp_number"/>
                                 </div>
-                                <field name="is_head_of_family" string="هل هو رب أسرة؟ / فرد لوحده" widget="boolean_toggle"/>
-                                <field name="relationship" string="العلاقة برب الأسرة" invisible="is_head_of_family" required="not is_head_of_family"/>
-                                <field name="head_of_family_id" string="رب الأسرة المسؤول" invisible="is_head_of_family" required="not is_head_of_family" domain="[('is_head_of_family', '=', True), ('id', '!=', id)]"/>
-                                <field name="profession" string="المهنة" invisible="is_child"/>
-                                <field name="marital_status" string="الحالة الاجتماعية" invisible="is_child"/>
-                                <field name="gender" string="الجنس"/>
-                                <field name="birthdate" string="تاريخ الميلاد"/>
-                                <field name="family_size" string="عدد أفراد الأسرة" invisible="is_child"/>
+                                <field name="is_head_of_family" string="هل هو رب أسرة؟ / فرد لوحده" widget="boolean_toggle" readonly="is_verified" invisible="is_verified and not is_head_of_family"/>
+                                <field name="relationship" string="العلاقة برب الأسرة" invisible="is_head_of_family or (is_verified and not relationship)" required="not is_head_of_family" readonly="is_verified"/>
+                                <field name="head_of_family_id" string="رب الأسرة المسؤول" invisible="is_head_of_family or (is_verified and not head_of_family_id)" required="not is_head_of_family" domain="[('is_head_of_family', '=', True), ('id', '!=', id)]" readonly="is_verified"/>
+                                <field name="profession" string="المهنة" invisible="is_child or (is_verified and not profession)" readonly="is_verified"/>
+                                <field name="marital_status" string="الحالة الاجتماعية" invisible="is_child or (is_verified and not marital_status)" readonly="is_verified"/>
+                                <field name="gender" string="الجنس" readonly="is_verified" invisible="is_verified and not gender"/>
+                                <field name="birthdate" string="تاريخ الميلاد" readonly="is_verified" invisible="is_verified and not birthdate"/>
+                                <field name="family_size" string="عدد أفراد الأسرة" invisible="is_child or (is_verified and not family_size)" readonly="is_verified"/>
                                 <field name="district" string="المحلية"/>
                                 <field name="address" string="عنوان السكن" placeholder="اسم الشارع / الحارة / الحي / علامة مميزة"/>
                             </group>
                             <!-- Left Column: National ID Image & Registration Data -->
                             <group>
-                                <group string="الهوية الوطنية" colspan="2" invisible="is_child">
+                                <group string="الهوية الوطنية" colspan="2" invisible="is_child or (is_verified and not national_id_image)">
                                     <field name="national_id_image" string="صورة الهوية الوطنية"
                                             widget="image" class="oe_avatar" options="{'size': [2048, 2048]}" readonly="1"/>
-                                    <field name="extracted_mother_name" string="اسم الوالدة"/>
+                                    <field name="extracted_mother_name" string="اسم الوالدة" readonly="is_verified" invisible="is_verified and not extracted_mother_name"/>
                                 </group>
                                 <group string="بيانات التسجيل" colspan="2">
-                                    <field name="registration_date" string="تاريخ التسجيل"/>
-                                    <field name="registered_by" string="مسجّل بواسطة"/>
+                                    <field name="registration_date" string="تاريخ التسجيل" readonly="is_verified" invisible="is_verified and not registration_date"/>
+                                    <field name="registered_by" string="مسجّل بواسطة" readonly="is_verified" invisible="is_verified and not registered_by"/>
                                     <field name="is_verified" string="تم التحقق" widget="boolean_toggle"/>
                                 </group>
                             </group>
                         </group>
 
-                        <notebook invisible="not without_national_id and not national_id_number and not national_id_image">
+                        <notebook invisible="not is_verified and not without_national_id and not national_id_number and not national_id_image">
                             <page string="أفراد الأسرة" name="family_members" invisible="not is_head_of_family">
                                 <field name="family_member_ids" domain="[('is_head_of_family', '=', True), ('id', '!=', id)]">
                                     <list editable="bottom">
