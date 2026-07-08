@@ -74,7 +74,7 @@
                             </button>
                             <button name="action_view_family_members" type="object"
                                     class="oe_stat_button" icon="fa-users"
-                                    invisible="relationship != 'self'">
+                                    invisible="not is_head_of_family">
                                 <div class="o_stat_info">
                                     <field name="family_member_count" class="o_stat_value"/>
                                     <span class="o_stat_text">أفراد الأسرة</span>
@@ -105,13 +105,14 @@
                                 <field name="national_id_number" string="رقم الهوية الوطنية" invisible="is_child"/>
                                 <field name="phone" string="رقم الهاتف"/>
                                 <field name="mobile" string="رقم الجوال"/>
-                                <label for="whatsapp_number" string="رقم الواتساب" invisible="relationship != 'self'"/>
-                                <div class="o_row" invisible="relationship != 'self'">
+                                <label for="whatsapp_number" string="رقم الواتساب" invisible="not is_head_of_family"/>
+                                <div class="o_row" invisible="not is_head_of_family">
                                     <field name="whatsapp_number" placeholder="مثال: 0912345678"/>
                                     <button name="action_open_whatsapp" type="object" class="btn-success" icon="fa-whatsapp" title="مراسلة عبر واتساب" invisible="not whatsapp_number"/>
                                 </div>
-                                <field name="relationship" string="العلاقة برب الأسرة"/>
-                                <field name="head_of_family_id" string="رب الأسرة المسؤول" invisible="relationship == 'self'"/>
+                                <field name="is_head_of_family" string="هل هو رب أسرة؟ / فرد لوحده" widget="boolean_toggle"/>
+                                <field name="relationship" string="العلاقة برب الأسرة" invisible="is_head_of_family" required="not is_head_of_family"/>
+                                <field name="head_of_family_id" string="رب الأسرة المسؤول" invisible="is_head_of_family" required="not is_head_of_family" domain="[('is_head_of_family', '=', True), ('id', '!=', id)]"/>
                                 <field name="profession" string="المهنة" invisible="is_child"/>
                                 <field name="marital_status" string="الحالة الاجتماعية" invisible="is_child"/>
                                 <field name="gender" string="الجنس"/>
@@ -136,8 +137,8 @@
                         </group>
 
                         <notebook invisible="not without_national_id and not national_id_number and not national_id_image">
-                            <page string="أفراد الأسرة" name="family_members" invisible="relationship != 'self'">
-                                <field name="family_member_ids" domain="[('relationship', '=', 'self'), ('id', '!=', id)]">
+                            <page string="أفراد الأسرة" name="family_members" invisible="not is_head_of_family">
+                                <field name="family_member_ids" domain="[('is_head_of_family', '=', True), ('id', '!=', id)]">
                                     <list editable="bottom">
                                         <field name="partner_id" string="اسم المستفيد" readonly="1"/>
                                         <field name="national_id_number" string="رقم الهوية الوطنية" readonly="1"/>

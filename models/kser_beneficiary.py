@@ -132,6 +132,14 @@ class KserBeneficiary(models.Model):
         readonly=False,
         string='Address',
     )
+    is_head_of_family = fields.Boolean(
+        string='هل هو رب أسرة؟ / فرد لوحده',
+        compute='_compute_is_head_of_family',
+        inverse='_inverse_is_head_of_family',
+        store=True,
+        default=True,
+        tracking=True,
+    )
     head_of_family_id = fields.Many2one(
         'kser.beneficiary',
         string='Head of Family',
@@ -153,7 +161,7 @@ class KserBeneficiary(models.Model):
         ],
         string='Relationship to Head of Family',
         default='self',
-        required=True,
+        required=False,
     )
     member_ids = fields.One2many(
         'kser.beneficiary',
@@ -192,6 +200,20 @@ class KserBeneficiary(models.Model):
                     rec.family_size = 1 + len(head.member_ids)
             else:
                 rec.family_size = 1
+
+    @api.depends('relationship')
+    def _compute_is_head_of_family(self):
+        for rec in self:
+            rec.is_head_of_family = (rec.relationship == 'self')
+
+    def _inverse_is_head_of_family(self):
+        for rec in self:
+            if rec.is_head_of_family:
+                rec.relationship = 'self'
+                rec.head_of_family_id = rec.id
+            else:
+                if rec.relationship == 'self':
+                    rec.relationship = False
 
     @api.depends('member_ids', 'member_ids.head_of_family_id')
     def _compute_family_member_ids(self):
@@ -257,6 +279,18 @@ class KserBeneficiary(models.Model):
             else:
                 if rec.relationship != 'self':
                     raise ValidationError(_("يجب أن تكون العلاقة 'رب الأسرة (نفسه)' إذا كان الشخص هو رب الأسرة!"))
+
+    @api.constrains('is_head_of_family', 'relationship', 'head_of_family_id')
+    def _check_is_head_of_family(self):
+        for rec in self:
+            if rec.is_head_of_family:
+                if rec.relationship != 'self':
+                    raise ValidationError(_("يجب أن تكون علاقة رب الأسرة 'رب الأسرة (نفسه)'!"))
+            else:
+                if not rec.relationship or rec.relationship == 'self':
+                    raise ValidationError(_("يجب تحديد صلة قرابة صحيحة لرب الأسرة (لا يمكن أن تكون 'نفسه')!"))
+                if not rec.head_of_family_id or rec.head_of_family_id.id == rec.id:
+                    raise ValidationError(_("يجب تحديد رب الأسرة للمستفيد التابع!"))
 
     @api.constrains('head_of_family_id', 'relationship', 'extracted_mother_name')
     def _check_relationship_validation(self):
@@ -361,18 +395,34 @@ class KserBeneficiary(models.Model):
                 
         return 'spouse'
 
+    @api.onchange('is_head_of_family')
+    def _onchange_is_head_of_family(self):
+        if self.is_head_of_family:
+            self.relationship = 'self'
+            self.head_of_family_id = self._origin.id or False
+        else:
+            if self.relationship == 'self':
+                self.relationship = False
+            if self.head_of_family_id.id == self.id:
+                self.head_of_family_id = False
+
     @api.onchange('head_of_family_id')
     def _onchange_head_of_family_id(self):
         if self.head_of_family_id and self.head_of_family_id.id != self._origin.id:
+            self.is_head_of_family = False
             if self.relationship == 'self':
                 self.relationship = 'spouse'
         else:
+            self.is_head_of_family = True
             self.relationship = 'self'
 
     @api.onchange('relationship')
     def _onchange_relationship(self):
         if self.relationship == 'self':
             self.head_of_family_id = self._origin.id or False
+            self.is_head_of_family = True
+        else:
+            self.is_head_of_family = False
 
     move_ids = fields.One2many(
         'stock.move',
