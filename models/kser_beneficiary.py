@@ -297,9 +297,29 @@ class KserBeneficiary(models.Model):
                 if min_len == 0: return False
                 return " ".join(list1[:min_len]) == " ".join(list2[:min_len])
 
+            def get_first_name_len(name_list):
+                if len(name_list) < 3:
+                    return 1
+                prefixes = {
+                    'عبد', 'أبو', 'ابو', 'أم', 'ام', 'زين', 'تاج', 'سيف', 'صلاح', 
+                    'بهاء', 'علاء', 'عماد', 'شمس', 'جمال', 'جلال', 'نور', 'فخر', 'تقي'
+                }
+                if name_list[0] in prefixes:
+                    return 2
+                return 1
+
             if rel == 'father':
-                if not match_parts(dep_name, head_name[1:]):
+                father_idx = 1
+                dep_first_name = dep_name[0]
+                for idx in range(1, len(head_name)):
+                    if head_name[idx] == dep_first_name:
+                        father_idx = idx
+                        break
+                if father_idx == 1 and get_first_name_len(head_name) == 2:
+                    father_idx = 2
+                if not match_parts(dep_name, head_name[father_idx:]):
                     raise ValidationError(error_msg)
+
             elif rel == 'mother':
                 head_mother = rec.head_of_family_id.extracted_mother_name
                 name_matched = False
@@ -312,22 +332,65 @@ class KserBeneficiary(models.Model):
                             raise ValidationError(_("فشل الحفظ: يجب أن تكون الأم أكبر سنّاً من رب الأسرة بـ 15 عاماً على الأقل."))
                     else:
                         raise ValidationError(error_msg)
+
             elif rel == 'sibling':
-                if not match_parts(dep_name[1:], head_name[1:]):
+                dep_father_idx = get_first_name_len(dep_name)
+                head_father_idx = get_first_name_len(head_name)
+                for idx in range(1, len(dep_name)):
+                    for jdx in range(1, len(head_name)):
+                        if dep_name[idx] == head_name[jdx]:
+                            dep_father_idx = idx
+                            head_father_idx = jdx
+                            break
+                    else:
+                        continue
+                    break
+                if not match_parts(dep_name[dep_father_idx:], head_name[head_father_idx:]):
                     raise ValidationError(error_msg)
+
             elif rel == 'grandfather':
-                if not match_parts(dep_name, head_name[2:]):
+                gf_idx = 2
+                dep_first_name = dep_name[0]
+                for idx in range(2, len(head_name)):
+                    if head_name[idx] == dep_first_name:
+                        gf_idx = idx
+                        break
+                if gf_idx == 2 and get_first_name_len(head_name) == 2:
+                    gf_idx = 3
+                if not match_parts(dep_name, head_name[gf_idx:]):
                     raise ValidationError(error_msg)
+
             elif rel == 'grandmother':
                 if rec.birthdate and rec.head_of_family_id.birthdate:
                     age_diff = relativedelta(rec.head_of_family_id.birthdate, rec.birthdate).years
                     if age_diff < 30:
                         raise ValidationError(_("فشل الحفظ: فرق السن بين الجدة ورب الأسرة يجب ألا يقل عن 30 عاماً."))
+
             elif rel == 'paternal_uncle_aunt':
-                if not match_parts(dep_name[1:], head_name[2:]):
+                dep_father_idx = get_first_name_len(dep_name)
+                head_gf_idx = 2
+                for idx in range(1, len(dep_name)):
+                    for jdx in range(2, len(head_name)):
+                        if dep_name[idx] == head_name[jdx]:
+                            dep_father_idx = idx
+                            head_gf_idx = jdx
+                            break
+                    else:
+                        continue
+                    break
+                if not match_parts(dep_name[dep_father_idx:], head_name[head_gf_idx:]):
                     raise ValidationError(error_msg)
+
             elif rel == 'child':
-                if not match_parts(dep_name[1:], head_name):
+                father_idx = 1
+                head_first_name = head_name[0]
+                for idx in range(1, len(dep_name)):
+                    if dep_name[idx] == head_first_name:
+                        father_idx = idx
+                        break
+                if father_idx == 1 and get_first_name_len(dep_name) == 2:
+                    father_idx = 2
+                if not match_parts(dep_name[father_idx:], head_name):
                     raise ValidationError(error_msg)
 
     def _determine_auto_relationship(self, dep):
