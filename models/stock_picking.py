@@ -67,6 +67,15 @@ class StockPicking(models.Model):
             if rec.distribution_type == 'individual' and rec.partner_id and rec.partner_id.is_clinic_only:
                 raise UserError(_("لا يمكن صرف إغاثة لمستفيد مسجل كـ 'عيادة فقط' دون رقم وطني وصورة هوية معتمدة!"))
 
+            # Enforce Campaign and Partner link for Outgoing Relief Distributions
+            if rec.picking_type_id.code == 'outgoing' and not rec.prescriber_id:
+                if not rec.project_id:
+                    raise UserError(_("لا يمكن تصديق صرف المواد الإغاثية دون ربط العملية بحملة معينة!"))
+                if not rec.partner_id:
+                    raise UserError(_("لا يمكن تصديق صرف المواد الإغاثية دون تحديد جهة اتصال مستلمة (مستفيد أو متطوع)!"))
+                if not rec.partner_id.is_beneficiary and not rec.partner_id.is_volunteer:
+                    raise UserError(_("يجب أن تكون جهة الاتصال المستلمة للمواد الإغاثية مستفيداً أو متطوعاً!"))
+
             # 4. Single distribution per family in one campaign (Relief only)
             if rec.picking_type_id.code == 'outgoing' and rec.project_id and not rec.prescriber_id and rec.partner_id:
                 beneficiary = self.env['kser.beneficiary'].sudo().search([('partner_id', '=', rec.partner_id.id)], limit=1)
