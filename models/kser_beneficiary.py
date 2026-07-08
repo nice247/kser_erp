@@ -270,27 +270,21 @@ class KserBeneficiary(models.Model):
                 raise ValidationError(_('يجب أن يكون عدد أفراد الأسرة أكبر من صفر!'))
 
 
-    @api.constrains('head_of_family_id', 'relationship')
+    @api.constrains('head_of_family_id', 'relationship', 'is_head_of_family')
     def _check_family_relationship(self):
-        for rec in self:
-            if rec.head_of_family_id and rec.head_of_family_id.id != rec._origin.id:
-                if rec.relationship == 'self':
-                    raise ValidationError(_("لا يمكن اختيار 'رب الأسرة (نفسه)' إذا كان هناك رب أسرة آخر محدد!"))
-            else:
-                if rec.relationship != 'self':
-                    raise ValidationError(_("يجب أن تكون العلاقة 'رب الأسرة (نفسه)' إذا كان الشخص هو رب الأسرة!"))
-
-    @api.constrains('is_head_of_family', 'relationship', 'head_of_family_id')
-    def _check_is_head_of_family(self):
         for rec in self:
             if rec.is_head_of_family:
                 if rec.relationship != 'self':
-                    raise ValidationError(_("يجب أن تكون علاقة رب الأسرة 'رب الأسرة (نفسه)'!"))
+                    rec.sudo().write({'relationship': 'self'})
+                if not rec.head_of_family_id or rec.head_of_family_id.id != rec.id:
+                    rec.sudo().write({'head_of_family_id': rec.id})
             else:
                 if not rec.relationship or rec.relationship == 'self':
-                    raise ValidationError(_("يجب تحديد صلة قرابة صحيحة لرب الأسرة (لا يمكن أن تكون 'نفسه')!"))
+                    raise ValidationError(_("يجب تحديد صلة قرابة صحيحة لرب الأسرة (لا يمكن أن تكون 'نفسه' للمستفيد التابع)!"))
                 if not rec.head_of_family_id or rec.head_of_family_id.id == rec.id:
-                    raise ValidationError(_("يجب تحديد رب الأسرة للمستفيد التابع!"))
+                    raise ValidationError(_("يجب تحديد رب الأسرة للمستفيد التابع (لا يمكن أن يكون الشخص نفسه)!"))
+                if rec.head_of_family_id.is_head_of_family is False:
+                    raise ValidationError(_("يجب أن يكون رب الأسرة المسؤول المحدد هو رب أسرة معتمد!"))
 
     @api.constrains('head_of_family_id', 'relationship', 'extracted_mother_name')
     def _check_relationship_validation(self):
