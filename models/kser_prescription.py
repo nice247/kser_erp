@@ -1,4 +1,5 @@
 from odoo import models, fields, api, _
+from odoo.exceptions import UserError
 
 class KserPrescription(models.Model):
     _name = 'kser.prescription'
@@ -33,8 +34,26 @@ class KserPrescription(models.Model):
     )
     state = fields.Selection([
         ('draft', 'Draft'),
+        ('prescribed', 'Prescribed'),
         ('dispensed', 'Dispensed'),
     ], string='Status', default='draft', tracking=True)
+
+    is_chronic = fields.Boolean(
+        string='أمراض مزمنة',
+        default=False,
+        tracking=True,
+    )
+    allowed_dispense_count = fields.Integer(
+        string='عدد مرات الصرف المسموحة',
+        default=1,
+        tracking=True,
+    )
+    dispensed_count = fields.Integer(
+        string='عدد مرات الصرف الفعلية',
+        default=0,
+        readonly=True,
+        tracking=True,
+    )
 
     line_ids = fields.One2many(
         'kser.prescription.line',
@@ -59,12 +78,46 @@ class KserPrescription(models.Model):
                 vals['name'] = self.env['ir.sequence'].next_by_code('kser.prescription') or _('New')
         return super().create(vals_list)
 
+    def action_confirm(self):
+        for rec in self:
+            if rec.state != 'draft':
+                raise UserError(_('يمكن فقط تأكيد الروشتات في حالة المسودة!'))
+            if not rec.line_ids:
+                raise UserError(_('لا يمكن تأكيد روشتة فارغة!'))
+            rec.write({'state': 'prescribed'})
+
     def action_dispense(self):
         self.ensure_one()
+        if self.state == 'draft':
+            raise UserError(_('يجب تأكيد الروشتة من الطبيب أولاً قبل الصرف!'))
         if self.state == 'dispensed':
-            raise UserError(_('تم صرف هذه الروشتة بالفعل!'))
+            raise UserError(_('تم صرف هذه الروشتة بالكامل بالفعل!'))
         if not self.line_ids:
             raise UserError(_('لا يمكن صرف روشتة فارغة!'))
+
+        # Check for active draft/assigned pickings for this prescription
+        draft_pickings = self.env['stock.picking'].search([
+            ('prescription_id', '=', self.id),
+            ('state', 'not in', ['done', 'cancel']),
+        ])
+        if draft_pickings:
+            raise UserError(_("هناك إذن صرف قيد المعالجة بالفعل لهذه الروشتة! رقم الإذن: %s") % draft_pickings[0].name)
+
+        # Enforce limits
+        if self.is_chronic:
+            current_year = fields.Date.today().year
+            current_month = fields.Date.today().month
+            existing_pickings = self.env['stock.picking'].search([
+                ('prescription_id', '=', self.id),
+                ('state', '=', 'done'),
+            ])
+            for p in existing_pickings:
+                p_date = p.date_done or p.write_date
+                if p_date and p_date.year == current_year and p_date.month == current_month:
+                    raise UserError(_("تم صرف هذه الروشتة المزمنة لهذا الشهر بالفعل! تاريخ الصرف السابق: %s") % p_date.strftime('%Y-%m-%d'))
+        else:
+            if self.dispensed_count >= self.allowed_dispense_count:
+                raise UserError(_("تم استنفاد عدد مرات الصرف المسموحة لهذه الروشتة (%s/%s)!") % (self.dispensed_count, self.allowed_dispense_count))
 
         picking_type = self.env['stock.picking.type'].search([
             ('code', '=', 'outgoing'),
@@ -103,12 +156,12 @@ class KserPrescription(models.Model):
             'partner_id': self.beneficiary_id.partner_id.id,
             'distribution_type': 'individual',
             'prescriber_id': self.doctor_id.id,
+            'prescription_id': self.id,
             'move_ids': move_vals,
         })
         picking.sudo().action_confirm()
 
         self.sudo().write({
-            'state': 'dispensed',
             'picking_id': picking.id,
         })
 

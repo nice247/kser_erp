@@ -44,10 +44,13 @@
             <field name="arch" type="xml">
                 <form string="الروشتة الطبية">
                     <header>
+                        <button name="action_confirm" type="object" string="تأكيد الروشتة"
+                                class="btn-primary" invisible="state != 'draft'"
+                                groups="kser_erp.group_doctor,kser_erp.group_clinic_manager,kser_erp.group_admin_supervisor"/>
                         <button name="action_dispense" type="object" string="صرف الروشتة"
-                                class="btn-primary" invisible="state == 'dispensed'"
+                                class="btn-primary" invisible="state != 'prescribed'"
                                 groups="kser_erp.group_pharmacist,kser_erp.group_admin_supervisor"/>
-                        <field name="state" widget="statusbar" statusbar_visible="draft,dispensed"/>
+                        <field name="state" widget="statusbar" statusbar_visible="draft,prescribed,dispensed"/>
                     </header>
                     <sheet>
                         <div class="oe_title">
@@ -57,12 +60,15 @@
                         </div>
                         <group>
                             <group>
-                                <field name="beneficiary_id" string="المستفيد"/>
-                                <field name="doctor_id" string="الطبيب كاتب الروشتة"/>
+                                <field name="beneficiary_id" string="المستفيد" readonly="state != 'draft'"/>
+                                <field name="doctor_id" string="الطبيب كاتب الروشتة" readonly="state != 'draft'"/>
+                                <field name="is_chronic" string="أمراض مزمنة" readonly="state != 'draft'"/>
                             </group>
                             <group>
-                                <field name="prescription_date" string="التاريخ"/>
-                                <field name="picking_id" string="إذن الصرف المرتبط" invisible="not picking_id"/>
+                                <field name="prescription_date" string="التاريخ" readonly="state != 'draft'"/>
+                                <field name="allowed_dispense_count" string="عدد مرات الصرف المسموحة" readonly="state != 'draft'" invisible="is_chronic"/>
+                                <field name="dispensed_count" string="عدد مرات الصرف الفعلية"/>
+                                <field name="picking_id" string="آخر إذن صرف مرتبط" invisible="not picking_id"/>
                             </group>
                         </group>
                         <notebook>

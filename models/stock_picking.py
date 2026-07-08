@@ -30,6 +30,12 @@ class StockPicking(models.Model):
         string='Prescriber Doctor',
         tracking=True,
     )
+    prescription_id = fields.Many2one(
+        'kser.prescription',
+        string='الروشتة المرتبطة',
+        ondelete='set null',
+        index=True,
+    )
     national_id_number = fields.Char(
         string='National ID Number',
         related='partner_id.national_id_number',
@@ -64,7 +70,7 @@ class StockPicking(models.Model):
             # 3. Campaign & Beneficiary Validation
             if rec.project_id and rec.project_id.state != 'approved':
                 raise UserError(_("لا يمكن تأكيد التحويل. ميزانية الحملة '%s' غير معتمدة!") % rec.project_id.name)
-            if rec.distribution_type == 'individual' and rec.partner_id and rec.partner_id.is_clinic_only:
+            if rec.distribution_type == 'individual' and not rec.prescriber_id and rec.partner_id and rec.partner_id.is_clinic_only:
                 raise UserError(_("لا يمكن صرف إغاثة لمستفيد مسجل كـ 'عيادة فقط' دون رقم وطني وصورة هوية معتمدة!"))
 
             # Enforce Campaign and Partner link for Outgoing Relief Distributions
@@ -96,6 +102,28 @@ class StockPicking(models.Model):
         res = super().button_validate()
         for rec in self:
             if rec.state == 'done':
+                # Increment prescription dispense counter
+                if rec.prescription_id:
+                    presc = rec.prescription_id
+                    if presc.is_chronic:
+                        current_year = fields.Date.today().year
+                        current_month = fields.Date.today().month
+                        other_pickings = self.env['stock.picking'].search([
+                            ('prescription_id', '=', presc.id),
+                            ('state', '=', 'done'),
+                            ('id', '!=', rec.id),
+                        ])
+                        for op in other_pickings:
+                            op_date = op.date_done or op.write_date
+                            if op_date and op_date.year == current_year and op_date.month == current_month:
+                                raise UserError(_("خطأ أمان: تم صرف هذه الروشتة المزمنة لشهر %s بالفعل عبر إذن الصرف %s!") % (current_month, op.name))
+                    
+                    new_count = presc.dispensed_count + 1
+                    vals = {'dispensed_count': new_count}
+                    if not presc.is_chronic and new_count >= presc.allowed_dispense_count:
+                        vals['state'] = 'dispensed'
+                    presc.sudo().write(vals)
+
                 self.env['kser.audit.log'].sudo().create({
                     'action_type': 'approve',
                     'target_model': self._name,
