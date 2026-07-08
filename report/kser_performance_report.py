@@ -20,6 +20,9 @@ class KserPerformanceReport(models.AbstractModel):
             ('state', '=', 'done'),
             ('date', '>=', date_from),
             ('date', '<=', date_to),
+            '|',
+            ('location_dest_id.usage', '=', 'customer'),
+            ('picking_id.picking_type_id.code', '=', 'outgoing'),
         ])
 
         distribution_lines = []

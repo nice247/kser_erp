@@ -10,6 +10,7 @@
             <field name="model">res.partner</field>
             <field name="arch" type="xml">
                 <list string="جهات الاتصال" default_order="create_date desc" js_class="kser_ocr_list">
+                    <field name="is_beneficiary" column_invisible="True"/>
                     <field name="name" string="الاسم"/>
                     <field name="category_tag" string="التصنيف"/>
                     <field name="national_id_number" string="الرقم الوطني"/>

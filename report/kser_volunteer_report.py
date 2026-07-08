@@ -16,6 +16,9 @@ class KserVolunteerReport(models.AbstractModel):
         if isinstance(date_to, str):
             date_to = fields.Date.from_string(date_to)
 
+        bot_partner = self.env.ref('base.partner_root', raise_if_not_found=False)
+        bot_partner_id = bot_partner.id if bot_partner else None
+
         done_tasks = self.env['project.task'].search([
             '|', ('stage_id.fold', '=', True), ('state', '=', '1_done'),
         ])
@@ -34,6 +37,8 @@ class KserVolunteerReport(models.AbstractModel):
             if task.task_volunteer_ids:
                 for tv in task.task_volunteer_ids:
                     partner = tv.volunteer_id
+                    if not partner or not partner.active or partner.name == 'OdooBot' or partner.id == bot_partner_id:
+                        continue
                     vol_id = partner.id
 
                     if vol_id not in volunteer_map:
@@ -63,6 +68,8 @@ class KserVolunteerReport(models.AbstractModel):
 
                 for user in assignees:
                     partner = user.partner_id
+                    if not partner or not partner.active or partner.name == 'OdooBot' or partner.id == bot_partner_id:
+                        continue
                     vol_id = partner.id
 
                     if vol_id not in volunteer_map:
