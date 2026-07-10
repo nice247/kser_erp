@@ -208,6 +208,15 @@ class KserNationalIdWizard(models.TransientModel):
     def action_confirm_and_save(self):
         self.ensure_one()
 
+        if self.extracted_national_id:
+            eastern_to_western = {
+                '٠': '0', '١': '1', '٢': '2', '٣': '3', '٤': '4',
+                '٥': '5', '٦': '6', '٧': '7', '٨': '8', '٩': '9',
+                '۰': '0', '۱': '1', '۲': '2', '۳': '3', '۴': '4',
+                '۵': '5', '۶': '6', '۷': '7', '۸': '8', '۹': '9',
+            }
+            self.extracted_national_id = ''.join(eastern_to_western.get(c, c) for c in self.extracted_national_id).strip()
+
         if not self.is_child and not self.extracted_national_id:
             raise UserError(_('لم يتم استخراج رقم الهوية الوطنية من الصورة!'))
 
@@ -276,6 +285,12 @@ class KserNationalIdWizard(models.TransientModel):
         is_id_required = (not self.is_child) or is_older_child
 
         if existing:
+            if existing.is_verified:
+                raise UserError(_(
+                    "عذراً، هذا المستفيد (%s) مسجل بالفعل في النظام وتم التحقق من بياناته مسبقاً (تم التحقق). "
+                    "لا يمكن إعادة تسجيل أو تعديل بيانات المستفيدين المؤكدين."
+                ) % existing.partner_id.name)
+
             partner = existing.partner_id
             partner.write({
                 'name': self.extracted_name or partner.name,

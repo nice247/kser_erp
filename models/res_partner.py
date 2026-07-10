@@ -65,15 +65,38 @@ class ResPartner(models.Model):
         attachment=True,
     )
 
+    @api.model
+    def normalize_national_id(self, id_str):
+        if not id_str:
+            return ''
+        eastern_to_western = {
+            '٠': '0', '١': '1', '٢': '2', '٣': '3', '٤': '4',
+            '٥': '5', '٦': '6', '٧': '7', '٨': '8', '٩': '9',
+            '۰': '0', '۱': '1', '۲': '2', '۳': '3', '۴': '4',
+            '۵': '5', '۶': '6', '۷': '7', '۸': '8', '۹': '9',
+        }
+        normalized = ''.join(eastern_to_western.get(c, c) for c in id_str)
+        return normalized.strip()
+
     @api.constrains('national_id_number', 'national_id_image', 'category_tag')
     def _check_national_id_volunteer(self):
         volunteer_tag = self.env.ref('kser_erp.partner_category_volunteer', raise_if_not_found=False)
         for rec in self:
+            normalized_id = self.normalize_national_id(rec.national_id_number) if rec.national_id_number else ''
+            
             if volunteer_tag and rec.category_tag == volunteer_tag:
                 if not rec.national_id_image:
                     raise ValidationError(_("يجب رفع صورة الرقم الوطني للمتطوع!"))
-                if not rec.national_id_number or len(rec.national_id_number) != 11 or not rec.national_id_number.isdigit():
+                if not normalized_id or len(normalized_id) != 11 or not normalized_id.isdigit():
                     raise ValidationError(_("يجب أن يتكون الرقم الوطني للمتطوع من 11 خانة رقمية فقط!"))
+            
+            if normalized_id:
+                duplicate = self.with_context(active_test=False).search([
+                    ('national_id_number', '=', normalized_id),
+                    ('id', '!=', rec.id)
+                ], limit=1)
+                if duplicate:
+                    raise ValidationError(_("عذراً، الرقم الوطني '%s' مسجل بالفعل لجهة الاتصال: '%s'. لا يمكن تكرار الرقم الوطني لمنع التكرار.") % (normalized_id, duplicate.name))
 
     task_ids = fields.Many2many(
         'project.task',
@@ -213,3 +236,33 @@ class ResPartner(models.Model):
             'url': url,
             'target': 'new',
         }
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            if vals.get('national_id_number'):
+                normalized_id = self.normalize_national_id(vals['national_id_number'])
+                vals['national_id_number'] = normalized_id
+                
+                # Check for duplicates before database insert
+                duplicate = self.with_context(active_test=False).search([
+                    ('national_id_number', '=', normalized_id)
+                ], limit=1)
+                if duplicate:
+                    raise ValidationError(_("عذراً، الرقم الوطني '%s' مسجل بالفعل لجهة الاتصال: '%s'. لا يمكن تكرار الرقم الوطني لمنع التكرار.") % (normalized_id, duplicate.name))
+        return super().create(vals_list)
+
+    def write(self, vals):
+        if vals.get('national_id_number'):
+            normalized_id = self.normalize_national_id(vals['national_id_number'])
+            vals['national_id_number'] = normalized_id
+            
+            # Check for duplicates before database update
+            for rec in self:
+                duplicate = self.with_context(active_test=False).search([
+                    ('national_id_number', '=', normalized_id),
+                    ('id', '!=', rec.id)
+                ], limit=1)
+                if duplicate:
+                    raise ValidationError(_("عذراً، الرقم الوطني '%s' مسجل بالفعل لجهة الاتصال: '%s'. لا يمكن تكرار الرقم الوطني لمنع التكرار.") % (normalized_id, duplicate.name))
+        return super().write(vals)

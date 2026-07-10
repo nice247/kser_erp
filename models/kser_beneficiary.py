@@ -496,22 +496,64 @@ class KserBeneficiary(models.Model):
             else:
                 rec.is_child = False
 
+    @api.model
+    def normalize_national_id(self, id_str):
+        if not id_str:
+            return ''
+        eastern_to_western = {
+            '٠': '0', '١': '1', '٢': '2', '٣': '3', '٤': '4',
+            '٥': '5', '٦': '6', '٧': '7', '٨': '8', '٩': '9',
+            '۰': '0', '۱': '1', '۲': '2', '۳': '3', '۴': '4',
+            '۵': '5', '۶': '6', '۷': '7', '۸': '8', '۹': '9',
+        }
+        normalized = ''.join(eastern_to_western.get(c, c) for c in id_str)
+        return normalized.strip()
+
     @api.constrains('national_id_number', 'national_id_image', 'is_child', 'birthdate', 'without_national_id')
     def _check_national_id_beneficiary(self):
         for rec in self:
             if rec.is_child:
                 continue
+            
+            normalized_id = self.normalize_national_id(rec.national_id_number) if rec.national_id_number else ''
+            
             if rec.without_national_id:
-                if rec.national_id_number:
-                    if len(rec.national_id_number) != 11 or not rec.national_id_number.isdigit():
+                if normalized_id:
+                    if len(normalized_id) != 11 or not normalized_id.isdigit():
                         raise ValidationError(_("يجب أن يتكون الرقم الوطني للمستفيد من 11 خانة رقمية فقط!"))
+                    # Uniqueness check (search both active and archived records)
+                    duplicate = self.with_context(active_test=False).search([
+                        ('national_id_number', '=', normalized_id),
+                        ('id', '!=', rec.id)
+                    ], limit=1)
+                    if duplicate:
+                        raise ValidationError(_("عذراً، الرقم الوطني '%s' مسجل بالفعل للمستفيد: '%s'. لا يمكن تسجيل مستفيد جديد بنفس الرقم الوطني لمنع التكرار.") % (normalized_id, duplicate.partner_id.name))
                 continue
+            
             if self.env.user.has_group('kser_erp.group_receptionist'):
+                if normalized_id:
+                    if len(normalized_id) != 11 or not normalized_id.isdigit():
+                        raise ValidationError(_("يجب أن يتكون الرقم الوطني للمستفيد من 11 خانة رقمية فقط!"))
+                    duplicate = self.with_context(active_test=False).search([
+                        ('national_id_number', '=', normalized_id),
+                        ('id', '!=', rec.id)
+                    ], limit=1)
+                    if duplicate:
+                        raise ValidationError(_("عذراً، الرقم الوطني '%s' مسجل بالفعل للمستفيد: '%s'. لا يمكن تسجيل مستفيد جديد بنفس الرقم الوطني لمنع التكرار.") % (normalized_id, duplicate.partner_id.name))
                 continue
+                
             if not rec.national_id_image:
                 raise ValidationError(_("يجب رفع صورة الرقم الوطني للمستفيد!"))
-            if not rec.national_id_number or len(rec.national_id_number) != 11 or not rec.national_id_number.isdigit():
+            if not normalized_id or len(normalized_id) != 11 or not normalized_id.isdigit():
                 raise ValidationError(_("يجب أن يتكون الرقم الوطني للمستفيد من 11 خانة رقمية فقط!"))
+                
+            # Uniqueness check
+            duplicate = self.with_context(active_test=False).search([
+                ('national_id_number', '=', normalized_id),
+                ('id', '!=', rec.id)
+            ], limit=1)
+            if duplicate:
+                raise ValidationError(_("عذراً، الرقم الوطني '%s' مسجل بالفعل للمستفيد: '%s'. لا يمكن تسجيل مستفيد جديد بنفس الرقم الوطني لمنع التكرار.") % (normalized_id, duplicate.partner_id.name))
 
     @api.depends('move_ids')
     def _compute_move_count(self):
@@ -538,6 +580,16 @@ class KserBeneficiary(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
+            if vals.get('national_id_number'):
+                normalized_id = self.normalize_national_id(vals['national_id_number'])
+                vals['national_id_number'] = normalized_id
+                
+                # Check for duplicates before database insert
+                duplicate = self.with_context(active_test=False).search([
+                    ('national_id_number', '=', normalized_id)
+                ], limit=1)
+                if duplicate:
+                    raise ValidationError(_("عذراً، الرقم الوطني '%s' مسجل بالفعل للمستفيد: '%s'. لا يمكن تسجيل مستفيد جديد بنفس الرقم الوطني لمنع التكرار.") % (normalized_id, duplicate.partner_id.name))
             if vals.get('is_verified') and not (self.env.user.has_group('kser_erp.group_data_manager') or
                                                  self.env.user.has_group('kser_erp.group_admin_supervisor') or
                                                  self.env.user.has_group('kser_erp.group_system_admin')):
@@ -588,6 +640,16 @@ class KserBeneficiary(models.Model):
         return records
 
     def write(self, vals):
+        if vals.get('national_id_number'):
+            normalized_id = self.normalize_national_id(vals['national_id_number'])
+            vals['national_id_number'] = normalized_id
+            for rec in self:
+                duplicate = self.with_context(active_test=False).search([
+                    ('national_id_number', '=', normalized_id),
+                    ('id', '!=', rec.id)
+                ], limit=1)
+                if duplicate:
+                    raise ValidationError(_("عذراً، الرقم الوطني '%s' مسجل بالفعل للمستفيد: '%s'. لا يمكن تسجيل مستفيد جديد بنفس الرقم الوطني لمنع التكرار.") % (normalized_id, duplicate.partner_id.name))
         # 1. منع تعديل الحقول المقفلة بعد التحقق
         for rec in self:
             if rec.is_verified and vals.get('is_verified', True) != False:
