@@ -24,10 +24,28 @@ class KserPerformanceReport(models.AbstractModel):
             ('location_dest_id.usage', '=', 'customer'),
             ('picking_id.picking_type_id.code', '=', 'outgoing'),
         ])
-
         distribution_lines = []
-        unique_beneficiaries = set()
+        unique_beneficiary_counts = {}
 
+        # 1. First pass to calculate unique beneficiaries and their medication status
+        for move in moves:
+            picking = move.picking_id
+            b = move.beneficiary_id
+            if not b and picking and picking.partner_id:
+                b = self.env['kser.beneficiary'].search([('partner_id', '=', picking.partner_id.id)], limit=1)
+            if not b:
+                continue
+            is_med = move.product_id.is_therapeutic
+            if b.id not in unique_beneficiary_counts:
+                unique_beneficiary_counts[b.id] = {
+                    'family_size': b.family_size or 1,
+                    'only_medicine': is_med
+                }
+            else:
+                if not is_med:
+                    unique_beneficiary_counts[b.id]['only_medicine'] = False
+
+        # 2. Build distribution lines
         for move in moves:
             picking = move.picking_id
             categ_name = move.product_id.categ_id.name or ''
@@ -39,18 +57,28 @@ class KserPerformanceReport(models.AbstractModel):
             else:
                 item_category = categ_name
 
-            if move.beneficiary_id:
-                unique_beneficiaries.add(move.beneficiary_id.id)
+            # Calculate count for this specific move
+            b = move.beneficiary_id
+            if not b and picking and picking.partner_id:
+                b = self.env['kser.beneficiary'].search([('partner_id', '=', picking.partner_id.id)], limit=1)
+
+            beneficiary_count = 0
+            if b:
+                if move.product_id.is_therapeutic:
+                    beneficiary_count = 1
+                else:
+                    beneficiary_count = b.family_size or 1
 
             distribution_lines.append({
                 'order_name': picking.name if picking else '-',
                 'date': move.date.date() if move.date else False,
-                'campaign_name': picking.group_id.name if picking and picking.group_id else '-',
+                'campaign_name': picking.project_id.name if picking and picking.project_id else '-',
                 'item_category': item_category,
                 'product_name': move.product_id.name,
                 'quantity': move.product_uom_qty,
                 'uom': move.product_uom.name if move.product_uom else '-',
-                'beneficiary_name': move.beneficiary_id.partner_id.name if move.beneficiary_id else '-',
+                'beneficiary_name': b.partner_id.name if b else '-',
+                'beneficiary_count': beneficiary_count,
                 'distribution_type': dict(
                     picking._fields['distribution_type'].selection
                 ).get(picking.distribution_type, '-') if picking and picking.distribution_type else '-',
@@ -58,10 +86,15 @@ class KserPerformanceReport(models.AbstractModel):
 
         distribution_lines.sort(key=lambda x: x.get('date') or fields.Date.today())
 
-        # Classify unique beneficiaries who received distributions in this period
-        beneficiary_records = moves.mapped('beneficiary_id')
-        total_b_count = len(beneficiary_records)
-        
+        # 3. Calculate total beneficiaries sum based on unique counts to prevent double counting
+        total_beneficiaries_sum = 0
+        for b_id, info in unique_beneficiary_counts.items():
+            if info['only_medicine']:
+                total_beneficiaries_sum += 1
+            else:
+                total_beneficiaries_sum += info['family_size']
+
+        # 4. Populate stats table
         stats = {
             'needy': {'male': 0, 'female': 0, 'total': 0, 'pct': 0.0},
             'patients': {'male': 0, 'female': 0, 'total': 0, 'pct': 0.0},
@@ -81,7 +114,8 @@ class KserPerformanceReport(models.AbstractModel):
             visited_beneficiary_ids = set(visits.mapped('beneficiary_id.id'))
 
         today = fields.Date.today()
-        for b in beneficiary_records:
+        for b_id, info in unique_beneficiary_counts.items():
+            b = self.env['kser.beneficiary'].browse(b_id)
             gender = b.gender if b.gender in ['male', 'female'] else 'male'
             
             # Calculate age
@@ -95,18 +129,19 @@ class KserPerformanceReport(models.AbstractModel):
             elif b.birthdate and age >= 60:
                 cat = 'elderly'
             elif b.marital_status == 'widowed' and gender == 'female':
-                cat = 'needy'  # Replaced Needy Families with Widows (Arameel)
+                cat = 'needy'
             elif b.health_conditions or b.is_disabled or (b.id in visited_beneficiary_ids):
                 cat = 'patients'
             else:
                 cat = 'others'
                 
-            stats[cat][gender] += 1
-            stats[cat]['total'] += 1
+            count_to_add = 1 if info['only_medicine'] else info['family_size']
+            stats[cat][gender] += count_to_add
+            stats[cat]['total'] += count_to_add
 
-        if total_b_count > 0:
+        if total_beneficiaries_sum > 0:
             for cat in stats:
-                stats[cat]['pct'] = (stats[cat]['total'] / total_b_count) * 100.0
+                stats[cat]['pct'] = (stats[cat]['total'] / total_beneficiaries_sum) * 100.0
 
         return {
             'doc_ids': docids,
@@ -116,7 +151,8 @@ class KserPerformanceReport(models.AbstractModel):
             'date_to': date_to,
             'distribution_lines': distribution_lines,
             'total_distributions': len(distribution_lines),
-            'total_beneficiaries': len(unique_beneficiaries),
+            'total_beneficiaries': total_beneficiaries_sum,
             'total_quantity': sum(line['quantity'] for line in distribution_lines),
             'stats': stats,
+            'notes': data.get('notes', ''),
         }

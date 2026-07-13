@@ -16,22 +16,7 @@ class KserBudgetReport(models.AbstractModel):
         if isinstance(date_to, str):
             date_to = fields.Date.from_string(date_to)
 
-        # Calculate actual opening balance at date_from from cash & bank accounts (asset_cash)
-        liquidity_accounts = self.env['account.account'].search([
-            ('account_type', '=', 'asset_cash'),
-            ('company_ids', '=', self.env.company.id)
-        ])
-        
-        opening_balance = 0.0
-        if liquidity_accounts:
-            self.env.cr.execute("""
-                SELECT COALESCE(SUM(debit - credit), 0.0)
-                FROM account_move_line
-                WHERE account_id IN %s
-                  AND date < %s
-                  AND parent_state = 'posted'
-            """, (tuple(liquidity_accounts.ids), date_from))
-            opening_balance = self.env.cr.fetchone()[0]
+        opening_balance = data.get('opening_balance', 0.0)
 
         revenues = self._compute_revenues(date_from, date_to)
         expenses = self._compute_expenses(date_from, date_to)
@@ -52,6 +37,7 @@ class KserBudgetReport(models.AbstractModel):
             'total_revenues': total_revenues,
             'total_expenses': total_expenses,
             'net_balance': net_balance,
+            'notes': data.get('notes', ''),
         }
 
     def _compute_revenues(self, date_from, date_to):
@@ -71,7 +57,11 @@ class KserBudgetReport(models.AbstractModel):
             if donation.campaign_id:
                 revenues['Campaign Donations'] += donation.amount
             else:
-                revenues['Individual Donations'] += donation.amount
+                partner = donation.partner_id
+                if partner and partner.is_company:
+                    revenues['Corporate Donations'] += donation.amount
+                else:
+                    revenues['Individual Donations'] += donation.amount
 
         # Find other incomes recorded directly in accounting (not via kser.cash.donation)
         income_lines = self.env['account.move.line'].search([
@@ -88,13 +78,19 @@ class KserBudgetReport(models.AbstractModel):
             if line.move_id.id in donation_move_ids:
                 continue
                 
-            account_name = line.account_id.name or ''
             amount = line.credit - line.debit
-
-            if 'شركة' in account_name or 'مؤسسة' in account_name or 'Corporate' in account_name:
-                revenues['Corporate Donations'] += amount
+            partner = line.partner_id
+            if partner:
+                if partner.is_company:
+                    revenues['Corporate Donations'] += amount
+                else:
+                    revenues['Individual Donations'] += amount
             else:
-                revenues['Individual Donations'] += amount
+                account_name = line.account_id.name or ''
+                if 'شركة' in account_name or 'مؤسسة' in account_name or 'Corporate' in account_name:
+                    revenues['Corporate Donations'] += amount
+                else:
+                    revenues['Individual Donations'] += amount
 
         return revenues
 

@@ -256,15 +256,38 @@
             <field name="name">kser.report.wizard.form</field>
             <field name="model">kser.report.wizard</field>
             <field name="arch" type="xml">
-                <form string="طباعة التقارير">
-                    <group>
-                        <field name="report_type"/>
-                        <field name="date_from"/>
-                        <field name="date_to"/>
-                        <field name="opening_balance" invisible="report_type != 'budget'"/>
-                    </group>
+                <form string="معاينة وطباعة التقارير">
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="report_type" readonly="1"/>
+                                <field name="date_from"/>
+                            </group>
+                            <group>
+                                <field name="date_to"/>
+                                <field name="opening_balance" invisible="report_type != 'budget'"/>
+                            </group>
+                        </group>
+                        
+                        <div style="margin-top: 10px; margin-bottom: 15px;">
+                            <button name="action_load_preview" string="تحميل ومعاينة البيانات" type="object" class="btn-primary"/>
+                        </div>
+
+                        <!-- Notes entry section -->
+                        <group string="الملاحظات والتوصيات المرفقة بالتقرير">
+                            <field name="notes" placeholder="اكتب الملاحظات والتوصيات هنا لتظهر أسفل التقرير المطبوع... (اختياري)" nolabel="1" style="height: 100px; width: 100%;"/>
+                        </group>
+
+                        <!-- HTML preview section -->
+                        <notebook invisible="not preview_html">
+                            <page string="معاينة التقرير">
+                                <field name="preview_html" nolabel="1" widget="html"/>
+                            </page>
+                        </notebook>
+                        <field name="preview_html" invisible="1"/>
+                    </sheet>
                     <footer>
-                        <button name="action_print_report" string="تحميل التقرير (PDF)" type="object" class="btn-primary"/>
+                        <button name="action_print_report" string="تصدير كـ PDF" type="object" class="btn-success"/>
                         <button string="إلغاء" class="btn-secondary" special="cancel"/>
                     </footer>
                 </form>

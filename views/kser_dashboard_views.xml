@@ -83,10 +83,10 @@
         </record>
 
         <record id="view_child_followup_tree_kser_dashboard" model="ir.ui.view">
-            <field name="name">kser.child.followup.tree.kser.dashboard</field>
-            <field name="model">kser.child.followup</field>
+            <field name="name">kser.child.followup.line.tree.kser.dashboard</field>
+            <field name="model">kser.child.followup.line</field>
             <field name="arch" type="xml">
-                <list string="متابعات سوء التغذية الأخيرة" default_order="create_date desc">
+                <list string="متابعات سوء التغذية الأخيرة" default_order="followup_date desc, id desc">
                     <field name="beneficiary_id" string="الطفل"/>
                     <field name="followup_date" string="التاريخ"/>
                     <field name="nutrition_status" string="الحالة"/>
@@ -96,7 +96,7 @@
 
         <record id="action_followups_dashboard_list" model="ir.actions.act_window">
             <field name="name">آخر متابعات سوء التغذية للأطفال</field>
-            <field name="res_model">kser.child.followup</field>
+            <field name="res_model">kser.child.followup.line</field>
             <field name="view_mode">list</field>
             <field name="view_id" ref="view_child_followup_tree_kser_dashboard"/>
             <field name="limit">5</field>
@@ -118,7 +118,7 @@
             <field name="arch" type="xml">
                 <list string="المهام" default_order="create_date desc">
                     <field name="name"/>
-                    <field name="project_id"/>
+                    <field name="project_id" string="الحملة"/>
                     <field name="user_ids" widget="many2many_tags"/>
                     <field name="date_deadline"/>
                 </list>
@@ -167,7 +167,10 @@
                                      groups="kser_erp.group_admin_supervisor,kser_erp.group_clinic_manager,kser_erp.group_doctor,kser_erp.group_system_admin,kser_erp.group_receptionist"/>
                             <action name="%(action_inventory_dashboard_graph)d" 
                                     string="حالة مخزون الأدوية والإغاثة"
-                                    groups="kser_erp.group_stock_manager,kser_erp.group_pharmacist,kser_erp.group_system_admin"/>
+                                    groups="kser_erp.group_stock_manager,kser_erp.group_admin_supervisor,kser_erp.group_system_admin"/>
+                            <action name="%(action_inventory_dashboard_graph)d" 
+                                    string="حالة مخزون الأدوية"
+                                    groups="kser_erp.group_pharmacist"/>
                             <action name="%(action_prescriptions_dashboard_list)d" 
                                     string="آخر الروشتات الطبية الصادرة"
                                     groups="kser_erp.group_admin_supervisor,kser_erp.group_clinic_manager,kser_erp.group_doctor,kser_erp.group_pharmacist,kser_erp.group_system_admin"/>

@@ -143,4 +143,5 @@ class KserVolunteerReport(models.AbstractModel):
             'volunteers': volunteers_list,
             'total_volunteers': len(volunteers_list),
             'total_completed_tasks': sum(v['completed_tasks'] for v in volunteers_list),
+            'notes': data.get('notes', ''),
         }

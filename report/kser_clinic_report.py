@@ -28,7 +28,7 @@ class KserClinicReport(models.AbstractModel):
         ])
         prescriptions_count = len(prescriptions)
 
-        child_followups = self.env['kser.child.followup'].search([
+        child_followups = self.env['kser.child.followup.line'].search([
             ('followup_date', '>=', date_from),
             ('followup_date', '<=', date_to),
         ])
@@ -60,10 +60,11 @@ class KserClinicReport(models.AbstractModel):
                 'qty': qty
             })
 
-        malnourished_children_count = len(child_followups.mapped('beneficiary_id'))
+        active_followups = child_followups.filtered(lambda l: l.followup_id.state == 'active')
+        malnourished_children_count = len(active_followups.mapped('beneficiary_id'))
 
         weight_diffs = []
-        for child in child_followups.mapped('beneficiary_id'):
+        for child in active_followups.mapped('beneficiary_id'):
             child_records = child_followups.filtered(lambda r: r.beneficiary_id.id == child.id).sorted('followup_date')
             if len(child_records) > 1:
                 diff = child_records[-1].weight - child_records[0].weight
@@ -84,4 +85,5 @@ class KserClinicReport(models.AbstractModel):
             'top_medicines': top_medicines,
             'malnourished_children_count': malnourished_children_count,
             'avg_weight_evolution': avg_weight_evolution,
+            'notes': data.get('notes', ''),
         }

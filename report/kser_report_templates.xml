@@ -286,12 +286,14 @@
                     </div>
 
                     <!-- ===== NOTES ===== -->
-                    <div class="kser-notes-section" style="margin-top: 10px;">
-                        <div class="section-label">ملاحظات:</div>
-                        <div class="kser-dotted-line">...............................................................................</div>
-                        <div class="kser-dotted-line">...............................................................................</div>
-                        <div class="kser-dotted-line">...............................................................................</div>
-                    </div>
+                    <t t-if="notes">
+                        <div class="kser-notes-section" style="margin-top: 10px;">
+                            <div class="section-label">ملاحظات وتوصيات:</div>
+                            <div style="font-size: 11px; white-space: pre-line; border: 1px solid #ccc; padding: 10px; border-radius: 4px; background-color: #f9f9f9; line-height: 1.5; margin-bottom: 15px; text-align: right;">
+                                <t t-esc="notes"/>
+                            </div>
+                        </div>
+                    </t>
 
                     <!-- ===== BOTTOM SIGNATURE BAR ===== -->
                     <div class="kser-bottom-bar">
@@ -369,7 +371,7 @@
                                     <td style="text-align: right;"><t t-esc="line['product_name']"/></td>
                                     <td><t t-esc="line['quantity']"/></td>
                                     <td><t t-esc="line['uom']"/></td>
-                                    <td><t t-esc="line['beneficiary_name']"/></td>
+                                    <td><t t-esc="line['beneficiary_count'] if line['beneficiary_count'] > 0 else '-'"/></td>
                                 </tr>
                             </t>
                             <!-- Total Row -->
@@ -456,14 +458,15 @@
                     </div>
 
                     <!-- ===== SECTION 3: CLOSING ANALYSIS ===== -->
-                    <div class="kser-section-title">
-                        <span class="green-sq"></span>
-                        ثالثاً: التحليل الختامي
-                    </div>
-                    <div class="kser-dotted-line">...............................................................................</div>
-                    <div class="kser-dotted-line">...............................................................................</div>
-                    <div class="kser-dotted-line">...............................................................................</div>
-                    <div class="kser-dotted-line">...............................................................................</div>
+                    <t t-if="notes">
+                        <div class="kser-section-title">
+                            <span class="green-sq"></span>
+                            ثالثاً: التحليل الختامي والملاحظات
+                        </div>
+                        <div style="font-size: 11px; white-space: pre-line; border: 1px solid #ccc; padding: 10px; border-radius: 4px; background-color: #f9f9f9; line-height: 1.5; margin-bottom: 15px; text-align: right;">
+                            <t t-esc="notes"/>
+                        </div>
+                    </t>
 
                     <!-- ===== BOTTOM SIGNATURE BAR ===== -->
                     <div class="kser-bottom-bar">
@@ -609,12 +612,14 @@
                     </table>
 
                     <!-- ===== NOTES ===== -->
-                    <div class="kser-notes-section">
-                        <div class="section-label">ملاحظات:</div>
-                        <div class="kser-dotted-line">...............................................................................</div>
-                        <div class="kser-dotted-line">...............................................................................</div>
-                        <div class="kser-dotted-line">...............................................................................</div>
-                    </div>
+                    <t t-if="notes">
+                        <div class="kser-notes-section">
+                            <div class="section-label">ملاحظات:</div>
+                            <div style="font-size: 11px; white-space: pre-line; border: 1px solid #ccc; padding: 10px; border-radius: 4px; background-color: #f9f9f9; line-height: 1.5; margin-bottom: 15px; text-align: right;">
+                                <t t-esc="notes"/>
+                            </div>
+                        </div>
+                    </t>
 
                     <!-- ===== SIGNATURE (TEXT BASED) ===== -->
                     <div class="kser-signature-text">
@@ -794,12 +799,14 @@
                         </tbody>
                     </table>
 
-                    <div class="kser-notes-section">
-                        <div class="section-label">ملاحظات العيادة والتوصيات:</div>
-                        <div class="kser-dotted-line">...............................................................................</div>
-                        <div class="kser-dotted-line">...............................................................................</div>
-                        <div class="kser-dotted-line">...............................................................................</div>
-                    </div>
+                    <t t-if="notes">
+                        <div class="kser-notes-section">
+                            <div class="section-label">ملاحظات العيادة والتوصيات:</div>
+                            <div style="font-size: 11px; white-space: pre-line; border: 1px solid #ccc; padding: 10px; border-radius: 4px; background-color: #f9f9f9; line-height: 1.5; margin-bottom: 15px; text-align: right;">
+                                <t t-esc="notes"/>
+                            </div>
+                        </div>
+                    </t>
 
                     <div class="kser-bottom-bar">
                         <table>

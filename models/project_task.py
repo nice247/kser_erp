@@ -57,6 +57,10 @@ class ProjectTaskVolunteer(models.Model):
 class ProjectTask(models.Model):
     _inherit = 'project.task'
 
+    project_id = fields.Many2one(
+        'project.project',
+        string='الحملة',
+    )
     task_volunteer_ids = fields.One2many(
         'project.task.volunteer',
         'task_id',

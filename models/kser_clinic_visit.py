@@ -68,7 +68,7 @@ class KserClinicVisit(models.Model):
         string='Prescriptions',
     )
     followup_ids = fields.One2many(
-        'kser.child.followup',
+        'kser.child.followup.line',
         'visit_id',
         string='Malnutrition Followups',
     )

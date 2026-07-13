@@ -275,3 +275,15 @@ class KserCashExpense(models.Model):
             ], limit=1)
             if not tasks:
                 self.volunteer_id = False
+
+    def write(self, vals):
+        for rec in self:
+            if rec.state == 'posted' and not self.env.user.has_group('kser_erp.group_system_admin'):
+                raise ValidationError(_("لا يمكن تعديل المصروفات المعتمدة والمصروفة بالفعل!"))
+        return super().write(vals)
+
+    def unlink(self):
+        for rec in self:
+            if rec.state == 'posted':
+                raise ValidationError(_("لا يمكن حذف مصروف معتمد ومصروف بالفعل!"))
+        return super().unlink()

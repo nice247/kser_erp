@@ -197,6 +197,9 @@
             <field name="inherit_id" ref="project.view_task_form2"/>
             <field name="arch" type="xml">
                 <!-- إخفاء الحقول غير المطلوبة لمسؤولي الطوارئ -->
+                <xpath expr="//field[@name='project_id']" position="attributes">
+                    <attribute name="string">الحملة</attribute>
+                </xpath>
                 <xpath expr="//field[@name='user_ids']" position="attributes">
                     <attribute name="invisible">1</attribute>
                 </xpath>
@@ -444,6 +447,29 @@
             <field name="arch" type="xml">
                 <xpath expr="//button[@name='action_view_stock_lots']" position="attributes">
                     <attribute name="invisible">1</attribute>
+                </xpath>
+            </field>
+        </record>
+
+        <!-- تخصيص عرض المسند إليهم بالمتطوعين في القائمة والكانبان -->
+        <record id="view_task_tree_inherit_kser" model="ir.ui.view">
+            <field name="name">project.task.tree.inherit.kser</field>
+            <field name="model">project.task</field>
+            <field name="inherit_id" ref="project.project_task_view_tree_main_base"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='user_ids']" position="replace">
+                    <field name="volunteer_ids" widget="many2many_tags" string="المسند إليهم (المتطوعون)" optional="show"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="view_task_kanban_inherit_kser" model="ir.ui.view">
+            <field name="name">project.task.kanban.inherit.kser</field>
+            <field name="model">project.task</field>
+            <field name="inherit_id" ref="project.view_task_kanban"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='user_ids']" position="replace">
+                    <field name="volunteer_ids" widget="many2many_tags" string="المسند إليهم"/>
                 </xpath>
             </field>
         </record>

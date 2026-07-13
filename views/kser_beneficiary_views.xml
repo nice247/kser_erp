@@ -165,6 +165,21 @@
                                     </group>
                                 </group>
                             </page>
+                            <page string="متابعة سوء التغذية" name="child_followups" invisible="not is_child">
+                                <field name="followup_line_ids" readonly="1">
+                                    <list>
+                                        <field name="followup_date" string="التاريخ"/>
+                                        <field name="weight" string="الوزن (كجم)"/>
+                                        <field name="height" string="الطول (سم)"/>
+                                        <field name="nutrition_status" string="الحالة الغذائية" widget="badge"
+                                               decoration-danger="nutrition_status == 'severe'"
+                                               decoration-warning="nutrition_status == 'moderate'"
+                                               decoration-success="nutrition_status == 'normal'"/>
+                                        <field name="visit_location" string="مكان الزيارة"/>
+                                        <field name="measured_by" string="تم القياس بواسطة"/>
+                                    </list>
+                                </field>
+                            </page>
                             <page string="المساعدات المستلمة" name="aids_received">
                                 <group string="المساعدات المالية">
                                     <field name="financial_aid_ids" string="المساعدات المالية المستلمة" readonly="1">

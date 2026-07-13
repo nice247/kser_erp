@@ -8,10 +8,12 @@
             <field name="arch" type="xml">
                 <search string="بحث المتابعات">
                     <field name="beneficiary_id" string="الطفل"/>
-                    <field name="measured_by" string="تم القياس بواسطة"/>
                     <filter name="filter_severe" string="سوء تغذية حاد" domain="[('nutrition_status', '=', 'severe')]"/>
                     <filter name="filter_moderate" string="سوء تغذية متوسط" domain="[('nutrition_status', '=', 'moderate')]"/>
                     <filter name="filter_normal" string="طبيعي / متعافي" domain="[('nutrition_status', '=', 'normal')]"/>
+                    <separator/>
+                    <filter name="filter_active" string="تحت المتابعة النشطة" domain="[('state', '=', 'active')]"/>
+                    <filter name="filter_recovered" string="سليم ومتعافي" domain="[('state', '=', 'recovered')]"/>
                     <separator/>
                     <filter name="filter_this_week" string="زيارات هذا الأسبوع" domain="[('next_visit_date', '&gt;=', context_today().strftime('%Y-%m-%d')), ('next_visit_date', '&lt;=', (context_today() + datetime.timedelta(days=7)).strftime('%Y-%m-%d'))]"/>
                     <group expand="0" string="تجميع حسب">
@@ -30,16 +32,18 @@
             <field name="arch" type="xml">
                 <list string="متابعة الأطفال" default_order="followup_date desc">
                     <field name="beneficiary_id" string="الطفل"/>
-                    <field name="followup_date" string="التاريخ"/>
-                    <field name="weight" string="الوزن (كجم)"/>
-                    <field name="height" string="الطول (سم)"/>
-                    <field name="nutrition_status" string="الحالة الغذائية" widget="badge"
+                    <field name="followup_date" string="تاريخ آخر فحص"/>
+                    <field name="weight" string="الوزن الأخير (كجم)"/>
+                    <field name="height" string="الطول الأخير (سم)"/>
+                    <field name="nutrition_status" string="الحالة الغذائية الأخيرة" widget="badge"
                            decoration-danger="nutrition_status == 'severe'"
                            decoration-warning="nutrition_status == 'moderate'"
                            decoration-success="nutrition_status == 'normal'"/>
+                    <field name="state" string="حالة المتابعة" widget="badge"
+                           decoration-info="state == 'active'"
+                           decoration-success="state == 'recovered'"/>
                     <field name="next_visit_date" string="موعد الزيارة القادمة"/>
-                    <field name="visit_location" string="مكان الزيارة"/>
-                    <field name="measured_by" string="تم القياس بواسطة"/>
+                    <field name="visit_location" string="مكان الزيارة الأخيرة"/>
                 </list>
             </field>
         </record>
@@ -51,22 +55,60 @@
                 <form string="متابعة الأطفال">
                     <sheet>
                         <group>
-                            <group string="بيانات القياس">
-                                <field name="beneficiary_id" string="الطفل"/>
-                                <field name="followup_date" string="التاريخ"/>
-                                <field name="weight" string="الوزن (كجم)"/>
-                                <field name="height" string="الطول (سم)"/>
+                            <group string="بيانات الطفل والتشخيص الحالي">
+                                <field name="beneficiary_id" string="الطفل" readonly="id"/>
+                                <field name="child_age" string="عمر الطفل" readonly="1" invisible="not beneficiary_id"/>
+                                <field name="nutrition_status" string="الحالة الغذائية الأخيرة" readonly="1" widget="badge"
+                                       decoration-danger="nutrition_status == 'severe'"
+                                       decoration-warning="nutrition_status == 'moderate'"
+                                       decoration-success="nutrition_status == 'normal'"/>
+                                <field name="state" string="حالة المتابعة" widget="badge"
+                                       decoration-info="state == 'active'"
+                                       decoration-success="state == 'recovered'"/>
                             </group>
-                            <group string="التقييم الطبي">
-                                <field name="nutrition_status" string="الحالة الغذائية"/>
-                                <field name="measured_by" string="تم القياس بواسطة"/>
-                                <field name="next_visit_date" string="موعد الزيارة القادمة"/>
-                                <field name="visit_location" string="مكان الزيارة"/>
+                            <group string="آخر فحص مسجل">
+                                <field name="followup_date" string="تاريخ آخر فحص" readonly="1"/>
+                                <field name="weight" string="الوزن الأخير (كجم)" readonly="1"/>
+                                <field name="height" string="الطول الأخير (سم)" readonly="1"/>
+                                <field name="next_visit_date" string="موعد الزيارة القادمة" readonly="1"/>
+                                <field name="visit_location" string="مكان الزيارة الأخيرة" readonly="1"/>
                             </group>
                         </group>
-                        <group string="ملاحظات المتابعة">
-                            <field name="notes" string="ملاحظات المتابعة الطبية" placeholder="ادخل تفاصيل المتابعة وصحة الطفل هنا..."/>
-                        </group>
+                        <notebook>
+                            <page string="زيارات المتابعة والقياسات" name="followup_lines">
+                                <field name="line_ids">
+                                    <list editable="bottom" delete="0">
+                                        <field name="followup_date" string="التاريخ"/>
+                                        <field name="weight" string="الوزن (كجم)"/>
+                                        <field name="weight_difference" string="تغير الوزن (كجم)" readonly="1"
+                                               decoration-success="weight_difference &gt; 0"
+                                               decoration-danger="weight_difference &lt; 0"/>
+                                        <field name="height" string="الطول (سم)"/>
+                                        <field name="height_difference" string="تغير الطول (سم)" readonly="1"
+                                               decoration-success="height_difference &gt; 0"
+                                               decoration-danger="height_difference &lt; 0"/>
+                                        <field name="nutrition_status" string="الحالة الغذائية"/>
+                                        <field name="next_visit_date" string="موعد الزيارة القادمة"/>
+                                        <field name="visit_location" string="مكان الزيارة"/>
+                                        <field name="measured_by" string="تم القياس بواسطة"/>
+                                        <field name="notes" string="ملاحظات الفحص"/>
+                                    </list>
+                                </field>
+                            </page>
+                            <page string="الروشتات الطبية للأدوية" name="prescriptions" invisible="not beneficiary_id">
+                                <field name="prescription_ids" context="{'default_beneficiary_id': beneficiary_id, 'default_doctor_id': uid}">
+                                    <list>
+                                        <field name="name" string="رقم الروشتة"/>
+                                        <field name="prescription_date" string="تاريخ الروشتة"/>
+                                        <field name="doctor_id" string="الطبيب المعالج"/>
+                                        <field name="state" string="الحالة" widget="badge"
+                                               decoration-info="state == 'draft'"
+                                               decoration-warning="state == 'prescribed'"
+                                               decoration-success="state == 'dispensed'"/>
+                                    </list>
+                                </field>
+                            </page>
+                        </notebook>
                     </sheet>
                     <chatter/>
                 </form>

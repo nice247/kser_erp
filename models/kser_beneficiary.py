@@ -17,7 +17,7 @@ class KserBeneficiary(models.Model):
 
     partner_id = fields.Many2one(
         'res.partner',
-        string='Contact',
+        string='الاسم',
         required=True,
         index=True,
         ondelete='restrict',
@@ -25,27 +25,27 @@ class KserBeneficiary(models.Model):
         tracking=True,
     )
     national_id_number = fields.Char(
-        string='National ID Number',
+        string='الرقم الوطني',
         size=20,
         tracking=True,
     )
     phone = fields.Char(
         related='partner_id.phone',
-        string='Phone',
+        string='رقم الهاتف',
         readonly=False,
     )
     mobile = fields.Char(
         related='partner_id.mobile',
-        string='Mobile',
+        string='رقم الجوال',
         readonly=False,
     )
     whatsapp_number = fields.Char(
         related='partner_id.whatsapp_number',
-        string='WhatsApp Number',
+        string='رقم الواتساب',
         readonly=False,
     )
     national_id_image = fields.Binary(
-        string='ID Image',
+        string='صورة الهوية الوطنية',
         attachment=True,
     )
     extracted_mother_name = fields.Char(
@@ -53,7 +53,7 @@ class KserBeneficiary(models.Model):
         tracking=True,
     )
     profession = fields.Char(
-        string='Profession',
+        string='المهنة',
         size=100,
     )
     marital_status = fields.Selection(
@@ -63,18 +63,18 @@ class KserBeneficiary(models.Model):
             ('widowed', 'أرمل'),
             ('divorced', 'مطلق'),
         ],
-        string='Marital Status',
+        string='الحالة الاجتماعية',
     )
     gender = fields.Selection(
         [
             ('male', 'ذكر'),
             ('female', 'أنثى'),
         ],
-        string='Gender',
+        string='الجنس',
         tracking=True,
     )
     family_size = fields.Integer(
-        string='Number of Family Members',
+        string='إجمالي أفراد الأسرة',
         compute='_compute_family_size',
         store=True,
     )
@@ -83,43 +83,43 @@ class KserBeneficiary(models.Model):
         string='الأمراض المزمنة',
     )
     birthdate = fields.Date(
-        string='Birth Date',
+        string='تاريخ الميلاد',
     )
     def _default_district(self):
         return self.env.company.city or ''
 
     district = fields.Char(
-        string='District',
+        string='المحلية',
         size=100,
         required=True,
         index=True,
         default=_default_district,
     )
     registration_date = fields.Date(
-        string='Registration Date',
+        string='تاريخ التسجيل',
         required=True,
         default=fields.Date.context_today,
         index=True,
     )
     is_verified = fields.Boolean(
-        string='Is Verified?',
+        string='تم التحقق',
         default=False,
         index=True,
         tracking=True,
     )
     active = fields.Boolean(
-        string='Active',
+        string='نشط',
         default=True,
         tracking=True,
     )
 
     is_disabled = fields.Boolean(
-        string='Disabled / Special Needs',
+        string='ذوو احتياجات خاصة',
         default=False,
         tracking=True,
     )
     is_child = fields.Boolean(
-        string='Is Child',
+        string='طفل',
         compute='_compute_is_child',
         store=True,
         tracking=True,
@@ -130,7 +130,7 @@ class KserBeneficiary(models.Model):
     address = fields.Char(
         related='partner_id.street',
         readonly=False,
-        string='Address',
+        string='عنوان السكن',
     )
     is_head_of_family = fields.Boolean(
         string='هل هو رب أسرة؟ / فرد لوحده',
@@ -139,7 +139,7 @@ class KserBeneficiary(models.Model):
     )
     head_of_family_id = fields.Many2one(
         'kser.beneficiary',
-        string='Head of Family',
+        string='رب الأسرة المسؤول',
         index=True,
         ondelete='restrict',
     )
@@ -156,29 +156,29 @@ class KserBeneficiary(models.Model):
             ('spouse', 'زوج/زوجة'),
             ('child', 'ابن/ابنة'),
         ],
-        string='Relationship to Head of Family',
+        string='العلاقة برب الأسرة',
         default=False,
         required=False,
     )
     member_ids = fields.One2many(
         'kser.beneficiary',
         'head_of_family_id',
-        string='Family Members',
+        string='أفراد الأسرة',
         domain=[('relationship', '!=', 'self')],
     )
     family_member_ids = fields.Many2many(
         'kser.beneficiary',
-        string='Family Members',
+        string='أفراد الأسرة',
         compute='_compute_family_member_ids',
         inverse='_inverse_family_member_ids',
     )
     family_member_count = fields.Integer(
         compute='_compute_family_member_count',
-        string='Family Member Count',
+        string='عدد أفراد الأسرة',
     )
     registered_by = fields.Many2one(
         'res.users',
-        string='Registered By',
+        string='مسجل بواسطة',
         default=lambda self: self.env.uid,
     )
 
@@ -468,12 +468,22 @@ class KserBeneficiary(models.Model):
     move_ids = fields.One2many(
         'stock.move',
         'beneficiary_id',
-        string='Relief Received',
+        string='المساعدات العينية المستلمة',
     )
     prescription_ids = fields.One2many(
         'kser.prescription',
         'beneficiary_id',
         string='الروشتات الطبية',
+    )
+    followup_ids = fields.One2many(
+        'kser.child.followup',
+        'beneficiary_id',
+        string='سجل المتابعة الطبية للأطفال',
+    )
+    followup_line_ids = fields.One2many(
+        'kser.child.followup.line',
+        'beneficiary_id',
+        string='زيارات قياس سوء التغذية للأطفال',
     )
     financial_aid_ids = fields.One2many(
         'kser.cash.expense',
@@ -482,7 +492,7 @@ class KserBeneficiary(models.Model):
     )
     move_count = fields.Integer(
         compute='_compute_move_count',
-        string='Relief Count',
+        string='عدد المساعدات المستلمة',
     )
 
     @api.depends('birthdate')

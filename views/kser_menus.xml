@@ -327,12 +327,14 @@
                   name="التبرعات النقدية"
                   parent="menu_kser_donations"
                   action="action_kser_cash_donation"
+                  groups="kser_erp.group_admin_supervisor,kser_erp.group_data_manager,kser_erp.group_system_admin"
                   sequence="1"/>
 
         <menuitem id="menu_kser_receipt_ocr_wizard"
                   name="إضافة تبرع"
                   parent="menu_kser_donations"
                   action="action_kser_bank_receipt_wizard"
+                  groups="kser_erp.group_admin_supervisor,kser_erp.group_data_manager,kser_erp.group_system_admin"
                   sequence="3"
                   active="True"/>
 
@@ -347,7 +349,7 @@
                   name="المصروفات والحوافز"
                   parent="menu_kser_field_tasks"
                   action="action_kser_cash_expense"
-                  groups="kser_erp.group_admin_supervisor,kser_erp.group_system_admin"
+                  groups="kser_erp.group_admin_supervisor,kser_erp.group_field_supervisor,kser_erp.group_system_admin"
                   sequence="3"/>
 
         <!-- المهام والحملات Sub-Items -->
@@ -371,7 +373,7 @@
                   name="عمليات التوزيع"
                   parent="menu_kser_contacts"
                   action="action_kser_stock_picking"
-                  groups="kser_erp.group_stock_manager,kser_erp.group_system_admin"
+                  groups="kser_erp.group_stock_manager,kser_erp.group_field_supervisor,kser_erp.group_system_admin"
                   sequence="2"/>
 
 

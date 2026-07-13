@@ -108,10 +108,10 @@
         </record>
 
         <record id="rule_partner_field_supervisor" model="ir.rule">
-            <field name="name">Volunteers: Field Supervisor Records</field>
+            <field name="name">Volunteers/Beneficiaries: Field Supervisor Records</field>
             <field name="model_id" ref="base.model_res_partner"/>
             <field name="groups" eval="[(4, ref('group_field_supervisor'))]"/>
-            <field name="domain_force">['|', ('is_volunteer', '=', True), ('id', '=', user.partner_id.id)]</field>
+            <field name="domain_force">['|', '|', ('is_volunteer', '=', True), ('is_beneficiary', '=', True), ('id', '=', user.partner_id.id)]</field>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>
             <field name="perm_create" eval="True"/>
@@ -198,6 +198,7 @@
         <record id="rule_prescription_write_global" model="ir.rule">
             <field name="name">Clinic Prescriptions: Restrict Write Globally</field>
             <field name="model_id" ref="kser_erp.model_kser_prescription"/>
+            <field name="groups" eval="[(4, ref('group_kser_user'))]"/>
             <field name="domain_force">[(0, '=', 1)]</field>
             <field name="perm_read" eval="False"/>
             <field name="perm_write" eval="True"/>
@@ -208,7 +209,12 @@
         <record id="rule_prescription_write_doctor" model="ir.rule">
             <field name="name">Clinic Prescriptions: Allow Write Doctor and Admin</field>
             <field name="model_id" ref="kser_erp.model_kser_prescription"/>
-            <field name="groups" eval="[(4, ref('group_doctor')), (4, ref('group_admin_supervisor')), (4, ref('group_system_admin'))]"/>
+            <field name="groups" eval="[
+                (4, ref('group_doctor')), 
+                (4, ref('group_clinic_manager')), 
+                (4, ref('group_admin_supervisor')), 
+                (4, ref('group_system_admin'))
+            ]"/>
             <field name="domain_force">[(1, '=', 1)]</field>
             <field name="perm_read" eval="False"/>
             <field name="perm_write" eval="True"/>
@@ -219,6 +225,7 @@
         <record id="rule_product_therapeutic_global" model="ir.rule">
             <field name="name">Therapeutic Products: Filter Globally</field>
             <field name="model_id" ref="product.model_product_product"/>
+            <field name="groups" eval="[(4, ref('group_kser_user'))]"/>
             <field name="domain_force">[('is_therapeutic', '=', False)]</field>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>
@@ -229,7 +236,14 @@
         <record id="rule_product_therapeutic_allowed" model="ir.rule">
             <field name="name">Therapeutic Products: Allow Clinic and Stock Groups</field>
             <field name="model_id" ref="product.model_product_product"/>
-            <field name="groups" eval="[(4, ref('group_pharmacist')), (4, ref('group_stock_manager')), (4, ref('group_admin_supervisor')), (4, ref('group_system_admin'))]"/>
+            <field name="groups" eval="[
+                (4, ref('group_pharmacist')),
+                (4, ref('group_doctor')),
+                (4, ref('group_clinic_manager')),
+                (4, ref('group_stock_manager')),
+                (4, ref('group_admin_supervisor')),
+                (4, ref('group_system_admin'))
+            ]"/>
             <field name="domain_force">[(1, '=', 1)]</field>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>
@@ -265,6 +279,56 @@
             <field name="model_id" ref="stock.model_stock_quant"/>
             <field name="groups" eval="[(4, ref('group_field_supervisor'))]"/>
             <field name="domain_force">[('product_id.is_therapeutic', '=', False)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+
+        <!-- قواعد نموذج المصروفات والحوافز (kser.cash.expense) -->
+        <record id="rule_cash_expense_field_supervisor" model="ir.rule">
+            <field name="name">Expenses: Field Supervisor own records only</field>
+            <field name="model_id" ref="kser_erp.model_kser_cash_expense"/>
+            <field name="groups" eval="[(4, ref('group_field_supervisor'))]"/>
+            <field name="domain_force">[('create_uid', '=', user.id)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+
+        <record id="rule_cash_expense_admin_all" model="ir.rule">
+            <field name="name">Expenses: Admins see all records</field>
+            <field name="model_id" ref="kser_erp.model_kser_cash_expense"/>
+            <field name="groups" eval="[(4, ref('group_admin_supervisor')), (4, ref('group_system_admin'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+
+        <!-- قواعد نموذج عمليات التوزيع (stock.picking) -->
+        <record id="rule_stock_picking_field_supervisor" model="ir.rule">
+            <field name="name">Stock Pickings: Field Supervisor own records only</field>
+            <field name="model_id" ref="stock.model_stock_picking"/>
+            <field name="groups" eval="[(4, ref('group_field_supervisor'))]"/>
+            <field name="domain_force">[('create_uid', '=', user.id)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+
+        <record id="rule_stock_picking_all" model="ir.rule">
+            <field name="name">Stock Pickings: Admins/Stock Managers see all records</field>
+            <field name="model_id" ref="stock.model_stock_picking"/>
+            <field name="groups" eval="[
+                (4, ref('group_stock_manager')),
+                (4, ref('group_admin_supervisor')),
+                (4, ref('group_system_admin'))
+            ]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>
             <field name="perm_create" eval="True"/>

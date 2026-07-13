@@ -115,15 +115,28 @@ class ProjectProject(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
+        if not (self.env.user.has_group('kser_erp.group_admin_supervisor') or 
+                self.env.user.has_group('kser_erp.group_system_admin') or 
+                self.env.user.has_group('kser_erp.group_field_supervisor')):
+            raise ValidationError(_("غير مسموح بإنشاء المشاريع / الحملات إلا للمشرفين المعتمدين!"))
+        
         if not (self.env.user.has_group('kser_erp.group_admin_supervisor') or self.env.user.has_group('kser_erp.group_system_admin')):
-            raise ValidationError(_("غير مسموح بإنشاء المشاريع / الحملات إلا للمشرف الإداري!"))
+            for vals in vals_list:
+                if vals.get('state', 'draft') != 'draft':
+                    raise ValidationError(_("غير مسموح للمشرف الميداني بإنشاء حملة في حالة غير مسودة!"))
         return super().create(vals_list)
 
     def write(self, vals):
-        if not (self.env.user.has_group('kser_erp.group_admin_supervisor') or self.env.user.has_group('kser_erp.group_system_admin')):
-            allowed_fields = {'state', 'stage_id', 'active'}
-            if not set(vals.keys()).issubset(allowed_fields):
-                raise ValidationError(_("المشرف الميداني مسموح له فقط بتحديث حالة المشروع / الحملة عند انتهائه!"))
+        user = self.env.user
+        is_admin = user.has_group('kser_erp.group_admin_supervisor') or user.has_group('kser_erp.group_system_admin')
+        
+        if not is_admin:
+            if 'state' in vals and vals['state'] != 'draft':
+                raise ValidationError(_("غير مسموح للمشرف الميداني بتغيير حالة الحملة المحاسبية (لا يمكنه الاعتماد أو الإغلاق)."))
+            
+            for rec in self:
+                if rec.state in ('approved', 'done'):
+                    raise ValidationError(_("لا يمكن تعديل بيانات الحملة '%s' بعد اعتماد ميزانيتها أو إغلاقها.") % rec.name)
         return super().write(vals)
 
     def unlink(self):

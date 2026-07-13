@@ -70,6 +70,11 @@ class KserPrescription(models.Model):
         string='Clinic Visit',
         tracking=True,
     )
+    followup_id = fields.Many2one(
+        'kser.child.followup',
+        string='Malnutrition Follow-up',
+        tracking=True,
+    )
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -78,47 +83,8 @@ class KserPrescription(models.Model):
                 vals['name'] = self.env['ir.sequence'].next_by_code('kser.prescription') or _('New')
         return super().create(vals_list)
 
-    def action_confirm(self):
-        for rec in self:
-            if rec.state != 'draft':
-                raise UserError(_('يمكن فقط تأكيد الروشتات في حالة المسودة!'))
-            if not rec.line_ids:
-                raise UserError(_('لا يمكن تأكيد روشتة فارغة!'))
-            rec.write({'state': 'prescribed'})
-
-    def action_dispense(self):
+    def _create_stock_picking(self):
         self.ensure_one()
-        if self.state == 'draft':
-            raise UserError(_('يجب تأكيد الروشتة من الطبيب أولاً قبل الصرف!'))
-        if self.state == 'dispensed':
-            raise UserError(_('تم صرف هذه الروشتة بالكامل بالفعل!'))
-        if not self.line_ids:
-            raise UserError(_('لا يمكن صرف روشتة فارغة!'))
-
-        # Check for active draft/assigned pickings for this prescription
-        draft_pickings = self.env['stock.picking'].search([
-            ('prescription_id', '=', self.id),
-            ('state', 'not in', ['done', 'cancel']),
-        ])
-        if draft_pickings:
-            raise UserError(_("هناك إذن صرف قيد المعالجة بالفعل لهذه الروشتة! رقم الإذن: %s") % draft_pickings[0].name)
-
-        # Enforce limits
-        if self.is_chronic:
-            current_year = fields.Date.today().year
-            current_month = fields.Date.today().month
-            existing_pickings = self.env['stock.picking'].search([
-                ('prescription_id', '=', self.id),
-                ('state', '=', 'done'),
-            ])
-            for p in existing_pickings:
-                p_date = p.date_done or p.write_date
-                if p_date and p_date.year == current_year and p_date.month == current_month:
-                    raise UserError(_("تم صرف هذه الروشتة المزمنة لهذا الشهر بالفعل! تاريخ الصرف السابق: %s") % p_date.strftime('%Y-%m-%d'))
-        else:
-            if self.dispensed_count >= self.allowed_dispense_count:
-                raise UserError(_("تم استنفاد عدد مرات الصرف المسموحة لهذه الروشتة (%s/%s)!") % (self.dispensed_count, self.allowed_dispense_count))
-
         picking_type = self.env['stock.picking.type'].search([
             ('code', '=', 'outgoing'),
             ('warehouse_id', '!=', False),
@@ -164,6 +130,61 @@ class KserPrescription(models.Model):
         self.sudo().write({
             'picking_id': picking.id,
         })
+        return picking
+
+    def action_confirm(self):
+        for rec in self:
+            if rec.state != 'draft':
+                raise UserError(_('يمكن فقط تأكيد الروشتات في حالة المسودة!'))
+            if not rec.line_ids:
+                raise UserError(_('لا يمكن تأكيد روشتة فارغة!'))
+            rec.write({'state': 'prescribed'})
+            # Automatically create the stock picking (delivery slip)
+            rec.sudo()._create_stock_picking()
+
+    def action_dispense(self):
+        self.ensure_one()
+        if self.state == 'draft':
+            raise UserError(_('يجب تأكيد الروشتة من الطبيب أولاً قبل الصرف!'))
+        if self.state == 'dispensed':
+            raise UserError(_('تم صرف هذه الروشتة بالكامل بالفعل!'))
+        if not self.line_ids:
+            raise UserError(_('لا يمكن صرف روشتة فارغة!'))
+
+        # Check for active draft/assigned pickings for this prescription
+        draft_pickings = self.env['stock.picking'].search([
+            ('prescription_id', '=', self.id),
+            ('state', 'not in', ['done', 'cancel']),
+        ])
+        if draft_pickings:
+            # Redirect to the existing picking form so the pharmacist can validate it
+            return {
+                'name': _('Dispensation Distribution'),
+                'type': 'ir.actions.act_window',
+                'res_model': 'stock.picking',
+                'view_mode': 'form',
+                'res_id': draft_pickings[0].id,
+                'target': 'current',
+            }
+
+        # Enforce limits
+        if self.is_chronic:
+            current_year = fields.Date.today().year
+            current_month = fields.Date.today().month
+            existing_pickings = self.env['stock.picking'].search([
+                ('prescription_id', '=', self.id),
+                ('state', '=', 'done'),
+            ])
+            for p in existing_pickings:
+                p_date = p.date_done or p.write_date
+                if p_date and p_date.year == current_year and p_date.month == current_month:
+                    raise UserError(_("تم صرف هذه الروشتة المزمنة لهذا الشهر بالفعل! تاريخ الصرف السابق: %s") % p_date.strftime('%Y-%m-%d'))
+        else:
+            if self.dispensed_count >= self.allowed_dispense_count:
+                raise UserError(_("تم استنفاد عدد مرات الصرف المسموحة لهذه الروشتة (%s/%s)!") % (self.dispensed_count, self.allowed_dispense_count))
+
+        # If no picking exists (e.g. chronic prescription in a new month), create a new one
+        picking = self._create_stock_picking()
 
         self.env['kser.audit.log'].sudo().create({
             'action_type': 'approve',
