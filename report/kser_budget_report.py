@@ -63,7 +63,7 @@ class KserBudgetReport(models.AbstractModel):
                 else:
                     revenues['Individual Donations'] += donation.amount
 
-        # Find other incomes recorded directly in accounting (not via kser.cash.donation)
+        # البحث عن الإيرادات الأخرى المسجلة مباشرة في المحاسبة (ليس من خلال التبرعات النقدية)
         income_lines = self.env['account.move.line'].search([
             ('date', '>=', date_from),
             ('date', '<=', date_to),
@@ -71,7 +71,7 @@ class KserBudgetReport(models.AbstractModel):
             ('account_id.account_type', 'in', ['income', 'income_other']),
         ])
 
-        # Collect move IDs created by donation records to avoid double counting
+        # تجميع معرفات قيود اليومية الناتجة عن سجلات التبرع لتفادي الاحتساب المزدوج
         donation_move_ids = donations.mapped('move_id').ids
 
         for line in income_lines:

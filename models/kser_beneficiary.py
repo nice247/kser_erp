@@ -531,7 +531,7 @@ class KserBeneficiary(models.Model):
                 if normalized_id:
                     if len(normalized_id) != 11 or not normalized_id.isdigit():
                         raise ValidationError(_("يجب أن يتكون الرقم الوطني للمستفيد من 11 خانة رقمية فقط!"))
-                    # Uniqueness check (search both active and archived records)
+                    # التحقق من عدم التكرار (البحث في السجلات النشطة والمؤرشفة على حد سواء)
                     duplicate = self.with_context(active_test=False).search([
                         ('national_id_number', '=', normalized_id),
                         ('id', '!=', rec.id)
@@ -557,7 +557,7 @@ class KserBeneficiary(models.Model):
             if not normalized_id or len(normalized_id) != 11 or not normalized_id.isdigit():
                 raise ValidationError(_("يجب أن يتكون الرقم الوطني للمستفيد من 11 خانة رقمية فقط!"))
                 
-            # Uniqueness check
+            # التحقق من عدم التكرار
             duplicate = self.with_context(active_test=False).search([
                 ('national_id_number', '=', normalized_id),
                 ('id', '!=', rec.id)
@@ -594,7 +594,7 @@ class KserBeneficiary(models.Model):
                 normalized_id = self.normalize_national_id(vals['national_id_number'])
                 vals['national_id_number'] = normalized_id
                 
-                # Check for duplicates before database insert
+                # التحقق من عدم وجود تكرار قبل الإدخال في قاعدة البيانات
                 duplicate = self.with_context(active_test=False).search([
                     ('national_id_number', '=', normalized_id)
                 ], limit=1)
@@ -605,7 +605,7 @@ class KserBeneficiary(models.Model):
                                                  self.env.user.has_group('kser_erp.group_system_admin')):
                 vals['is_verified'] = False
 
-            # Sync relationship with is_head_of_family
+            # مزامنة صلة القرابة مع حقل هل هو رب أسرة
             if 'is_head_of_family' not in vals:
                 if vals.get('relationship') == 'self':
                     vals['is_head_of_family'] = True
@@ -684,7 +684,7 @@ class KserBeneficiary(models.Model):
                                 if new_val != old_val:
                                     raise ValidationError(_("فشل الحفظ: لا يمكن تعديل حقل (%s) بعد التحقق من المستفيد.") % rec._fields[field].string)
 
-        # Sync relationship and is_head_of_family
+        # مزامنة صلة القرابة وحقل هل هو رب أسرة
         if 'is_head_of_family' in vals:
             if vals['is_head_of_family']:
                 vals['relationship'] = 'self'
@@ -712,7 +712,7 @@ class KserBeneficiary(models.Model):
 
         res = super().write(vals)
 
-        # Force sync in database for head of family values
+        # فرض المزامنة في قاعدة البيانات لقيم رب الأسرة
         if 'is_head_of_family' in vals or 'head_of_family_id' in vals or 'relationship' in vals:
             for rec in self:
                 if rec.is_head_of_family:

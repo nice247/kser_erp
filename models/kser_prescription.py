@@ -139,7 +139,7 @@ class KserPrescription(models.Model):
             if not rec.line_ids:
                 raise UserError(_('لا يمكن تأكيد روشتة فارغة!'))
             rec.write({'state': 'prescribed'})
-            # Automatically create the stock picking (delivery slip)
+            # إنشاء إذن الصرف (مستند التسليم) تلقائياً
             rec.sudo()._create_stock_picking()
 
     def action_dispense(self):
@@ -151,13 +151,13 @@ class KserPrescription(models.Model):
         if not self.line_ids:
             raise UserError(_('لا يمكن صرف روشتة فارغة!'))
 
-        # Check for active draft/assigned pickings for this prescription
+        # التحقق من وجود أذونات صرف مسودة أو مسندة نشطة لهذه الروشتة
         draft_pickings = self.env['stock.picking'].search([
             ('prescription_id', '=', self.id),
             ('state', 'not in', ['done', 'cancel']),
         ])
         if draft_pickings:
-            # Redirect to the existing picking form so the pharmacist can validate it
+            # التوجيه إلى نموذج إذن الصرف الحالي ليتمكن الصيدلي من اعتماده
             return {
                 'name': _('Dispensation Distribution'),
                 'type': 'ir.actions.act_window',
@@ -167,7 +167,7 @@ class KserPrescription(models.Model):
                 'target': 'current',
             }
 
-        # Enforce limits
+        # تطبيق قيود وحدود الصرف
         if self.is_chronic:
             current_year = fields.Date.today().year
             current_month = fields.Date.today().month
@@ -183,7 +183,7 @@ class KserPrescription(models.Model):
             if self.dispensed_count >= self.allowed_dispense_count:
                 raise UserError(_("تم استنفاد عدد مرات الصرف المسموحة لهذه الروشتة (%s/%s)!") % (self.dispensed_count, self.allowed_dispense_count))
 
-        # If no picking exists (e.g. chronic prescription in a new month), create a new one
+        # إذا لم يكن هناك إذن صرف مسبق (مثل روشتة الأمراض المزمنة في شهر جديد)، يتم إنشاء إذن جديد
         picking = self._create_stock_picking()
 
         self.env['kser.audit.log'].sudo().create({

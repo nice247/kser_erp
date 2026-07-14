@@ -3,7 +3,7 @@
     <data>
 
         <!-- ================================================================== -->
-        <!--  SHARED STYLE BLOCK (included by each report via t-call)           -->
+        <!--  بلوك التنسيق المشترك (يتم تضمينه في كل تقرير عبر t-call)           -->
         <!-- ================================================================== -->
         <template id="kser_report_shared_styles">
             <style>
@@ -204,7 +204,7 @@
                 <t t-call="kser_erp.kser_report_shared_styles"/>
                 <div class="page kser-page">
 
-                    <!-- ===== HEADER ===== -->
+                    <!-- ===== الهيدر (Header) ===== -->
                     <table class="kser-header-table">
                         <tr>
                             <td style="width: 25%; text-align: right; vertical-align: middle;">
@@ -223,7 +223,7 @@
                         <div>المحلية: جبل أولياء</div>
                     </div>
 
-                    <!-- ===== MAIN DATA TABLE ===== -->
+                    <!-- ===== جدول البيانات الرئيسي ===== -->
                     <table class="kser-table">
                         <thead>
                             <tr>
@@ -256,7 +256,7 @@
                                     <td><t t-esc="'{:,.2f}'.format(vol['total_incentives'])"/></td>
                                 </tr>
                             </t>
-                            <!-- Total Row -->
+                            <!-- صف الإجمالي -->
                             <tr class="total-row">
                                 <td colspan="3" style="text-align: center; font-size: 12px;">الإجمالي</td>
                                 <td><t t-esc="sum_hours"/></td>
@@ -267,7 +267,7 @@
                         </tbody>
                     </table>
 
-                    <!-- ===== DISTINGUISHED VOLUNTEERS ===== -->
+                    <!-- ===== المتطوعون المتميزون ===== -->
                     <div class="kser-notes-section">
                         <div class="section-label">🏅 أفضل 3 متطوعين متميزين بالفترة:</div>
                         <t t-set="top_vols" t-value="volunteers[:3]"/>
@@ -285,7 +285,7 @@
                         </div>
                     </div>
 
-                    <!-- ===== NOTES ===== -->
+                    <!-- ===== الملاحظات ===== -->
                     <t t-if="notes">
                         <div class="kser-notes-section" style="margin-top: 10px;">
                             <div class="section-label">ملاحظات وتوصيات:</div>
@@ -295,7 +295,7 @@
                         </div>
                     </t>
 
-                    <!-- ===== BOTTOM SIGNATURE BAR ===== -->
+                    <!-- ===== شريط التوقيع السفلي ===== -->
                     <div class="kser-bottom-bar">
                         <table>
                             <tr>
@@ -319,7 +319,7 @@
                 <t t-call="kser_erp.kser_report_shared_styles"/>
                 <div class="page kser-page">
 
-                    <!-- ===== HEADER ===== -->
+                    <!-- ===== الهيدر (Header) ===== -->
                     <table class="kser-header-table">
                         <tr>
                             <td style="width: 25%; text-align: right; vertical-align: middle;">
@@ -338,7 +338,7 @@
                         <div>المحلية: جبل أولياء</div>
                     </div>
 
-                    <!-- ===== SECTION 1: DISTRIBUTED MATERIALS ===== -->
+                    <!-- ===== القسم 1: المواد الموزعة ===== -->
                     <div class="kser-section-title">
                         <span class="green-sq"></span>
                         أولاً: جدول المواد الموزعة
@@ -374,7 +374,7 @@
                                     <td><t t-esc="line['beneficiary_count'] if line['beneficiary_count'] > 0 else '-'"/></td>
                                 </tr>
                             </t>
-                            <!-- Total Row -->
+                            <!-- صف الإجمالي -->
                             <tr class="total-row">
                                 <td colspan="5" style="text-align: center; font-size: 12px;">الإجمالي</td>
                                 <td><t t-esc="'{:,.0f}'.format(total_quantity)"/></td>
@@ -384,7 +384,7 @@
                         </tbody>
                     </table>
 
-                    <!-- ===== SECTION 2: BENEFICIARIES ===== -->
+                    <!-- ===== القسم 2: المستفيدون ===== -->
                     <div class="kser-section-title">
                         <span class="green-sq"></span>
                         ثانياً: جدول المستفيدين
@@ -452,12 +452,12 @@
                         </tbody>
                     </table>
 
-                    <!-- Summary Box -->
+                    <!-- صندوق الملخص -->
                     <div class="kser-summary-box">
                         إجمالي المستفيدين خلال الربع : [ <t t-esc="total_beneficiaries"/> ] مستفيد
                     </div>
 
-                    <!-- ===== SECTION 3: CLOSING ANALYSIS ===== -->
+                    <!-- ===== القسم 3: التحليل الختامي ===== -->
                     <t t-if="notes">
                         <div class="kser-section-title">
                             <span class="green-sq"></span>
@@ -468,7 +468,7 @@
                         </div>
                     </t>
 
-                    <!-- ===== BOTTOM SIGNATURE BAR ===== -->
+                    <!-- ===== شريط التوقيع السفلي ===== -->
                     <div class="kser-bottom-bar">
                         <table>
                             <tr>
@@ -492,7 +492,7 @@
                 <t t-call="kser_erp.kser_report_shared_styles"/>
                 <div class="page kser-page">
 
-                    <!-- ===== HEADER ===== -->
+                    <!-- ===== الهيدر (Header) ===== -->
                     <table class="kser-header-table">
                         <tr>
                             <td style="width: 25%; text-align: right; vertical-align: middle;">
@@ -511,7 +511,7 @@
                         <div>المحلية: جبل أولياء</div>
                     </div>
 
-                    <!-- Sub-header Meta Row -->
+                    <!-- سطر بيانات الميتا المساعد للهيدر -->
                     <div class="kser-meta-row">
                         <table>
                             <tr>
@@ -522,7 +522,7 @@
                         </table>
                     </div>
 
-                    <!-- ===== SECTION 1: REVENUES ===== -->
+                    <!-- ===== القسم 1: الإيرادات ===== -->
                     <table class="kser-table">
                         <thead>
                             <tr>
@@ -531,21 +531,21 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <!-- Revenue Header -->
+                            <!-- هيدر الإيرادات -->
                             <tr class="kser-revenue-header">
                                 <td colspan="2">الإيرادات</td>
                             </tr>
-                            <!-- Opening Balance -->
+                            <!-- الرصيد الافتتاحي -->
                             <tr>
                                 <td style="text-align: right; font-weight: 600;">الرصيد الافتتاحي</td>
                                 <td><t t-esc="'{:,.2f}'.format(opening_balance)"/></td>
                             </tr>
-                            <!-- Cash Donations (bold parent) -->
+                            <!-- التبرعات النقدية (خط عريض) -->
                             <tr class="kser-bold-row">
                                 <td style="text-align: right;">تبرعات نقدية</td>
                                 <td></td>
                             </tr>
-                            <!-- Sub-rows -->
+                            <!-- الأسطر الفرعية -->
                             <tr class="kser-sub-row">
                                 <td>تبرعات الأفراد</td>
                                 <td style="text-align: center;"><t t-esc="'{:,.2f}'.format(revenues.get('Individual Donations', 0))"/></td>
@@ -558,7 +558,7 @@
                                 <td>تبرعات المشاريع والحملات</td>
                                 <td style="text-align: center;"><t t-esc="'{:,.2f}'.format(revenues.get('Campaign Donations', 0))"/></td>
                             </tr>
-                            <!-- Total Cash Donations -->
+                            <!-- إجمالي التبرعات النقدية -->
                             <tr class="kser-bold-row" style="background-color: #f0f5f2;">
                                 <td style="text-align: right;">إجمالي التبرعات النقدية</td>
                                 <td><t t-esc="'{:,.2f}'.format(
@@ -567,13 +567,13 @@
                                     revenues.get('Campaign Donations', 0))"/></td>
                             </tr>
 
-                            <!-- Total Revenue -->
+                            <!-- إجمالي الإيرادات -->
                             <tr class="total-row">
                                 <td style="text-align: center; font-size: 12px;">إجمالي الإيرادات</td>
                                 <td style="font-size: 12px;"><t t-esc="'{:,.2f}'.format(total_revenues)"/></td>
                             </tr>
 
-                            <!-- Expenses Header -->
+                            <!-- هيدر المصروفات -->
                             <tr class="kser-revenue-header">
                                 <td colspan="2">المصروفات</td>
                             </tr>
@@ -597,13 +597,13 @@
                                 <td style="text-align: right;">مصاريف تشغيلية أخرى</td>
                                 <td><t t-esc="'{:,.2f}'.format(expenses.get('Other Operational Expenses', 0))"/></td>
                             </tr>
-                            <!-- Total Expenses -->
+                            <!-- إجمالي المصروفات -->
                             <tr class="total-row">
                                 <td style="text-align: center; font-size: 12px;">إجمالي المصروفات</td>
                                 <td style="font-size: 12px;"><t t-esc="'{:,.2f}'.format(total_expenses)"/></td>
                             </tr>
 
-                            <!-- Net Balance Row -->
+                            <!-- صف صافي الرصيد -->
                             <tr class="kser-net-row">
                                 <td style="text-align: center; font-size: 13px;">صافي الرصيد المتبقي</td>
                                 <td style="font-size: 13px;"><t t-esc="'{:,.2f}'.format(net_balance)"/></td>
@@ -611,7 +611,7 @@
                         </tbody>
                     </table>
 
-                    <!-- ===== NOTES ===== -->
+                    <!-- ===== الملاحظات ===== -->
                     <t t-if="notes">
                         <div class="kser-notes-section">
                             <div class="section-label">ملاحظات:</div>
@@ -621,7 +621,7 @@
                         </div>
                     </t>
 
-                    <!-- ===== SIGNATURE (TEXT BASED) ===== -->
+                    <!-- ===== التوقيع (نصي) ===== -->
                     <div class="kser-signature-text">
                         <table>
                             <tr>
@@ -655,7 +655,7 @@
         </record>
 
         <!-- ================================================================== -->
-        <!--  REPORT ACTION RECORDS (ir.actions.report)                         -->
+        <!--  سجلات أفعال التقارير (ir.actions.report)                         -->
         <!-- ================================================================== -->
 
         <!-- Report 1: تقرير إنجاز المتطوعين الميدانيين -->

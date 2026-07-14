@@ -3,7 +3,7 @@
     <data>
 
         <!-- ============================================================ -->
-        <!--       KSER Custom Tree View: res.partner (volunteers/donors) -->
+        <!--    عرض الشجرة المخصص لـ KSER: جهات الاتصال (المتطوعين/المتبرعين)  -->
         <!-- ============================================================ -->
         <record id="view_res_partner_tree_kser" model="ir.ui.view">
             <field name="name">res.partner.list.kser</field>
@@ -48,7 +48,7 @@
         </record>
 
         <!-- ============================================================ -->
-        <!--       Inherited View: res.partner form — KSER fields         -->
+        <!--        عرض موروث: نموذج جهات الاتصال - حقول KSER              -->
         <!-- ============================================================ -->
         <record id="view_res_partner_form_inherit_kser" model="ir.ui.view">
             <field name="name">res.partner.form.inherit.kser</field>
@@ -189,7 +189,7 @@
         </record>
 
         <!-- ============================================================ -->
-        <!--     Inherited View: project.task form — KSER fields          -->
+        <!--        عرض موروث: نموذج مهام المشروع - حقول KSER               -->
         <!-- ============================================================ -->
         <record id="view_project_task_form_inherit_kser" model="ir.ui.view">
             <field name="name">project.task.form.inherit.kser</field>
@@ -244,7 +244,7 @@
         </record>
 
         <!-- ============================================================ -->
-        <!--     Inherited View: stock.picking form — KSER fields         -->
+        <!--        عرض موروث: نموذج إذن الصرف - حقول KSER               -->
         <!-- ============================================================ -->
         <record id="view_stock_picking_form_inherit_kser" model="ir.ui.view">
             <field name="name">stock.picking.form.inherit.kser</field>
@@ -282,7 +282,7 @@
         </record>
 
         <!-- ============================================================ -->
-        <!--     Inherited View: project.project form — KSER budget        -->
+        <!--       عرض موروث: نموذج المشروع (الحملة) - ميزانية KSER         -->
         <!-- ============================================================ -->
         <record id="view_project_project_form_inherit_kser" model="ir.ui.view">
             <field name="name">project.project.form.inherit.kser</field>
@@ -298,7 +298,7 @@
                 <xpath expr="//field[@name='partner_id']" position="attributes">
                     <attribute name="invisible">1</attribute>
                 </xpath>
-                <!-- Add state buttons to header -->
+                <!-- إضافة أزرار الحالة إلى الهيدر (Header) -->
                 <xpath expr="//header" position="inside">
                     <button name="action_approve_budget" type="object" string="اعتماد الميزانية"
                             class="oe_highlight" invisible="state != 'draft'"
@@ -311,7 +311,7 @@
                             groups="kser_erp.group_admin_supervisor"/>
                     <field name="state" widget="statusbar" statusbar_visible="draft,approved,done"/>
                 </xpath>
-                <!-- Add budget fields -->
+                <!-- إضافة حقول الميزانية -->
                 <xpath expr="//group" position="inside">
                     <group string="ميزانية KSER" name="kser_budget_group">
                         <field name="budget_amount" string="قيمة الميزانية" readonly="state == 'approved'"/>

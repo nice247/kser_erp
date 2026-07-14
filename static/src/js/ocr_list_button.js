@@ -38,7 +38,7 @@ export class OcrListController extends ListController {
     }
     
     async onClickOcr() {
-        // Find which action to call based on the model
+        // تحديد الأكشن المطلوب استدعاؤه بناءً على الموديل (Model)
         let action_xmlid = '';
         if (this.props.resModel === 'res.partner') {
             action_xmlid = 'kser_erp.action_kser_national_id_wizard_volunteer';

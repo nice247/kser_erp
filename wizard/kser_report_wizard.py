@@ -38,7 +38,7 @@ class KserReportWizard(models.TransientModel):
             raise UserError(_('تاريخ البداية يجب أن يكون قبل تاريخ النهاية!'))
 
         html = ""
-        # 1. Depending on self.report_type, run the query logic
+        # 1. تشغيل منطق الاستعلام بناءً على نوع التقرير (self.report_type)
         if self.report_type == 'volunteers':
             res = self.env['report.kser_erp.report_volunteer_template']._get_report_values([], {'date_from': self.date_from, 'date_to': self.date_to})
             vols = res.get('volunteers', [])

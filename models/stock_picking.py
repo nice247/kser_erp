@@ -47,7 +47,7 @@ class StockPicking(models.Model):
         is_admin = user.has_group('kser_erp.group_system_admin')
 
         for rec in self:
-            # 1. User Role Constraints (Bypassed for System Admins)
+            # 1. قيود أدوار المستخدمين (يتم تجاوزها لمسؤولي النظام)
             if not is_admin:
                 if user.has_group('kser_erp.group_field_supervisor') or user.has_group('kser_erp.group_admin_supervisor'):
                     raise UserError(_("لا يمكن للمشرف الميداني أو المشرف الإداري تصديق أذونات الصرف والوارد مخزنياً!"))
@@ -59,7 +59,7 @@ class StockPicking(models.Model):
                     if any(line.product_id.is_therapeutic for line in rec.move_ids_without_package):
                         raise UserError(_("لا يمكن لمسؤول المخازن تصديق صرف المنتجات العلاجية! هذا من صلاحيات الصيدلي فقط."))
 
-            # 2. Pharmacist specific rules
+            # 2. القواعد الخاصة بالصيدلي
             if user.has_group('kser_erp.group_pharmacist') and not is_admin:
                 if rec.picking_type_id.code != 'outgoing':
                     raise UserError(_("الصيدلي لا يمكنه استلام مخزون (الوارد). يمكنك فقط اعتماد أذونات الصرف (المنصرف)."))
@@ -67,13 +67,13 @@ class StockPicking(models.Model):
                     if not line.product_id.is_therapeutic:
                         raise UserError(_("الصيدلي لا يمكنه صرف أو التعامل مع منتجات غير علاجية! المنتج (%s) غير علاجي.") % line.product_id.display_name)
 
-            # 3. Campaign & Beneficiary Validation
+            # 3. التحقق من الحملة والمستفيد
             if rec.project_id and rec.project_id.state != 'approved':
                 raise UserError(_("لا يمكن تأكيد التحويل. ميزانية الحملة '%s' غير معتمدة!") % rec.project_id.name)
             if rec.distribution_type == 'individual' and not rec.prescriber_id and rec.partner_id and rec.partner_id.is_clinic_only:
                 raise UserError(_("لا يمكن صرف إغاثة لمستفيد مسجل كـ 'عيادة فقط' دون رقم وطني وصورة هوية معتمدة!"))
 
-            # Enforce Campaign and Partner link for Outgoing Relief Distributions
+            # فرض ربط الحملة وجهة الاتصال لعمليات توزيع الإغاثة الصادرة
             if rec.picking_type_id.code == 'outgoing' and not rec.prescriber_id:
                 if not rec.project_id:
                     raise UserError(_("لا يمكن تصديق صرف المواد الإغاثية دون ربط العملية بحملة معينة!"))
@@ -82,7 +82,7 @@ class StockPicking(models.Model):
                 if not rec.partner_id.is_beneficiary and not rec.partner_id.is_volunteer:
                     raise UserError(_("يجب أن تكون جهة الاتصال المستلمة للمواد الإغاثية مستفيداً أو متطوعاً!"))
 
-            # 4. Single distribution per family in one campaign (Relief only)
+            # 4. صرف واحد فقط لكل أسرة في الحملة الواحدة (الإغاثة فقط)
             if rec.picking_type_id.code == 'outgoing' and rec.project_id and not rec.prescriber_id and rec.partner_id:
                 beneficiary = self.env['kser.beneficiary'].sudo().search([('partner_id', '=', rec.partner_id.id)], limit=1)
                 if beneficiary:
@@ -102,7 +102,7 @@ class StockPicking(models.Model):
         res = super().button_validate()
         for rec in self:
             if rec.state == 'done':
-                # Increment prescription dispense counter
+                # زيادة عداد صرف الروشتة
                 if rec.prescription_id:
                     presc = rec.prescription_id
                     if presc.is_chronic:

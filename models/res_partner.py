@@ -244,7 +244,7 @@ class ResPartner(models.Model):
                 normalized_id = self.normalize_national_id(vals['national_id_number'])
                 vals['national_id_number'] = normalized_id
                 
-                # Check for duplicates before database insert
+                # التحقق من عدم وجود تكرار قبل الإدخال في قاعدة البيانات
                 duplicate = self.with_context(active_test=False).search([
                     ('national_id_number', '=', normalized_id)
                 ], limit=1)
@@ -257,7 +257,7 @@ class ResPartner(models.Model):
             normalized_id = self.normalize_national_id(vals['national_id_number'])
             vals['national_id_number'] = normalized_id
             
-            # Check for duplicates before database update
+            # التحقق من عدم وجود تكرار قبل تحديث قاعدة البيانات
             for rec in self:
                 duplicate = self.with_context(active_test=False).search([
                     ('national_id_number', '=', normalized_id),

@@ -150,7 +150,7 @@ class KserCashDonation(models.Model):
             if not rec.partner_id:
                 raise ValidationError(_("يرجى اختيار المتبرع (جهة الاتصال) قبل التأكيد."))
 
-            # Find a suitable bank/cash journal
+            # البحث عن دفتر يومية بنك/نقدية مناسب
             journal = self.env['account.journal'].search([
                 ('type', 'in', ('bank', 'cash')),
                 ('company_id', '=', self.env.company.id)
@@ -162,7 +162,7 @@ class KserCashDonation(models.Model):
             if not journal.default_account_id:
                 raise ValidationError(_("دفتر اليومية (البنك/النقدية) المختار ليس لديه حساب افتراضي مهيأ."))
 
-            # Find Income Account
+            # البحث عن حساب الإيرادات
             income_account = self.env['account.account'].search([
                 ('code', '=', '41001'),
                 ('company_ids', '=', self.env.company.id)

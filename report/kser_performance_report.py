@@ -27,7 +27,7 @@ class KserPerformanceReport(models.AbstractModel):
         distribution_lines = []
         unique_beneficiary_counts = {}
 
-        # 1. First pass to calculate unique beneficiaries and their medication status
+        # 1. المرور الأول لحساب المستفيدين الفريدين وحالة أدويتهم
         for move in moves:
             picking = move.picking_id
             b = move.beneficiary_id
@@ -45,7 +45,7 @@ class KserPerformanceReport(models.AbstractModel):
                 if not is_med:
                     unique_beneficiary_counts[b.id]['only_medicine'] = False
 
-        # 2. Build distribution lines
+        # 2. بناء أسطر التوزيع
         for move in moves:
             picking = move.picking_id
             categ_name = move.product_id.categ_id.name or ''
@@ -57,7 +57,7 @@ class KserPerformanceReport(models.AbstractModel):
             else:
                 item_category = categ_name
 
-            # Calculate count for this specific move
+            # حساب العدد لحركة المخزون المحددة هذه
             b = move.beneficiary_id
             if not b and picking and picking.partner_id:
                 b = self.env['kser.beneficiary'].search([('partner_id', '=', picking.partner_id.id)], limit=1)
@@ -86,7 +86,7 @@ class KserPerformanceReport(models.AbstractModel):
 
         distribution_lines.sort(key=lambda x: x.get('date') or fields.Date.today())
 
-        # 3. Calculate total beneficiaries sum based on unique counts to prevent double counting
+        # 3. حساب إجمالي المستفيدين بناءً على الأعداد الفريدة لتجنب الاحتساب المزدوج
         total_beneficiaries_sum = 0
         for b_id, info in unique_beneficiary_counts.items():
             if info['only_medicine']:
@@ -94,7 +94,7 @@ class KserPerformanceReport(models.AbstractModel):
             else:
                 total_beneficiaries_sum += info['family_size']
 
-        # 4. Populate stats table
+        # 4. تعبئة جدول الإحصائيات
         stats = {
             'needy': {'male': 0, 'female': 0, 'total': 0, 'pct': 0.0},
             'patients': {'male': 0, 'female': 0, 'total': 0, 'pct': 0.0},
@@ -103,7 +103,7 @@ class KserPerformanceReport(models.AbstractModel):
             'others': {'male': 0, 'female': 0, 'total': 0, 'pct': 0.0},
         }
 
-        # Query clinic visits in this period to include visited beneficiaries under patients
+        # الاستعلام عن زيارات العيادة في هذه الفترة لإدراج المستفيدين الذين زاروا العيادة تحت فئة المرضى
         visited_beneficiary_ids = set()
         if date_from and date_to:
             visits = self.env['kser.clinic.visit'].search([
@@ -118,12 +118,12 @@ class KserPerformanceReport(models.AbstractModel):
             b = self.env['kser.beneficiary'].browse(b_id)
             gender = b.gender if b.gender in ['male', 'female'] else 'male'
             
-            # Calculate age
+            # حساب العمر
             age = 0
             if b.birthdate:
                 age = today.year - b.birthdate.year - ((today.month, today.day) < (b.birthdate.month, b.birthdate.day))
             
-            # Classify
+            # تصنيف
             if b.is_child or (b.birthdate and age < 18):
                 cat = 'orphans'
             elif b.birthdate and age >= 60:

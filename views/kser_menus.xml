@@ -3,10 +3,10 @@
     <data>
 
         <!-- ============================================================ -->
-        <!--              Window Actions for all models                   -->
+        <!--             أفعال النوافذ (Window Actions) لجميع النماذج      -->
         <!-- ============================================================ -->
 
-        <!-- Beneficiaries Action -->
+        <!-- أكشن المستفيدين -->
         <record id="action_kser_beneficiary" model="ir.actions.act_window">
             <field name="name">المستفيدين</field>
             <field name="res_model">kser.beneficiary</field>
@@ -20,7 +20,7 @@
             </field>
         </record>
 
-        <!-- Cash Donations Action -->
+        <!-- أكشن التبرعات النقدية -->
         <record id="action_kser_cash_donation" model="ir.actions.act_window">
             <field name="name">التبرعات النقدية</field>
             <field name="res_model">kser.cash.donation</field>
@@ -34,7 +34,7 @@
             </field>
         </record>
 
-        <!-- Field Tasks Action (project.task) -->
+        <!-- أكشن المهام الميدانية -->
         <record id="action_kser_field_tasks" model="ir.actions.act_window">
             <field name="name">المهام الميدانية</field>
             <field name="res_model">project.task</field>
@@ -47,7 +47,7 @@
             </field>
         </record>
 
-        <!-- Volunteers Action (res.partner filtered by category) -->
+        <!-- أكشن المتطوعين -->
         <record id="action_kser_volunteers" model="ir.actions.act_window">
             <field name="name">المتطوعين</field>
             <field name="res_model">res.partner</field>
@@ -63,7 +63,7 @@
             </field>
         </record>
 
-        <!-- Inventory / Stock Picking Action -->
+        <!-- أكشن المخزون وأذونات الصرف -->
         <record id="action_kser_stock_picking" model="ir.actions.act_window">
             <field name="name">عمليات التوزيع</field>
             <field name="res_model">stock.picking</field>
@@ -76,7 +76,7 @@
             </field>
         </record>
 
-        <!-- Audit Log Action -->
+        <!-- أكشن سجل التدقيق أمنياً -->
         <record id="action_kser_audit_log" model="ir.actions.act_window">
             <field name="name">سجل التدقيق</field>
             <field name="res_model">kser.audit.log</field>
@@ -89,7 +89,7 @@
             </field>
         </record>
 
-        <!-- All Contacts Action -->
+        <!-- أكشن كافة جهات الاتصال -->
         <record id="action_kser_contacts" model="ir.actions.act_window">
             <field name="name">جهات الاتصال</field>
             <field name="res_model">res.partner</field>
@@ -103,7 +103,7 @@
             </field>
         </record>
 
-        <!-- Donors Action -->
+        <!-- أكشن المتبرعين -->
         <record id="action_kser_donors" model="ir.actions.act_window">
             <field name="name">المتبرعين</field>
             <field name="res_model">res.partner</field>
@@ -119,7 +119,7 @@
             </field>
         </record>
 
-        <!-- Partners Action (res.partner filtered by is_company = True) -->
+        <!-- أكشن المؤسسات والشركاء -->
         <record id="action_kser_partners" model="ir.actions.act_window">
             <field name="name">الشركاء</field>
             <field name="res_model">res.partner</field>
@@ -135,7 +135,7 @@
             </field>
         </record>
 
-        <!-- Projects / Campaigns Action -->
+        <!-- أكشن المشاريع والحملات -->
         <record id="action_kser_campaigns" model="ir.actions.act_window">
             <field name="name">الحملات</field>
             <field name="res_model">project.project</field>
@@ -148,7 +148,7 @@
             </field>
         </record>
 
-        <!-- Settings Action (KSER Settings Page) -->
+        <!-- أكشن الإعدادات -->
         <record id="action_kser_settings" model="ir.actions.act_window">
             <field name="name">إعدادات غرفة الطوارئ</field>
             <field name="res_model">res.config.settings</field>
@@ -168,7 +168,7 @@
                   sequence="1"/>
 
         <!-- ============================================================ -->
-        <!--               Level 1: Sub-Menu Categories                   -->
+        <!--            المستوى الأول: تصنيفات القوائم الفرعية             -->
         <!-- ============================================================ -->
 
         <menuitem id="menu_kser_dashboard"
@@ -272,7 +272,7 @@
                   sequence="99"/>
 
         <!-- ============================================================ -->
-        <!--             Level 2: Action Menu Items                       -->
+        <!--            المستوى الثاني: عناصر قائمة الأكشن                -->
         <!-- ============================================================ -->
 
         <record id="menu_kser_partners" model="ir.ui.menu">

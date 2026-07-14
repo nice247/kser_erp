@@ -75,7 +75,7 @@ class KserBankReceiptWizard(models.TransientModel):
         ai_provider = self.env['ir.config_parameter'].sudo().get_param('kser.ai_provider', 'gemini')
         ai_model = self.env['ir.config_parameter'].sudo().get_param('kser.ai_model', 'gemini-2.5-flash')
 
-        # Prepare Request Prompt
+        # تجهيز نص الطلب (البرومبت)
         prompt = """
 أنت خبير في استخراج البيانات من إيصالات التحويل البنكي والمالي.
 قم بتحليل الإيصال المرفق لتحديد ما إذا كان إيصال "بنكك" (Bankak / Bank of Khartoum) أو إيصال "فوري" (Fawry / FISB / البنك الإسلامي السوداني)، ثم استخرج البيانات بصيغة JSON فقط، مع مراعاة أن الإيصال قد يكون باللغة العربية أو الإنجليزية:
@@ -160,7 +160,7 @@ class KserBankReceiptWizard(models.TransientModel):
             else:
                 text_response = result.get('response', '').strip()
             
-            # Clean markdown code blocks if any
+            # تنظيف كتل أكواد ماركداون إن وجدت
             if text_response.startswith('```json'):
                 text_response = text_response[7:]
             elif text_response.startswith('```'):

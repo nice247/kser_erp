@@ -33,7 +33,7 @@ class KserChildFollowup(models.Model):
         string='الروشتات الطبية',
     )
 
-    # Computed fields storing the latest visit values
+    # حقول محسوبة لتخزين قيم آخر زيارة
     followup_date = fields.Date(
         string='تاريخ آخر فحص',
         compute='_compute_latest_values',
@@ -111,7 +111,7 @@ class KserChildFollowup(models.Model):
     def _compute_latest_values(self):
         for rec in self:
             if rec.line_ids:
-                # Sort lines by date desc, then id desc to get the latest check-up
+                # ترتيب الأسطر تنازلياً حسب التاريخ، ثم تنازلياً حسب المعرف للحصول على آخر فحص
                 sorted_lines = rec.line_ids.sorted(key=lambda l: (l.followup_date or fields.Date.today(), l.id or 0), reverse=True)
                 latest = sorted_lines[0]
                 rec.followup_date = latest.followup_date
@@ -201,7 +201,7 @@ class KserChildFollowupLine(models.Model):
     def create(self, vals_list):
         lines = super(KserChildFollowupLine, self).create(vals_list)
         for line in lines:
-            # Find the previous check-up line for this child (excluding this one)
+            # البحث عن سجل الفحص السابق لهذا الطفل (باستثناء الفحص الحالي)
             previous = self.search([
                 ('followup_id', '=', line.followup_id.id),
                 ('id', '!=', line.id)

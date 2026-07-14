@@ -3,7 +3,7 @@
     <data>
 
         <!-- ============================================================ -->
-        <!--     Wizard: National ID OCR — kser.national.id.wizard        -->
+        <!--     معالج: قراءة الهوية الوطنية بالذكاء الاصطناعي - kser.national.id.wizard        -->
         <!-- ============================================================ -->
         <record id="view_kser_national_id_wizard_form" model="ir.ui.view">
             <field name="name">kser.national.id.wizard.form</field>
@@ -20,7 +20,7 @@
                             </group>
                         </group>
 
-                        <!-- Stage 1: Upload -->
+                        <!-- المرحلة 1: رفع الصورة -->
                         <group invisible="state != 'upload' or is_child" string="رفع صورة الهوية">
                             <group>
                                 <field name="id_image" string="صورة الهوية الوطنية"
@@ -29,7 +29,7 @@
                             </group>
                         </group>
 
-                        <!-- Stage 2: Review / Manual entry -->
+                        <!-- المرحلة 2: مراجعة البيانات / الإدخال اليدوي -->
                         <group>
                             <group string="البيانات الشخصية">
                                 <field name="extracted_name" string="الاسم الكامل"/>
@@ -45,7 +45,7 @@
                             </group>
                         </group>
 
-                        <!-- Attach image in review state (for manual entry) -->
+                        <!-- إرفاق الصورة في مرحلة المراجعة (للإدخال اليدوي) -->
                         <group invisible="state != 'review' or not is_manual_entry or is_child">
                             <field name="id_image" string="إرفاق صورة الهوية "
                                    filename="id_image_filename" widget="binary" required="state == 'review' and is_manual_entry and not is_child"/>
@@ -91,7 +91,7 @@
         </record>
 
         <!-- ============================================================ -->
-        <!--   Wizard: Bank Receipt OCR — kser.bank.receipt.wizard        -->
+        <!--   معالج: قراءة إيصالات البنك بالذكاء الاصطناعي - kser.bank.receipt.wizard   -->
         <!-- ============================================================ -->
         <record id="view_kser_bank_receipt_wizard_form" model="ir.ui.view">
             <field name="name">kser.bank.receipt.wizard.form</field>
@@ -99,7 +99,7 @@
             <field name="arch" type="xml">
                 <form string="معالج استخراج بيانات الإيصال البنكي">
                     <sheet>
-                        <!-- Stage 1: Upload -->
+                        <!-- المرحلة 1: رفع الصورة -->
                         <group invisible="state != 'upload'" string="رفع صورة الإيصال">
                             <group>
                                 <field name="receipt_image" string="صورة الإيصال البنكي"
@@ -109,7 +109,7 @@
                             </group>
                         </group>
 
-                        <!-- Stage 2: Review / Manual entry -->
+                        <!-- المرحلة 2: مراجعة البيانات / الإدخال اليدوي -->
                         <group invisible="state != 'review'" string="بيانات الإيصال">
                             <group string="بيانات العملية">
                                 <field name="extracted_transaction_id" string="رقم العملية" required="state == 'review'"/>
@@ -126,7 +126,7 @@
                             </group>
                         </group>
 
-                        <!-- Attach image in review state (for manual entry) -->
+                        <!-- إرفاق الصورة في مرحلة المراجعة (للإدخال اليدوي) -->
                         <group invisible="state != 'review' or not is_manual_entry">
                             <field name="receipt_image" string="إرفاق صورة الإيصال"
                                    filename="receipt_image_filename" widget="binary" required="1"/>
@@ -151,7 +151,7 @@
             </field>
         </record>
 
-        <!-- Action to open Bank Receipt Wizard -->
+        <!-- أكشن لفتح معالج استخراج إيصالات التحويل البنكي -->
         <record id="action_kser_bank_receipt_wizard" model="ir.actions.act_window">
             <field name="name">معالج استخراج الإيصال البنكي (AI)</field>
             <field name="res_model">kser.bank.receipt.wizard</field>
@@ -160,7 +160,7 @@
         </record>
 
         <!-- ============================================================ -->
-        <!--    Wizard: Import Donors — kser.donor.import.wizard           -->
+        <!--    معالج: استيراد المتبرعين - kser.donor.import.wizard         -->
         <!-- ============================================================ -->
         <record id="view_kser_donor_import_wizard_form" model="ir.ui.view">
             <field name="name">kser.donor.import.wizard.form</field>
@@ -188,7 +188,7 @@
             </field>
         </record>
 
-        <!-- Action to open Donor Import Wizard -->
+        <!-- أكشن لفتح معالج استيراد المتبرعين -->
         <record id="action_kser_donor_import_wizard" model="ir.actions.act_window">
             <field name="name">استيراد كشوفات المتبرعين</field>
             <field name="res_model">kser.donor.import.wizard</field>
@@ -197,7 +197,7 @@
         </record>
 
         <!-- ============================================================ -->
-        <!--  Wizard: Smart Distribution — kser.inventory.wizard                 -->
+        <!--  معالج: التوزيع الذكي للمخزون - kser.inventory.wizard           -->
         <!-- ============================================================ -->
 
         <record id="view_kser_inventory_wizard_form" model="ir.ui.view">
@@ -212,7 +212,7 @@
                             سيقوم النظام بتحليل المخزون الدوائي الحالي ومطابقته مع المستفيدين المسجلين كأصحاب أمراض مزمنة لتحديد الفجوات والثغرات في التغطية الطبية.
                         </div>
 
-                        <!-- Results Section -->
+                        <!-- قسم النتائج -->
                         <div invisible="state != 'result'">
                             <h2 class="mb16">تقرير فحص حالة المخزون والثغرات</h2>
                             <group>
@@ -250,7 +250,7 @@
 
 
         <!-- ============================================================ -->
-        <!--     Wizard: Report Generator — kser.report.wizard           -->
+        <!--     معالج: توليد التقارير - kser.report.wizard                -->
         <!-- ============================================================ -->
         <record id="view_kser_report_wizard_form" model="ir.ui.view">
             <field name="name">kser.report.wizard.form</field>
@@ -273,12 +273,12 @@
                             <button name="action_load_preview" string="تحميل ومعاينة البيانات" type="object" class="btn-primary"/>
                         </div>
 
-                        <!-- Notes entry section -->
+                        <!-- قسم إدخال الملاحظات والتوصيات -->
                         <group string="الملاحظات والتوصيات المرفقة بالتقرير">
                             <field name="notes" placeholder="اكتب الملاحظات والتوصيات هنا لتظهر أسفل التقرير المطبوع... (اختياري)" nolabel="1" style="height: 100px; width: 100%;"/>
                         </group>
 
-                        <!-- HTML preview section -->
+                        <!-- قسم معاينة الـ HTML -->
                         <notebook invisible="not preview_html">
                             <page string="معاينة التقرير">
                                 <field name="preview_html" nolabel="1" widget="html"/>

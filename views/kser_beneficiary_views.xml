@@ -3,7 +3,7 @@
     <data>
 
         <!-- ============================================================ -->
-        <!--                  Beneficiary: Search View                    -->
+        <!--                  المستفيدين: عرض البحث                       -->
         <!-- ============================================================ -->
         <record id="view_kser_beneficiary_search" model="ir.ui.view">
             <field name="name">kser.beneficiary.search</field>
@@ -34,7 +34,7 @@
         </record>
 
         <!-- ============================================================ -->
-        <!--                  Beneficiary: Tree View                      -->
+        <!--                  المستفيدين: عرض القائمة                     -->
         <!-- ============================================================ -->
         <record id="view_kser_beneficiary_tree" model="ir.ui.view">
             <field name="name">kser.beneficiary.list</field>
@@ -55,7 +55,7 @@
         </record>
 
         <!-- ============================================================ -->
-        <!--                  Beneficiary: Form View                      -->
+        <!--                  المستفيدين: عرض النموذج                     -->
         <!-- ============================================================ -->
         <record id="view_kser_beneficiary_form" model="ir.ui.view">
             <field name="name">kser.beneficiary.form</field>
@@ -98,7 +98,7 @@
                         </group>
 
                         <group invisible="not is_verified and not without_national_id and not national_id_number and not national_id_image">
-                            <!-- Right Column: Personal & Relationship Data -->
+                            <!-- العمود الأيمن: البيانات الشخصية وصلة القرابة -->
                             <group string="البيانات الأساسية والتحقق">
                                 <field name="is_child" string="طفل" readonly="is_verified" invisible="is_verified and not is_child"/>
                                 <field name="is_disabled" string="ذوو احتياجات خاصة" readonly="is_verified" invisible="is_verified and not is_disabled"/>
@@ -131,7 +131,7 @@
                                 <field name="district" string="المحلية"/>
                                 <field name="address" string="عنوان السكن" placeholder="اسم الشارع / الحارة / الحي / علامة مميزة"/>
                             </group>
-                            <!-- Left Column: National ID Image & Registration Data -->
+                            <!-- العمود الأيسر: صورة الرقم الوطني وبيانات التسجيل -->
                             <group>
                                 <group string="الهوية الوطنية" colspan="2" invisible="is_child or (is_verified and not national_id_image)">
                                     <field name="national_id_image" string="صورة الهوية الوطنية"
@@ -226,7 +226,7 @@
         </record>
 
         <!-- ============================================================ -->
-        <!--                  Beneficiary: Graph View                     -->
+        <!--                  المستفيدين: العرض الرسومي                   -->
         <!-- ============================================================ -->
         <record id="view_kser_beneficiary_graph" model="ir.ui.view">
             <field name="name">kser.beneficiary.graph</field>

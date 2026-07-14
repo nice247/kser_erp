@@ -1,6 +1,6 @@
 // @odoo-module ignore
 
-// --- Service Worker Activation Control ---
+// --- التحكم في تفعيل الخدمة (Service Worker Activation Control) ---
 self.addEventListener("install", (event) => {
     self.skipWaiting();
 });
@@ -10,9 +10,9 @@ self.addEventListener("activate", (event) => {
 });
 
 // ============================================================
-// KSER Service Worker Extension
-// Appended to Odoo's core service worker via controller override.
-// Provides offline-first background sync and intelligent caching.
+// ملحق الخدمة لـ KSER (KSER Service Worker Extension)
+// يتم إلحاقه بـ Service Worker الأساسي لـ Odoo عبر استبدال الكنترولر.
+// يوفر مزامنة خلفية أوفلاين أولاً (Offline-First) وكاش ذكي للـ RPC.
 // ============================================================
 
 // --- ثوابت قاعدة البيانات ---
@@ -51,7 +51,7 @@ const KSER_MAX_RETRIES = 5;
  * @property {number}                [retryCount] - عدد محاولات إعادة الإرسال
  */
 
-// --- IndexedDB Helpers ---
+// --- الدوال المساعدة لقاعدة بيانات IndexedDB (IndexedDB Helpers) ---
 
 /**
  * فتح قاعدة بيانات IndexedDB
@@ -250,7 +250,7 @@ async function ksGetCachedRpcResponse(key) {
     });
 }
 
-// --- Fetch Event Listener (Caching & RPC Interception) ---
+// --- مستمع أحداث جلب البيانات (تخزين الكاش واعتراض طلبات RPC) ---
 
 self.addEventListener("fetch", (event) => {
     const url = new URL(event.request.url);
@@ -564,7 +564,7 @@ function ksReplaceMockIds(obj, idMap) {
     return newObj;
 }
 
-// --- Sync Event Listener (Replay offline requests) ---
+// --- مستمع أحداث المزامنة (إعادة تشغيل الطلبات دون اتصال) ---
 
 self.addEventListener("sync", (event) => {
     if (event.tag === KSER_SYNC_TAG) {
